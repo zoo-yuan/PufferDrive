@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Untitled</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+      var sections = document.querySelectorAll('section[id]');
+      var links = document.querySelectorAll('.toc-list a');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            links.forEach(function(l) { l.classList.remove('active'); });
+            var a = document.querySelector('.toc-list a[href="#' + e.target.id + '"]');
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -60% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    });
+  </script>
+  <style>
+:root {
+  --bg: #f5f7fb; --card: #ffffff; --text: #1f2937; --muted: #667085;
+  --line: #e5e7eb; --primary: #7c3aed; --primary-soft: #faf5ff;
+  --accent: #2563eb; --shadow: 0 10px 30px rgba(15,23,42,0.08);
+  --radius: 18px; --max: 1120px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: linear-gradient(180deg,#fdf4ff 0%,var(--bg) 240px);
+  color: var(--text);
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height: 1.85;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.page { max-width: var(--max); margin: 0 auto; padding: 32px 20px 80px; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: 260px minmax(0,1fr); gap: 22px; align-items: start; }
+.hero {
+  background: radial-gradient(circle at top right,rgba(124,58,237,0.12),transparent 30%),
+              radial-gradient(circle at left bottom,rgba(37,99,235,0.08),transparent 24%), var(--card);
+  border: 1px solid rgba(124,58,237,0.15); border-radius: 24px;
+  box-shadow: var(--shadow); padding: 34px 34px 28px; margin-bottom: 22px;
+}
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #faf5ff; color: #6d28d9; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+h1 { margin: 0 0 10px; font-size: 28px; line-height: 1.25; letter-spacing: -0.02em; }
+.subtitle { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* ── TOC ── */
+.toc { position: sticky; top: 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.toc h2 { margin: 0 0 12px; font-size: 15px; }
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-list li { margin: 0; }
+.toc-list a { display: block; padding: 5px 8px; border-radius: 8px; color: var(--muted); font-size: 13px; transition: all 0.15s; }
+.toc-list a:hover { color: var(--primary); background: #faf5ff; text-decoration: none; }
+.toc-list a.active { color: var(--primary); background: #eff6ff; font-weight: 600; border-left: 3px solid var(--primary); padding-left: 5px; }
+.toc-sub { list-style: none; padding-left: 12px; margin: 0; }
+.toc-sub a { font-size: 12px; padding: 3px 8px; }
+
+/* ── Content ── */
+.content { display: flex; flex-direction: column; gap: 18px; }
+.section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 28px; }
+h2 { margin: 0 0 16px; font-size: 22px; }
+h3 { margin: 24px 0 10px; font-size: 17px; color: #111827; border-left: 3px solid #e9d5ff; padding-left: 10px; }
+h4 { margin: 18px 0 8px; font-size: 15px; color: #374151; font-weight: 700; }
+p { margin: 0 0 12px; }
+
+/* ── Callouts ── */
+.callout-blue   { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-amber  { background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-green  { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-purple { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-red    { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-gray   { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-title  { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.callout-blue .callout-title   { color: #1d4ed8; }
+.callout-amber .callout-title  { color: #92400e; }
+.callout-green .callout-title  { color: #166534; }
+.callout-purple .callout-title { color: #6d28d9; }
+.callout-red .callout-title    { color: #9f1239; }
+.callout-gray .callout-title   { color: #334155; }
+
+/* ── Step boxes ── */
+.step-box { display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; padding: 16px 18px; background: #fafafa; border: 1px solid var(--line); border-radius: 14px; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.step-content { flex: 1; min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+.step-content strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: #faf5ff; color: #4c1d95; text-align: left; font-weight: 700; padding: 10px 14px; border-bottom: 2px solid #e9d5ff; }
+td { padding: 10px 14px; border-bottom: 1px solid #eef2f7; vertical-align: top; }
+tbody tr:nth-child(even) { background: #fefaff; }
+
+/* ── Code ── */
+pre { background: #1e1e2e; border-radius: 12px; padding: 16px 20px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; line-height: 1.8; color: #cdd6f4; white-space: pre; }
+code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 7px; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; color: #6d28d9; }
+pre code { background: none; border: none; padding: 0; color: #cdd6f4; }
+
+/* ── Misc ── */
+blockquote { margin: 18px 0; padding: 16px 20px; border-left: 4px solid var(--primary); background: rgba(124,58,237,0.05); border-radius: 0 12px 12px 0; color: #3f3f46; font-size: 15px; }
+ul, ol { padding-left: 24px; margin: 8px 0 12px; }
+li { margin: 6px 0; }
+img { max-width: 100%; border-radius: 12px; margin: 12px 0; }
+hr { border: none; border-top: 2px dashed #e9d5ff; margin: 24px 0; }
+
+/* ── Badges ── */
+.badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 99px; margin: 2px; }
+.badge-purple { background: #ede9fe; color: #4c1d95; }
+.badge-green  { background: #dcfce7; color: #166534; }
+.badge-amber  { background: #fef3c7; color: #92400e; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+
+@media (max-width: 920px) { .layout { grid-template-columns: 1fr; } .toc { position: static; } }
+@media (max-width: 640px) { .page { padding: 18px 12px 56px; } .hero, .section { padding: 20px 18px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <div class="eyebrow">&#128221; &#25991;&#26723;</div>
+      <h1>Untitled</h1>
+      <p class="subtitle"></p>
+    </div>
+    <div class="layout">
+      <nav class="toc">
+<h2>&#128209; &#30446;&#24405;</h2>
+<ul class="toc-list">
+<li><a href="#_1">一、项目总体功能</a></li>
+<ul class="toc-sub">
+<li><a href="#_2">核心结论先行</a></li>
+</ul>
+<li><a href="#_3">二、代码架构设计与功能注释</a></li>
+<ul class="toc-sub">
+<li><a href="#21">2.1 分层视角：数据流一条链</a></li>
+<li><a href="#22">2.2 关键模块注释</a></li>
+</ul>
+<li><a href="#self-play">三、重点：Self-Play 的逻辑拆解</a></li>
+<ul class="toc-sub">
+<li><a href="#31-self-play">3.1 本项目 "self-play" 的具体形态</a></li>
+<li><a href="#32-self-play-rollout">3.2 一次 self-play rollout 中发生了什么</a></li>
+<li><a href="#33-self-play">3.3 训练信号设计（为何 self-play 能收敛）</a></li>
+</ul>
+<li><a href="#self-play-model-planner">四、Self-Play 为何能加速端到端 Model Planner 的进化</a></li>
+<ul class="toc-sub">
+<li><a href="#41">4.1 经验生成飞轮：策略既是玩家又是课程</a></li>
+<li><a href="#42">4.2 端到端 + 从零训练之所以可行的三个支撑</a></li>
+<li><a href="#43">4.3 交互复杂度的涌现（对比固定回放）</a></li>
+<li><a href="#44">4.4 评估闭环：进化被分布指标锚定</a></li>
+<li><a href="#45">4.5 一张图总结</a></li>
+</ul>
+<li><a href="#_4">五、结论</a></li>
+</ul>
+</nav>
+      <div class="content">
+        <div class="section">
+<h1 id="pufferdrive-self-play">PufferDrive 项目分析与 Self-Play 机制深度解读</h1>
+<blockquote>
+<p>分析日期：2026-09-04
+代码版本：2.0（commit <code>02f1008c</code>）
+一句话定位：<strong>PufferDrive 是一个以"极致仿真吞吐量"为核心卖点的数据驱动多智能体驾驶模拟器，其核心设计逻辑正是通过大规模 self-play RL 从零训练端到端驾驶策略（planner）。</strong></p>
+</blockquote>
+<hr /></div>
+<div class="section">
+<section id="_1"><h2>一、项目总体功能</h2><p>PufferDrive（PufferLib 团队 + NYU Emerge Lab）是一个 C 实现、Python 绑定的高速驾驶仿真器：</p>
+<ul>
+<li><strong>仿真速度</strong>：单 GPU 端到端训练吞吐 ~32 万 steps/s（对比 Nocturne 2K、GPUDrive 5 万），1 万个多智能体 Waymo 场景上 15 分钟达到接近满分（此前 GPUDrive 需 24 小时）。</li>
+<li><strong>训练范式</strong>：PPO + 多智能体 self-play，从零开始（无模仿学习预训练、无 rule-based planner），纯奖励驱动学习"到达目标 + 不碰撞 + 不出路面"。</li>
+<li><strong>数据来源</strong>：Waymo Open Motion Dataset（WOMD）与 CARLA 地图，JSON → 二进制 map 文件供 C 端零拷贝加载。</li>
+<li><strong>评估体系</strong>：</li>
+<li><code>self_play_eval</code>：策略与自己（副本）配对评估；</li>
+<li><code>human_replay_eval</code>：策略只控制自车，其余 agent 按 Waymo 人类日志回放（衡量与人类的兼容性）；</li>
+<li><strong>WOSAC</strong>（Waymo Open Sim Agents Challenge）：分布真实性指标评估。</li>
+<li><strong>附加能力</strong>：浏览器内可视化/人机共驾 demo（emscripten 编译）、交互式场景编辑器、长时程 CARLA 多目标驾驶。</li>
+</ul>
+<h3 id="_2">核心结论先行</h3>
+<blockquote>
+<p><strong>是的，本项目的核心设计逻辑就是 "self-play to scale up 端到端算法"。</strong> 其演进史（Nocturne → Gigaflow → GPUDrive → PufferDrive）本质上是一条主线：不断压低"经验生成成本"，让多智能体 self-play RL 在十亿级样本量级上可行。官方博客明确表述：<em>"large-scale self-play alone can produce robust, naturalistic driving"</em>（大规模自博弈本身就足以产生鲁棒、拟人的驾驶行为）。</p>
+</blockquote>
+<hr /></div>
+<div class="section">
+<section id="_3"><h2>二、代码架构设计与功能注释</h2><pre><code>PufferDrive/
+├── pufferlib/                      # PufferLib 框架 + Ocean 游戏/仿真集合
+│   ├── ocean/drive/                # ★ 驾驶仿真器核心（本项目主体）
+│   │   ├── drive.h                 # C 主模拟器：状态、step/reset、动力学、
+│   │   │                           #   观测编码、奖励、碰撞检测、渲染（3200 行）
+│   │   ├── drive.c                 # C demo/测试入口（独立可执行）
+│   │   ├── binding.c               # Python C 绑定：shared/env_init/vectorize/vec_step
+│   │   ├── drivenet.h              # 纯 C 推理网络（仅浏览器 demo 用，训练用 torch）
+│   │   └── drive.py                # Gymnasium/PufferEnv 封装 + 数据预处理管线
+│   ├── ocean/torch.py              # 策略网络 Drive：ego/partner/road 三编码器 + actor/critic
+│   ├── ocean/benchmark/            # 评估套件
+│   │   ├── evaluator.py            # Evaluator(self-play/human-replay eval) + WOSACEvaluator
+│   │   ├── metrics.py / estimators.py  # WOSAC 分布指标（KPD、线性速度/Jerk 直方图等）
+│   │   └── ...
+│   ├── pufferl.py                  # PuffeRL 训练引擎：PPO 训练循环、日志、checkpoint
+│   ├── vector.py                   # 向量化环境（批量 step/reset）
+│   ├── models.py                   # LSTM wrapper（Recurrent）等通用网络组件
+│   └── config/ocean/drive.ini      # ★ 全部训练/环境/评估超参配置
+├── data_utils/
+│   ├── womd/                       # Waymo 数据下载与后处理（JSON 化）
+│   └── carla/                      # CARLA 地图转换工具
+├── docs/                           # mdbook 文档站（本文件所在处）
+├── tests/                          # 单元测试（含 policy_pool、drive 训练、性能测试）
+└── scripts/build_ocean.sh          # C 扩展与可视化器编译脚本
+</code></pre>
+<h3 id="21">2.1 分层视角：数据流一条链</h3>
+<pre><code>WOMD/CARLA 原始数据
+   │  (data_utils + drive.py: JSON → struct.pack 二进制 map_XXX.bin)
+   ▼
+C 模拟器 drive.h（每 env 一个 Drive 结构体，零拷贝读取 map）
+   │  c_reset: 选图 → set_active_agents(决定谁被策略控制/谁做专家回放)
+   │  c_step:  move_expert(静态回放) → move_dynamics(策略agent) → 碰撞检测
+   │           → 奖励计算 → goal/respawn 逻辑 → compute_observations(ego-centric)
+   ▼
+binding.c / vector.py（所有 env 的 obs/actions/rewards 共享一块连续内存，
+   python 侧一次 vec_step 批量推进全部 env → 消除 Python 循环开销）
+   ▼
+torch.py: Drive 策略网络（批量对全部 agent × env 前向）
+   ▼
+pufferl.py: PuffeRL（PPO，batch 524288，GAE，优先级采样）
+</code></pre>
+<h3 id="22">2.2 关键模块注释</h3>
+<h4 id="1c-driveh">（1）C 模拟器 <code>drive.h</code> —— 仿真核心</h4>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>位置</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>set_start_position</code> / <code>set_active_agents</code></td>
+<td>~L1150-1400</td>
+<td>reset 时遍历场景实体，按 <code>control_mode</code> 与 <code>init_mode</code> 把实体分为三类：<strong>策略控制 agent</strong>（active）、<strong>专家回放 agent</strong>（<code>mark_as_expert=1</code>，按日志轨迹走）、<strong>静态 agent</strong>（冻结）。这是 self-play 拓扑的源头</td>
+</tr>
+<tr>
+<td><code>should_control_agent</code></td>
+<td>L1241</td>
+<td>过滤逻辑：<code>CONTROL_SDC_ONLY</code> 只控自车；<code>CONTROL_WOSAC</code> 控所有合法 agent（忽略 expert 标记）；<code>CONTROL_VEHICLES/AGENTS</code> 过滤掉 expert 标记和离目标 &lt;2m 的 agent；<code>CONTROL_MIXED_PLAY</code> 限制最多控制 <code>max_controlled_agents</code> 个</td>
+</tr>
+<tr>
+<td><code>move_dynamics</code></td>
+<td>L1548</td>
+<td>两种动力学：<strong>Classic</strong>（运动学自行车模型，dt=0.1s）与 <strong>Jerk</strong>（jerk→accel→速度→位姿积分，更符合舒适约束）；离散动作 91 选 1（7 加速度 × 13 转角）或连续 2D Box</td>
+</tr>
+<tr>
+<td><code>collision_check</code></td>
+<td>L990</td>
+<td>OBB 车辆碰撞 + 出路面检测（<code>VEHICLE_COLLISION</code> / <code>OFFROAD</code>）</td>
+</tr>
+<tr>
+<td><code>compute_observations</code></td>
+<td>L1809</td>
+<td>为每个被控 agent 生成 <strong>ego-centric 观测</strong>（1848 维 = ego 7 + 伙伴 31×7 + 道路 232×7），全部旋转到自车坐标系并归一化；伙伴用 (cos,sin) 编码相对朝向避免 ±π 跳变；道路来自 21×21×5m 空间网格缓存</td>
+</tr>
+<tr>
+<td><code>c_step</code> 奖励段</td>
+<td>L2116-2185</td>
+<td>碰撞 -1 / 出路 -1 / 到达目标 +1（含 <code>goal_speed</code> 限速条件）/ classic 模型微 jerk 平滑惩罚；目标达成后按 <code>goal_behavior</code> 分派：respawn（传送回起点）/ generate_new（路网采样新目标，长时程）/ stop</td>
+</tr>
+<tr>
+<td><code>sample_new_goal</code></td>
+<td>L1983</td>
+<td>CARLA 长时程模式：沿前方车道点采样距自车 <code>goal_target_distance</code> 的新目标</td>
+</tr>
+<tr>
+<td><code>remove_bad_trajectories</code></td>
+<td>L1395</td>
+<td>仅 WOSAC 模式：预演专家轨迹剔除本身相撞的非法 agent，保证评估公平</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2python-drivepy">（2）Python 环境 <code>drive.py</code></h4>
+<ul>
+<li><code>Drive(PufferEnv)</code>：构造时调 <code>binding.shared()</code> 一次性把 <code>num_maps</code> 张图分配到 <code>num_envs</code> 个并行环境（每 env 的 agent 数可不同，用 <code>agent_offsets</code> 切共享 buffer）；</li>
+<li><code>resample_maps()</code>：每 <code>resample_frequency</code> 步（默认 910 步 ≈ 10 个 episode）<strong>重新随机分配场景到各 env</strong>，提升图多样性；</li>
+<li><code>get_ground_truth_trajectories()</code> / <code>get_road_edge_polylines()</code> / <code>get_global_agent_state()</code>：为 WOSAC 评估导出真值与仿真轨迹；</li>
+<li><code>save_map_binary()</code>：把 WOMD JSON 序列化为 C 端定长二进制（91 步轨迹、位置/速度/朝向/valid 数组按列存储 → C 端可整块读入）。</li>
+</ul>
+<h4 id="3-torchpy">（3）策略网络 <code>torch.py</code></h4>
+<pre><code>观测 1848 维
+ ├─ ego_encoder   (7 → 64, MLP+LayerNorm)
+ ├─ partner_encoder (31 个伙伴 × 7 特征 → 64, 逐实体 MLP 后 max-pool → 置换不变)
+ └─ road_encoder  (232 段道路 × 7 特征（type 做 one-hot）→ 64, max-pool)
+        ↓ concat → shared_embedding(192→256) → GELU
+        ↓
+   actor head（离散: 91 logits / 连续: 高斯 μ,σ）+ value head
+        （外层可包 LSTMWrapper 提供 memory）
+</code></pre>
+<p>要点：<strong>同一个网络实例同时给场景内全部 agent 前向</strong> —— 这正是 self-play 的实现载体（见第三节）。</p>
+<h4 id="4-pufferlpy">（4）训练引擎 <code>pufferl.py</code></h4>
+<p>标准 PPO（clip=0.2, GAE λ=0.95, γ=0.98, lr 线性退火, minibatch 32768, 总步数 20 亿）。特点：
+- <code>batch_size = num_agents × num_workers × rollout_horizon</code>：<strong>一次训练 batch 天然是"所有 env × 所有被控 agent"的联合样本</strong>；
+- env 全部在 C 内推进，Python 只见到打包好的 (obs, reward, done) 大张量，GPU 利用率极高。</p>
+<h4 id="5-benchmarkevaluatorpy">（5）评估 <code>benchmark/evaluator.py</code></h4>
+<ul>
+<li><code>Evaluator.rollout(policy, mode="self_play"|"human_replay")</code>：</li>
+<li><strong>self_play</strong>：整场景所有可控行都交给当前策略 → 得到 <code>eval/sp_score</code>、<code>eval/sp_collision_rate</code>；</li>
+<li><strong>human_replay</strong>：只控自车，周围是固定人类日志 → 衡量策略与"真人流"的兼容性；</li>
+<li><code>WOSACEvaluator</code>：批量仿真 32 rollouts/场景，计算 WOSAC metametric（线性速度/加速度、角速度、TTC、碰撞、出路、到路缘距离共 9 个分布指标 vs 真值直方图）。</li>
+</ul>
+<hr /></div>
+<div class="section">
+<section id="self-play"><h2>三、重点：Self-Play 的逻辑拆解</h2><h3 id="31-self-play">3.1 本项目 "self-play" 的具体形态</h3>
+<p>PufferDrive 的 self-play 不是"左右手互搏两个独立网络"，而是一种<strong>共享策略的对称多智能体自博弈</strong>：</p>
+<ol>
+<li><strong>策略共享</strong>：场景内所有被控 agent（默认 <code>control_mode=control_agents</code>，最多 32 个）由<strong>同一个策略网络的同一份参数</strong>驱动。每个 agent 拿到自己的 ego-centric 观测（1848 维），独立决策。</li>
+<li><strong>互为环境</strong>：对任意一个 agent 而言，场景中的其他被控 agent 就是"环境的一部分"——它们是<strong>自己的副本</strong>。我超车时对方会让/不让，取决于同一份策略在对方观测下的输出。</li>
+<li><strong>混合人群（mixed-play）</strong>：<code>control_mode=control_mixed_play</code>（commit #306）允许只控制场景中最多 <code>max_controlled_agents</code> 个 agent，其余按 Waymo 日志回放——即 <strong>"self-play 比例可调"</strong>：策略 agent 一部分和自己的副本博弈、一部分和真实人类回放交互。这是在"纯自博弈"与"固定数据回放"之间的连续谱。</li>
+<li><strong>专家/静态背景</strong>：未被控制且 <code>mark_as_expert=1</code> 的 agent 沿真值轨迹回放（提供真实交通流上下文）；其余有效实体冻结为静态障碍。</li>
+<li><strong>数据驱动的初始条件（grounded simulation）</strong>：自博弈的起点不是随机生成，而是 Waymo 真实场景的初始帧 + 真人目标点——保证博弈发生在真实分布的"原生地"上，学到的行为不会漂出物理合理域。</li>
+</ol>
+<h3 id="32-self-play-rollout">3.2 一次 self-play rollout 中发生了什么</h3>
+<pre><code>reset:  从 10000 张 Waymo 图中随机取图 → 32 个 agent 全部标记为&quot;被控&quot;
+        （非 expert、离目标≥2m、初始帧 valid）
+step t: 
+  obs_i = compute_observations(agent_i)          # 每个 agent 自己的 ego 视角
+  a_i ~ π(obs_i)                                 # 同一个网络，32 份前向
+  全体 agent 并行执行 move_dynamics               # 博弈在 C 里同时推进
+  r_i = 到目标奖励 + 碰撞/出路惩罚 + jerk 惩罚
+  → PPO 用 32 份 (obs_i, a_i, r_i) 一并更新同一个 π
+</code></pre>
+<p><strong>关键观察：一次交互产生 32 份异构经验。</strong> 一个 91 步的 Waymo 场景 rollout，在单智能体视角下只有 91 条转移，在 self-play 视角下是 91 × 32 ≈ 2900 条转移，且它们共享同一物理因果链（谁急刹导致谁追尾），<strong>信噪比和样本效率远高于独立采样</strong>。这是吞吐量 32 万 SPS 的算法层前提。</p>
+<h3 id="33-self-play">3.3 训练信号设计（为何 self-play 能收敛）</h3>
+<table>
+<thead>
+<tr>
+<th>奖励项</th>
+<th>值</th>
+<th>在 self-play 中的作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>到达目标（距离&lt;2m 且速度≤goal_speed）</td>
+<td>+1</td>
+<td>正向拉力：促使 agent 学会前进与路径规划</td>
+</tr>
+<tr>
+<td>车辆碰撞</td>
+<td>-1（ini 中 -0.5）</td>
+<td><strong>博弈核心</strong>：别人的存在是你的障碍，逼出避让/让行</td>
+</tr>
+<tr>
+<td>出路面</td>
+<td>-1</td>
+<td>约束解空间在路网内</td>
+</tr>
+<tr>
+<td>jerk 平滑惩罚</td>
+<td>-0.0002·Δv/dt</td>
+<td>抑制高频抖动策略，让行为可乘用</td>
+</tr>
+</tbody>
+</table>
+<p>多智能体叠加下，"到目标"与"别撞人"天然冲突（路口路权、双车道博弈），策略被迫在交互中学出<strong>让行、汇入、跟车</strong>等涌现行为——这正是人类回放数据给不了的东西，因为回放里的邻居对你不做反应。</p>
+<hr /></div>
+<div class="section">
+<section id="self-play-model-planner"><h2>四、Self-Play 为何能加速端到端 Model Planner 的进化</h2><h3 id="41">4.1 经验生成飞轮：策略既是玩家又是课程</h3>
+<p>传统监督/模仿学习的上限是数据分布的上限：专家怎么开，学生最多学得多像，且<strong>永远学不会处理专家没做过的事</strong>（长尾）。Self-play 打破了这个上限：</p>
+<pre><code>策略 π_k 生成经验 D_k  →  PPO 更新得到 π_{k+1}（更强/更谨慎）
+     ▲                                │
+     └──── 新策略又生成更难的交互 ◀────┘
+</code></pre>
+<ul>
+<li>对手就是自己 → <strong>环境难度随策略能力自动爬升（自动课程/ratchet effect）</strong>。新手期对手也弱，容易拿到目标奖励；变强后对手也强，迫使学生继续发现新的博弈解（更晚的汇入时机、更贴的让行）。</li>
+<li>经验分布 <strong>on-policy 且不断前移</strong>，PPO 恰好是 on-policy 算法，两者天然匹配——不存在离线 RL 的分布偏移灾难。</li>
+</ul>
+<h3 id="42">4.2 端到端 + 从零训练之所以可行的三个支撑</h3>
+<ol>
+<li><strong>吞吐支撑稀疏奖励探索</strong>。端到端驾驶的奖励极稀疏（91 步里目标只在最后出现）。RL 需要十亿级样本堆出偶然成功再放大。PufferDrive 把单 GPU 吞吐做到 32 万 SPS，把"偶然成功"的等待时间从 2 天压到 4 分钟——<strong>self-play 的数据飞轮只有转得够快才有意义</strong>，这也是本项目把工程速度当作第一性目标的原因。</li>
+<li><strong>共享参数的对称博弈 = N 倍数据效率</strong>。所有 agent 共享一个网络意味着：每个场景的每条转移都直接更新"我"的策略。32 个 agent 的经验等价于 32 个课程难度不同的"老师"（对手）同时教一个学生，且无需任何专家标注。</li>
+<li><strong>ego-centric 观测的置换对称性</strong>。观测以自车坐标系编码（相对位置、相对朝向 cos/sin、归一化），策略对所有 agent 位置对称泛化——一个网络服务任意数量、任意角色的 agent，这正是 self-play 对"共享策略"的结构性要求。</li>
+</ol>
+<h3 id="43">4.3 交互复杂度的涌现（对比固定回放）</h3>
+<p>固定数据回放（log-replay sim）的根本缺陷：<strong>背景车是僵尸</strong>——它们不会对你的行为做反应，策略可以学会"欺负"回放数据（贴脸加塞也不会被惩罚），评估分数虚高。Self-play 中邻居会反应：</p>
+<ul>
+<li>你加塞 → 对方（你自己）会刹/不让 → 可能碰撞 → 双方都被 -1 → 策略学会更安全的交互时机；</li>
+<li>路口双车 → 谁先走是博弈均衡问题，self-play 在重复博弈中收敛到近似协调的行为；</li>
+<li><code>mixed-play</code> 进一步允许策略与真实人类回放混合交互，标定自博弈可能带来的"非人类偏移"。</li>
+</ul>
+<p>这就是为什么本项目同时提供 <code>self_play_eval</code> 与 <code>human_replay_eval</code> 两个指标：前者衡量"自己人打自己人"的上限能力，后者校验与真人流的兼容性——<strong>双指标共同防止 self-play 进化跑偏</strong>。</p>
+<h3 id="44">4.4 评估闭环：进化被分布指标锚定</h3>
+<p>Self-play 有一个经典风险：策略找到"钻空子"的均衡（例如全体龟速）。PufferDrive 的锚定机制：</p>
+<ul>
+<li><strong>goal_speed 约束</strong>：到达目标时速度必须 ≤ 阈值，防止"蹭到目标点"作弊；</li>
+<li><strong>score 规则</strong>：目标达成且全程无碰撞/出路才算 1.0，防止"撞完再达标"；</li>
+<li><strong>WOSAC 分布真实性评估</strong>：不只看任务成功率，还比对仿真轨迹与人类轨迹在速度/加速度/TTC 等 9 个维度上的分布距离——<strong>逼着 self-play 的进化方向对齐"像人开车"这个终极目标</strong>，而不是对齐某个可被利用的代理奖励。</li>
+</ul>
+<h3 id="45">4.5 一张图总结</h3>
+<pre><code>                    ┌────────────────────────────────────┐
+                    │  Waymo 真实场景 (grounded 起点分布)  │
+                    └──────────────┬─────────────────────┘
+                                   ▼
+        ┌──────────────  共享策略 π  ──────────────┐
+        │  agent_1  agent_2  ...  agent_32          │   ← 同一网络、互为对手
+        └──────────────────┬─────────────────────┘
+                           ▼  C 仿真 320K SPS
+              高信噪比联合经验 (obs, act, reward)
+                           ▼
+              PPO 更新（on-policy，batch 512K）
+                           ▼
+                     更强的 π_{k+1}
+                           │
+          ┌────────────────┼───────────────────┐
+          ▼                ▼                   ▼
+   对手也变强         mixed-play 校准      WOSAC/human-replay
+  （自动课程）       （对齐人类行为）        分布指标锚定
+          └────────────────┴───────────────────┘
+                           ▼
+              端到端 planner 持续进化（4 分钟→80% 成功率）
+</code></pre>
+<hr /></div>
+<div class="section">
+<section id="_4"><h2>五、结论</h2><ol>
+<li><strong>架构本质</strong>：PufferDrive = "C 极速仿真内核 + ego-centric 对称观测 + 共享策略 PPO" 三位一体，每一层设计都在为大规模多智能体 self-play 服务：C 内核解决"转得快"，对称观测/共享网络解决"一份经验 N 人用"，PPO 解决"持续自我超越"。</li>
+<li><strong>self-play 的价值</strong>：它把"环境难度"从静态超参变成了随策略能力动态爬升的自动课程；把每个场景的数据效率放大 N 倍；并在交互博弈中逼出避让、让行、汇入等规划行为——这些是任何静态数据集无法提供的训练信号。</li>
+<li><strong>工程与算法的耦合</strong>：self-play 飞轮必须以极高吞吐为前提（RL 的十亿样本需求 × 多智能体经验密度）。PufferDrive 用 100× 于前代的仿真速度，把"从零 self-play 训练端到端 planner"从 48 小时压缩到 4 分钟，本质上是在证明：<strong>当经验生成足够便宜时，端到端自动驾驶能力的进化速度只受限于你想跑多少次实验。</strong></li>
+</ol>
+<hr />
+<p><em>参考：<code>docs/src/pufferdrive-2.0.md</code>（官方博客）、<code>docs/src/simulator.md</code>（仿真器手册）、<code>pufferlib/ocean/drive/drive.h</code>、<code>pufferlib/ocean/drive/drive.py</code>、<code>pufferlib/ocean/torch.py</code>、<code>pufferlib/pufferl.py</code>、<code>pufferlib/ocean/benchmark/evaluator.py</code></em></p></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
