@@ -1,5 +1,7 @@
 # 用 PufferDrive Self-Play 快速迭代 Nova 两段式端到端 Model Planner：落地方案
 
+> ⚠ 状态注记（2026-10-09）：本方案基于 PufferDrive 2.0 撰写，其“能力 gap 清单”已被 3.0 部分取代（交通灯/IDM/per-agent controller/路线目标已内置）；现行 gap 与优先级见 `docs/integration/2026-10-09-pufferdrive3-gap-analysis-for-own-data-lake.md`，架构裁决见 `docs/adr/`。
+
 > 日期：2026-09-11
 > 涉及系统：
 > - **PufferDrive**（本仓库 `Self-Play/PufferDrive`）：320K SPS 多智能体自博弈仿真器（C 内核 + PufferLib）

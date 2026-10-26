@@ -1,5 +1,7 @@
 # PufferDrive 项目分析与 Self-Play 机制深度解读
 
+> ⚠ 状态注记（2026-10-09）：本文 PufferDrive 能力描述基于 2.0 代码；现行能力以 `docs/STATE.md` 与 `docs/integration/2026-10-09-pufferdrive3-gap-analysis-for-own-data-lake.md` 为准。
+
 > 分析日期：2026-09-04
 > 代码版本：2.0（commit `02f1008c`）
 > 一句话定位：**PufferDrive 是一个以"极致仿真吞吐量"为核心卖点的数据驱动多智能体驾驶模拟器，其核心设计逻辑正是通过大规模 self-play RL 从零训练端到端驾驶策略（planner）。**

@@ -1,5 +1,7 @@
 # 从 GigaFlow、PufferDrive 到 GigaPixel：自博弈驱动自动驾驶的演进对比、能力边界与端到端黑盒调试方法论
 
+> ⚠ 状态注记（2026-10-09）：文献对比部分仍有效；PufferDrive 能力/边界章节基于 2.0 代码，现行能力见 `docs/STATE.md`。
+
 > 分析日期：2026-09-09
 > 涉及工作：
 > - **GigaFlow** — *Robust Autonomy Emerges from Self-Play*（arXiv 2502.03349，2025-02）

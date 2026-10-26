@@ -221,3 +221,6 @@ episode_metrics
 
 /obs
 profiles/
+
+# strata scratch (session-fragile, never committed)
+.scratch/
