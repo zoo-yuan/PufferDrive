@@ -1,6 +1,7 @@
 # 自博弈驾驶文献补课：六篇工作的真实主张、证据与对 Nova-RL 路径的约束
 
 > 日期：2026-09-11
+> ⚠ 契约代际注记（2026-10-31）：文中“17 张量”是 2026-09-11 快照；Nova 现行代际 = **19 输入 / 4 输出**，见 `docs/adr/0006-nova-contract-19-in-4-out-static-polygon.md`。
 > 阅读范围（全文，非摘要）：
 > - **GigaFlow** — *Robust Autonomy Emerges from Self-Play*, Apple, arXiv:2502.03349
 > - **GigaPixel** — *Scaling Self-Play for End-to-End Driving*, Mila + Emerge Lab, arXiv:2606.19641

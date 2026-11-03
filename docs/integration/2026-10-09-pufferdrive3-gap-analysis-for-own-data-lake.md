@@ -12,7 +12,7 @@
 - **PufferDrive 3.0 已经提供了这个方案里最难、最贵的两块**：高吞吐多智能体仿真内核 + per-agent 行为编排（static/policy/replay/idm）+ route/goal + 交通灯 + 奖励条件化 + 失败回放。
 - **真正缺的只有三块**，且都在"边界"而非"内核"：
   1. **Apollo HD map / 感知 → PufferDrive scene 的转换**（几何 + 交通控制 + 40 静态 objects + route/goal）；
-  2. **Nova 17 张量观测契约的 sidecar/bridge**（PufferDrive 自己的观测不覆盖 Nova 富语义）；
+  2. **Nova 19 输入 / 4 输出契约的 sidecar/bridge**（PufferDrive 自己的观测不覆盖 Nova 富语义；代际切换见 `docs/adr/0006-nova-contract-19-in-4-out-static-polygon.md`）；
   3. **感知噪声注入**（当前分支只有行为异常 `blindness/phantom_braking`，没有 pose/detection/latency 噪声；噪声实现在 `8/9_bernhard_dev` 分支未合并）。
 - **另有两个"设计空白"**（不是 bug，是领域空白）：**对手采样矩阵 Σ（PSRO/league）** 与 **动作空间舒适硬约束**（Comfort by Construction）。这两者正是 survey ④.8 / ④.12 指出的、决定"分数真实性与泛化"的关键。
 
@@ -58,7 +58,7 @@
 |---|---|---|---|
 | **G1** | **Apollo HD map → PufferDrive scene 二进制** | ❌ 仓库内无转换器（`data_utils` 只有下载/镜像）；WOMD/nuplan 走外部 ScenarioMax / py123d+123Drive | 需实现：Lane/Boundary/Road/Junction → road elements；Signal/StopSign/Crosswalk → traffic elements；geometry 投影到 PufferDrive 局部系 |
 | **G2** | **Apollo 红绿灯语义 → traffic elements** | ⚠️ PufferDrive 支持 traffic elements，但 gigaflow 用程序化灯；导入真实灯（color/关联/停止线）需映射 | `map_signal.proto` 有 `stop_line` + `overlap_id`；`map_overlap.proto` 提供灯-车道关联 |
-| **G3** | **Apollo route → PufferDrive route/goal** | ⚠️ 有 `goal_source: route/gt`，但 Apollo routing_reference_line → lane 序列的映射需实现 | `record_exporter` 的 `refline_generator.h` 可复用 |
+| **G3** | **Apollo route → PufferDrive route/goal** | ⚠️ 有 `goal_source: route/gt`，但 Apollo routing_reference_line → lane 序列的映射需实现 | `record_exporter` 的 `refline_generator.h` 可复用；另须满足模型侧 3 槽几何序（slot0 = 真实 ego 几何）与"全零参考线跳过推理"（nova ADR-0003） |
 
 ### 轴② 行为多样性
 | ID | Gap | 现状 | 备注 |
@@ -71,8 +71,8 @@
 | ID | Gap | 现状 | 备注 |
 |---|---|---|---|
 | **G7** | **track 级感知抖动模型（不是 pose noise）** | ❌ 当前分支只有行为异常；`pose_noise_xy_m`、`pose_noise_yaw_deg`、brownian noise 仅存在于 `origin/8_bernhard_dev`、`origin/9_bernhard_dev` | **已锐化，详见 `2026-10-09-perception-jitter-as-the-real-axis3.md`**：需时间相关噪声（自相关匹配）、按 CIPV 加权、进入 16 帧历史、多感知版本域随机化、抖动专用评测轴；简单 pose noise 不足 |
-| **G8** | **Nova 17 张量观测契约（sidecar/bridge）** | ❌ PufferDrive 用自有 obs；Nova 富语义（agent 类型/16 帧历史/occ/地图 15 维/参考线/红绿灯关联）不覆盖 | 见 `docs/integration/CONTEXT.md` 的"语义外挂"决策；14ch 生产侧在 `wt-apollo/.../frame_builder.h` |
-| **G9** | **occ / 静态障碍的可观测暴露** | ⚠️ scene 有 `num_objects`（40 静态 objects），但 Python 侧是否完整暴露给 bridge 需确认 | Nova 需要 occ 多边形 |
+| **G8** | **Nova 19 输入 / 4 输出观测契约（sidecar/bridge）** | ❌ PufferDrive 用自有 obs；Nova 富语义（agent 类型/16 帧历史/地图 15 维/3 槽参考线/红绿灯关联/静态障碍四路）不覆盖 | 现行代际见 `docs/adr/0006-nova-contract-19-in-4-out-static-polygon.md`；语义外挂决策见 `docs/integration/CONTEXT.md`；14ch 生产侧在 `wt-apollo/.../frame_builder.h` |
+| **G9** | **静态障碍（`static_polygon_*`）的可观测暴露** | ⚠️ scene 有 `num_objects`（40 静态 objects），但 Python 侧是否完整暴露给 bridge 需确认 | 部署契约已改四路定长（points/types/heights/mask，≤32 polygon × 32 点）；cap 32 为**有损截断**（取最近 32）且丢弃数须上报（ADR-0006）；`occ_polygons` 只留训练侧建 ESDF，不进 ONNX |
 
 ### 动作空间 / 评测协议
 | ID | Gap | 现状 | 备注 |
@@ -99,7 +99,7 @@
 ## 4. 补齐优先级建议（按"杠杆/成本"排序）
 
 1. **P0 — G7 感知噪声合并**：从 `9_bernhard_dev` 摘出 pose/brownian 噪声，扩展为 Apollo 统计对齐的检测级噪声。**成本低、直接决定轴③是否成立**。
-2. **P0 — G8 Nova 契约 bridge（最小版）**：复用 `wt-apollo` 的 14ch + agent 编码，先在**公开 WOMD 场景**上跑通"PufferDrive 世界 → 17 张量"的闭环，暂不碰 Apollo 地图。这是把"训练契约 = 部署契约"落地的第一步。
+2. **P0 — G8 Nova 契约 bridge（最小版）**：复用 `wt-apollo` 的 14ch + agent 编码，先在**公开 WOMD 场景**上跑通"PufferDrive 世界 → 19 输入 / 4 输出"的闭环，暂不碰 Apollo 地图。这是把"训练契约 = 部署契约"落地的第一步。
 3. **P1 — G5 对手采样 Σ**：把 behavior-bench 的 traffic registry 接进来，做 fraction 混合 vs policy-pool/league 的对照。这是 survey 里最大的设计空白，且不需要新仿真。
 4. **P1 — G1/G2/G3 Apollo 地图转换**：几何 + 交通控制 + route 的最小转换（不追 14ch 语义，语义走 sidecar）。
 5. **P2 — G4 数据湖挖掘**：基于 `scenario_id` + 交互度评分，从自有数据选长尾场景入库。

@@ -1,6 +1,7 @@
 # 自博弈泛化：不确定消除与调研方案
 
 > 日期：2026-09-11
+> ⚠ 契约代际注记（2026-10-31）：文中“17 张量”是 2026-09-11 快照；Nova 现行代际 = **19 输入 / 4 输出**，见 `docs/adr/0006-nova-contract-19-in-4-out-static-polygon.md`。
 > 本轮工作：读完 6 篇论文全文 + 本地 7 个仓库（`behavior-bench / gigapixel / GPUDrive-self-play / nocturne_lab / Pictura / PufferDrive / RAP-valeo-wod`），消除上一轮自标的"不确定"。
 > 目标：为"另开一条 RL self-play 训练路径（脱离 BC）"给出**有证据的约束**与**可执行的调研方案**，不写实现。
 
