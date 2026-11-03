@@ -7,7 +7,7 @@ As-of: 7a36d34a
 ## Where（现状，均已对照代码核实）
 
 - 分支 `dev/zoo_v3.0`（3.0 族）。仿真核心 `pufferlib/ocean/drive/`：`drive.h` + 拆分头（`constants.h`/`datatypes.h`/`idm.h`/`map_data.h`/`rng.h`）。
-- 行为编排：per-agent `CONTROLLER_{STATIC,POLICY,REPLAY,IDM}`（`sdc/non_sdc/non_vehicle_controller`），`simulation_mode: gigaflow|replay`，混合旋钮 `mix_traffic / ppo_fraction / idm_fraction / expert_fraction`。
+- 行为编排：per-agent `CONTROLLER_{STATIC,POLICY,REPLAY,IDM}`（`sdc/non_sdc/non_vehicle_controller`），`simulation_mode: gigaflow|replay`；车流混合靠 `control_mode`（`control_vehicles/control_agents/control_tracks_to_predict/control_sdc_only`）+ per-agent controller + `init_mode`/`goal_source`/`resample_frequency`。**本仓无 fraction 旋钮**——`mix_traffic/ppo_fraction/idm_fraction/expert_fraction` 属 behavior-bench（2026-10-31 订正）。
 - 地图二进制（`map_data.h`）：agents(log 轨迹+route+goals) + roads + traffic + 静态 objects + `scenario_id[128]`；map/neighbor cache。
 - 评估：`config/evaluation/benchmark.yaml`（carla/womd/nuplan），种子化失败回放（#533，已取代旧 `mining_viz.py`），18 项指标。
 - 训练：PPO + V-trace + 优先采样 + advantage filtering（`adv_filter_*`）。
@@ -22,6 +22,7 @@ As-of: 7a36d34a
 - `docs/integration/` — 09-11 文献综述与调研计划、**10-09 三份现行文档**（分数悖论与自有数据策略 / gap 分析 / 感知抖动=第③轴）；`CONTEXT.md` 为集成术语表（PufferDrive Core / 语义外挂 / Scene / M1-M2 / E1a-E1b / Nova 部署契约 / 参考线槽位 / ego-centric RFU）。
 - **外部锚点（非本仓）**：Nova 现行部署契约 = 19 输入 / 4 输出（nova `docs/dataset/数据规范V1.1.3_0911修正版.md` + nova ADR-0003/0004，2026-10-30 生效）；本仓对应裁决见 `docs/adr/0006-nova-contract-19-in-4-out-static-polygon.md`。
 - `docs/adr/0001-0006` — 架构裁决（见 Open rulings）。
+- `docs/2026-10-31-PufferDrive-vs-TerraZero-仿真器对比.md` — 外部参照（TerraZero 闭源技术报告口径）：数据哲学、吞吐量级、场景多样性来源；**不做选型裁决**，三个开放问题见 Open rulings。
 
 ## Next（下一步）
 
@@ -38,6 +39,7 @@ As-of: 7a36d34a
 - ADR-0006 Nova 契约代际切换（19 输入 / 4 输出）：**accepted** 2026-10-31（依据 nova 一手文档与 nova ADR-0003/0004）；同时修正 ADR-0002 / ADR-0005 的代际指针。
 - 未决（阻塞项，见 `.scratch/handoff/`）：抖动过滤归属层（感知平滑 / planner 自滤波 / 独立估计层）；观测契约全量 vs 子集；Σ 用固定 fraction 还是 policy pool/league；基线是否钉死 `dev/zoo_v3.0`。
 - 新增未决（2026-10-31）：PufferDrive world 系（heading 0 = +x，`Agent.cos_heading/sin_heading`）→ Nova ego-centric RFU（直行 = π/2）的偏置换算未实测；`static_polygon` cap 32 的 PufferDrive 侧丢弃数上报口径未定。
+- 开放问题（2026-10-31，见 `docs/2026-10-31-PufferDrive-vs-TerraZero-仿真器对比.md` §4）：是否引入**程序化场景生成层**（TerraZero 路线，影响 ADR-0003 的 Σ 与长尾轴）；19 输入契约下是否改 **C 引擎 + GPU 零拷贝推理** 形态；背景车多样性用 PufferDrive per-agent controller 还是移植 behavior-bench 的 fraction 混合。
 
 ## Long-term（长期不变量）
 

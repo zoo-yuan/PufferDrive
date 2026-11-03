@@ -27,7 +27,7 @@
 | 日志回放 | `SIMULATION_MODE_REPLAY` | 背景车沿 GT |
 | IDM 反应式 | `idm.h`（866 行）；`move_idm` | 跟驰 + route 投影 + 交通灯/停止线；含 lateral/heading 限制 |
 | 自博弈 | `SIMULATION_MODE_GIGAFLOW` + `CONTROLLER_POLICY` | 共享策略控制全部车辆 |
-| 混合比例旋钮 | `mix_traffic / ppo_fraction / idm_fraction / expert_fraction / idm_target_velocity / idm_random_velocity` | 训练期对手混合的显式开关 |
+| 车流混合 | `puffer_drive.yaml`: `control_mode` / `sdc_controller` / `non_sdc_controller` / `non_vehicle_controller` / `init_mode`；`constants.h`: `CONTROLLER_{STATIC,POLICY,REPLAY,IDM}` | **本仓无 fraction 旋钮**——`mix_traffic/ppo_fraction/idm_fraction/expert_fraction/idm_target_velocity/idm_random_velocity` 属 behavior-bench（`behavior-bench/pufferlib/ocean/drive/drive.py:84-89`）；比例混合需从 behavior-bench 移植（见 §3 可复用资产） |
 | 行为异常注入 | `partner_blindness_*` / `phantom_braking_*` | 对手"看不见/幽灵刹车"，服务于对手鲁棒性 |
 | 奖励条件化 + 随机化 | `reward_conditioning`、18 个 `reward_coefs`、`reward_randomization` | 单策略表现多种驾驶风格（GigaFlow 式） |
 
