@@ -173,8 +173,14 @@ env:
   obs_range_road_front_m: 200.0
   obs_range_road_behind_m: 60.0
   obs_range_road_side_m: 50.0
-  obs_range_partner_m: 200.0
+  # Measured on 6 real records (docs/vehicle_profile.md 4.2): the AD stack never
+  # perceives beyond ~70 m (per-message max p50 66.2 m, p100 median 73.4 m,
+  # 0 obstacles >100 m in 89,304 samples). Map range stays 200 m.
+  obs_range_partner_m: 70.0
   obs_range_traffic_control_m: 200.0
+  # Observed data age at the control side (6 records: p50 0.78 s, range 0.41-1.21).
+  # Quantised to dt: 0.78 / 0.3 = 3 steps = 0.9 s effective.
+  observation_delay_s: 0.78
   # --- Robustness features---
   # Erratic agents are selected once per episode; masked out of the PPO rollout buffer.
   # Per-episode probability that an agent is blind to other agents for the whole episode

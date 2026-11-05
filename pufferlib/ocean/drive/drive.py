@@ -113,6 +113,7 @@ class Drive(pufferlib.PufferEnv):
         eval_perceived_size_margin_m=0.1,
         obs_range_traffic_control_m=100.0,
         obs_range_partner_m=100.0,
+        observation_delay_s=0.0,
         obs_range_road_front_m=120.0,
         obs_range_road_behind_m=20.0,
         obs_range_road_side_m=30.0,
@@ -236,6 +237,7 @@ class Drive(pufferlib.PufferEnv):
         self.eval_perceived_size_margin_m = float(eval_perceived_size_margin_m)
         self.obs_range_traffic_control_m = float(obs_range_traffic_control_m)
         self.obs_range_partner_m = float(obs_range_partner_m)
+        self.observation_delay_s = float(observation_delay_s)
         self.obs_range_road_front_m = float(obs_range_road_front_m)
         self.obs_range_road_behind_m = float(obs_range_road_behind_m)
         self.obs_range_road_side_m = float(obs_range_road_side_m)
@@ -423,6 +425,21 @@ class Drive(pufferlib.PufferEnv):
 
         self.c_envs = binding.vectorize(*env_ids)
 
+        # Obs envelope (docs/vehicle_profile.md §4.2): the policy must consume perception
+        # from observation_delay_s ago while the simulator advances on fresh state.
+        # Quantised to dt; the effective value is reported because dt is coarse.
+        self.observation_delay_steps = int(round(self.observation_delay_s / self.dt))
+        self.effective_observation_delay_s = self.observation_delay_steps * self.dt
+        if self.observation_delay_steps > 0:
+            self._obs_delay_ring = np.zeros(
+                (self.observation_delay_steps,) + self.observations.shape,
+                dtype=self.observations.dtype,
+            )
+            self._obs_delay_write = 0
+        else:
+            self._obs_delay_ring = None
+            self._obs_delay_write = 0
+
     def preload_shared_resources(self):
         if not self.preload_map_cache or self._map_cache_preloaded:
             return 0
@@ -519,6 +536,7 @@ class Drive(pufferlib.PufferEnv):
             "eval_perceived_size_margin_m": self.eval_perceived_size_margin_m,
             "obs_range_traffic_control_m": self.obs_range_traffic_control_m,
             "obs_range_partner_m": self.obs_range_partner_m,
+            "observation_delay_s": self.observation_delay_s,
             "obs_range_road_front_m": self.obs_range_road_front_m,
             "obs_range_road_behind_m": self.obs_range_road_behind_m,
             "obs_range_road_side_m": self.obs_range_road_side_m,
@@ -565,9 +583,31 @@ class Drive(pufferlib.PufferEnv):
             binding.vec_reset(self.c_envs)
         self.tick = 0
         self.truncations[:] = 0
+        self._reset_observation_delay_ring()
         if self.capture_replay:
             self._initialize_replay_captures()
         return self.observations, []
+
+    def _reset_observation_delay_ring(self):
+        """Warm the delay buffer with the reset observation (no stale garbage)."""
+        if self._obs_delay_ring is None:
+            return
+        self._obs_delay_ring[:] = self.observations
+        self._obs_delay_write = 0
+
+    def _apply_observation_delay(self):
+        """Swap the fresh observation for the one from observation_delay_steps ago.
+
+        Reads the oldest slot before overwriting it, then advances the write pointer; a
+        ring of K slots therefore yields a K-step delay. The C observation buffer is
+        refilled from scratch on every vec_step, so writing the stale copy back is safe.
+        """
+        if self._obs_delay_ring is None:
+            return
+        oldest = self._obs_delay_ring[self._obs_delay_write].copy()
+        self._obs_delay_ring[self._obs_delay_write] = self.observations
+        self._obs_delay_write = (self._obs_delay_write + 1) % self.observation_delay_steps
+        self.observations[:] = oldest
 
     def step(self, actions):
         if self._eval_exhausted:
@@ -602,6 +642,7 @@ class Drive(pufferlib.PufferEnv):
                 self.current_num_eval_scenarios = self._next_eval_batch_size()
                 if self.current_num_eval_scenarios == 0:
                     self._eval_exhausted = True
+                    self._apply_observation_delay()
                     return (self.observations, self.rewards, self.terminals, self.truncations, info)
                 binding.vec_close(self.c_envs)
                 # Pairs already replayed this sweep; slice the rest so a deferred
@@ -659,10 +700,12 @@ class Drive(pufferlib.PufferEnv):
                 self.c_envs = binding.vectorize(*env_ids)
 
                 binding.vec_reset(self.c_envs)
+                self._reset_observation_delay_ring()
                 if self.capture_replay:
                     self._initialize_replay_captures()
                 # Map resampling is an external reset boundary (dataset/map switch). Treat as truncation.
                 self.truncations[:] = 1
+        self._apply_observation_delay()
         return (self.observations, self.rewards, self.terminals, self.truncations, info)
 
     def get_global_agent_state(self):
