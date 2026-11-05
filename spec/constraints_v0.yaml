@@ -1,0 +1,273 @@
+# 约束模板库 v0 —— bad case 的结构化形式（A-only 反馈的总线）
+#
+# 上位裁决：docs/adr/0007（反馈契约 A-only；bad case = (场景种子, 约束束)；KPI = 约束覆盖率 / 回归保留率）
+# 用法：每个 bad case 落成 (模板 id, 参数, 时间切片)，因为只有约束没有专家轨迹。
+#
+# 设计约束：
+#   1. 谓词必须**可执行**——scripts/constraint_judge.py 会用合成行验证每个模板能同时
+#      表达"触发"和"不触发"。写不进谓词的模板不算入库。
+#   2. 谓词只读 `metrics_array` 的 18 项 + 少数状态量；需要新指标的模板显式标
+#      `available: false`，它们就是桥接层的工作清单。
+#   3. 体感型（comfort）不得只做软惩罚——A-only 下没有专家轨迹，软惩罚会被 RL 用 jerk 换安全分
+#      （ADR-0007 decision 6）。
+#
+# 阈值来源：引擎常量 pufferlib/ocean/drive/drive.h:3514-3519（comfort: |a|>3.0 m/s²、|jerk|>5.0 m/s³）、
+# constants.h:166/296/302（LANE_DISTANCE_NORMALIZATION 4.0、DEFAULT_TTC 5.0、DEFAULT_DTC 50.0）、
+# docs/vehicle_profile.md（a_lat 代理 8.0、纵向 +3.0/−6.0 硬限）。
+
+schema_version: constraints_v0
+as_of: 2026-11-05
+metric_source: pufferlib/ocean/drive/constants.h:275-293
+judge_reference: docs/adr/0007-badcase-as-scenario-seed-and-constraint-only-feedback.md
+
+# 派生量：metrics_array 里没有，必须由桥接层/裁判自己算
+derived_metrics:
+  crosswalk_clearance_m:
+    available: false
+    baseline_safe: 1000.0
+    note: 需要 crosswalk 几何 + ego 位置的距离；metrics_array 无此指标（无斑马线时取大值）
+  pedestrian_clearance_m:
+    available: false
+    baseline_safe: 1000.0
+    note: 需要 agent_type=predict 的行人 + 最小间距；metrics_array 无此指标（无行人时取大值）
+  junction_occupancy:
+    available: false
+    baseline_safe: 0.0
+    note: 需要路口区域占用（overlap/junction），metrics_array 无此指标（未占用=0）
+  stop_line_distance_m:
+    available: false
+    baseline_safe: 1000.0
+    note: TrafficControlElement.stop_line 在引擎内，但未进 metrics_array
+
+categories:
+  violation: 违规型（安全，owner 口径约 80%）
+  comfort: 体感型（舒适，约 20%）
+  progress: 进度型（既不违规也不难受，但没有完成任务）
+
+templates:
+  # ----------------------------------------------------------- violation
+  - id: red_light_cross
+    label: 红灯越线
+    category: violation
+    predicate: {metric: red_light, op: ge, threshold_param: violated_flag}
+    params:
+      violated_flag: {value: 1.0, unit: "1"}
+    source: 运营录像闯灯片段（bag + 时间戳）
+    reference_solver: idm
+    status: frozen
+
+  - id: stop_sign_roll
+    label: 停车标志未停稳通过
+    category: violation
+    predicate: {metric: stop_sign, op: ge, threshold_param: violated_flag}
+    params:
+      violated_flag: {value: 1.0, unit: "1"}
+    source: 小区/园区停车标志
+    reference_solver: idm
+    status: frozen
+
+  - id: collision_any
+    label: 发生碰撞
+    category: violation
+    predicate: {metric: collision, op: ge, threshold_param: violated_flag}
+    params:
+      violated_flag: {value: 1.0, unit: "1"}
+    source: 全部接管/事故片段
+    reference_solver: replay
+    status: frozen
+
+  - id: collision_at_fault
+    label: 本车责任碰撞
+    category: violation
+    predicate: {metric: at_fault_collision, op: ge, threshold_param: violated_flag}
+    params:
+      violated_flag: {value: 1.0, unit: "1"}
+    source: 责任判定后的碰撞片段
+    reference_solver: replay
+    status: frozen
+
+  - id: offroad_exit
+    label: 驶出可行驶区域
+    category: violation
+    predicate: {metric: offroad, op: ge, threshold_param: violated_flag}
+    params:
+      violated_flag: {value: 1.0, unit: "1"}
+    source: 修路/临时改道片段
+    reference_solver: idm
+    status: frozen
+
+  - id: ttc_shortfall
+    label: 碰撞时间不足
+    category: violation
+    predicate: {metric: ttc, op: lt, threshold_param: ttc_min_s}
+    guard: {metric: sim_speed, op: gt, threshold_param: moving_speed_mps}
+    params:
+      ttc_min_s: {value: 1.5, unit: s}
+      moving_speed_mps: {value: 0.5, unit: m/s}
+    source: 跟车过近 / 前车急刹
+    reference_solver: idm
+    status: frozen
+
+  - id: braking_distance_short
+    label: 最小碰撞距离不足
+    category: violation
+    predicate: {metric: distance_to_collision, op: lt, threshold_param: min_gap_m}
+    guard: {metric: sim_speed, op: gt, threshold_param: moving_speed_mps}
+    params:
+      min_gap_m: {value: 2.0, unit: m}
+      moving_speed_mps: {value: 0.5, unit: m/s}
+    source: 低速加塞贴车
+    reference_solver: idm
+    status: frozen
+
+  - id: overspeed
+    label: 超速
+    category: violation
+    predicate: {metric: speed_limit, op: ge, threshold_param: violated_flag}
+    params:
+      violated_flag: {value: 1.0, unit: "1"}
+    source: 限速变化段
+    reference_solver: idm
+    status: frozen
+
+  - id: lane_departure
+    label: 越车道中心线过远
+    category: violation
+    predicate: {metric: lane_dist, op: abs_gt, threshold_param: lane_dist_max_m}
+    params:
+      lane_dist_max_m: {value: 0.9, unit: m}
+    source: 弯道/窄路刮蹭
+    reference_solver: idm
+    status: draft
+    note: 引擎 LANE_DISTANCE_NORMALIZATION = 4.0 m；0.9 m ≈ 半个车宽
+
+  - id: heading_mismatch
+    label: 车头与车道方向不一致
+    category: violation
+    predicate: {metric: lane_angle, op: lt, threshold_param: min_cos_angle}
+    params:
+      min_cos_angle: {value: 0.0, unit: "1"}
+    source: 逆行 / 掉头未完成
+    reference_solver: idm
+    status: draft
+    note: lane_angle 存的是 cos(θ_f)；< 0 即车头与车道反向
+
+  - id: cut_in_conflict
+    label: 被加塞时的冲突
+    category: violation
+    predicate: {metric: ttc, op: lt, threshold_param: ttc_min_s}
+    guard: {metric: lane_dist, op: abs_gt, threshold_param: adjacent_lane_m}
+    params:
+      ttc_min_s: {value: 2.0, unit: s}
+      adjacent_lane_m: {value: 1.0, unit: m}
+    source: 高架/匝道加塞
+    reference_solver: idm
+    status: draft
+
+  - id: unprotected_turn_conflict
+    label: 无保护转弯冲突
+    category: violation
+    predicate: {metric: ttc, op: lt, threshold_param: turn_ttc_s}
+    guard: {metric: velocity_progress, op: lt, threshold_param: turning_progress}
+    params:
+      turn_ttc_s: {value: 3.0, unit: s}
+      turning_progress: {value: 0.5, unit: "1"}
+    source: 无保护左转
+    reference_solver: idm
+    status: draft
+    note: 优先用 ADR-0008 的 map 侧 turn 列判定"这是无保护转弯"，此处用进度做代理
+
+  - id: crossing_yield_fail
+    label: 斑马线未让行
+    category: violation
+    predicate: {metric: crosswalk_clearance_m, op: lt, threshold_param: clearance_min_m}
+    guard: {metric: sim_speed, op: gt, threshold_param: moving_speed_mps}
+    params:
+      clearance_min_m: {value: 1.5, unit: m}
+      moving_speed_mps: {value: 0.5, unit: m/s}
+    source: 行人过街片段
+    reference_solver: idm
+    status: draft
+    note: 指标缺失 → 桥接层必做（crosswalk 几何 + ego 距离）
+
+  - id: pedestrian_clearance
+    label: 行人过近距离
+    category: violation
+    predicate: {metric: pedestrian_clearance_m, op: lt, threshold_param: clearance_min_m}
+    params:
+      clearance_min_m: {value: 1.0, unit: m}
+    source: 人车混行
+    reference_solver: idm
+    status: draft
+    note: 指标缺失 → 桥接层必做（agent_type + 最小间距）
+
+  - id: merge_yield_fail
+    label: 汇入未让行
+    category: violation
+    predicate: {metric: junction_occupancy, op: ge, threshold_param: occupied_flag}
+    params:
+      occupied_flag: {value: 1.0, unit: "1"}
+    source: 匝道汇入
+    reference_solver: idm
+    status: draft
+    note: 指标缺失 → 桥接层必做（overlap/junction 占用，ADR-0008 的 map 侧表）
+
+  - id: multi_lane_wander
+    label: 长时间跨车道漂移
+    category: violation
+    predicate: {metric: multi_lane_time, op: gt, threshold_param: wander_max_s}
+    params:
+      wander_max_s: {value: 3.0, unit: s}
+    source: 车道选择犹豫 / 变道反复
+    reference_solver: idm
+    status: frozen
+
+  # ------------------------------------------------------------- comfort
+  - id: lat_accel_over
+    label: 横向加速度超限
+    category: comfort
+    predicate: {metric: accel_lat, op: abs_gt, threshold_param: lat_accel_max_mps2}
+    params:
+      lat_accel_max_mps2: {value: 8.0, unit: m/s²}
+    source: 快速变道 / 急弯
+    reference_solver: idm
+    status: draft
+    note: 引擎 comfort 阈值为 3.0 m/s²（舒适口径）；8.0 是实测能力上限（596 s 样本，未冻结）
+
+  - id: long_accel_over
+    label: 纵向加速度超限
+    category: comfort
+    predicate:
+      - {metric: accel_long, op: gt, threshold_param: accel_max_mps2}
+      - {metric: accel_long, op: lt, threshold_param: decel_max_mps2}
+    params:
+      accel_max_mps2: {value: 3.0, unit: m/s²}
+      decel_max_mps2: {value: -6.0, unit: m/s²}
+    source: 急加速 / 急刹
+    reference_solver: idm
+    status: frozen
+    note: 非对称硬限（vehicle_param 确认）；引擎 comfort 用对称 3.0，二者不可混用
+
+  - id: jerk_over
+    label: 加加速度超限
+    category: comfort
+    predicate: {metric: jerk_long, op: abs_gt, threshold_param: jerk_max_mps3}
+    params:
+      jerk_max_mps3: {value: 5.0, unit: m/s³}
+    source: 刹车点头 / 起步顿挫
+    reference_solver: idm
+    status: frozen
+
+  # ------------------------------------------------------------ progress
+  - id: stall_crawl
+    label: 无故低速停滞
+    category: progress
+    warmup_s: 2.0
+    predicate: {metric: progression, op: lt, threshold_param: progression_min}
+    guard: {metric: sim_speed, op: lt, threshold_param: crawl_speed_mps}
+    params:
+      progression_min: {value: 0.1, unit: "1"}
+      crawl_speed_mps: {value: 0.5, unit: m/s}
+    source: 路口犹豫 / 幽灵刹车
+    reference_solver: replay
+    status: draft

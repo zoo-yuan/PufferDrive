@@ -185,6 +185,41 @@ bag 总量：26–36 通道 / 1.0–3.0 万消息 / 每条 10–20 s。
 
 ---
 
-## 8. 下一步（M4）
+## 8. M4 —— 约束模板库 v0 + 可行性裁判（已完成）
 
-约束模板库 v0（20 条）+ 可行性裁判：每 case 落 `(模板, 参数, 切片)`；同场景用 `IDM / REPLAY / STATIC` 跑一遍做可解性裁判。验收物：20×18 指标矩阵热图 + 三控制器判定表。
+验收物：`docs/html/constraints_v0_library.html`（20×18 指标矩阵）、`docs/html/constraints_v0_feasibility.html`（三控制器判定表）。
+库源：`spec/constraints_v0.yaml`；裁判：`scripts/constraint_judge.py`（可执行性）、`scripts/constraint_feasibility.py`（真跑）。
+
+### 8.1 数字
+
+| 量 | 值 |
+|---|---|
+| 模板总数 | 20（violation 16 = 80% / comfort 3 / progress 1） |
+| 谓词可执行 | **20/20**（每条都能同时造出“触发”与“不触发”两行） |
+| 引擎直接可评 | **85%**（17/20 只用 `metrics_array` 18 项 + 状态量） |
+| 需桥接新指标 | 3 条：`crosswalk_clearance_m` / `pedestrian_clearance_m` / `junction_occupancy` |
+| 可行性裁判 | 3 控制器 × 40 步 × 8 张 carla 图，**约 2 s** |
+| 判定结果 | 可解 18 / IDM 不足 2 / 不可解 0 |
+
+### 8.2 设计要点
+
+- **谓词是结构化的**（`{metric, op, threshold_param}` + `guard` + any-of 列表），不是字符串；指标词表从 `constants.h` 的 `*_IDX` 定义**读出来**，不手抄，所以引擎改指标顺序时库会自动对不上。
+- **可执行性是硬门禁**：裁判为每条模板合成两行（触发行 / 基线行），两边都对才算入库。这直接堵住了“写了个漂亮的约束但跑不起来”的窟固。
+- **派生指标的 baseline 是显式声明的**（`baseline_safe`）：间距类指标“无行人”= 1000 m，占用类“不占用”= 0。否则基线会被误判为触发。
+- **可行性三分判定**：IDM 未触发 → 可解；IDM 触发但 REPLAY 未触发 → “IDM 不足”（场景仍需更强策略，不能判死）；两者都触发 → 不可解，禁止进 RL。
+
+### 8.3 裁判自己发现的两个问题
+
+1. **`stall_crawl` 缺 warmup**：一开始它在“静止起步”时就触发（静止 = 不前进）。已加 `warmup_s: 2.0`，并修正 gate 语义——进度类谓词对着 STATIC 触发是**预期**（负对照在工作），不算坏谓词。
+2. **IDM 自己就违反 comfort 阈值**：`lat_accel_over`（8.0 m/s²）与 `jerk_over`（5.0 m/s³）在 gigaflow 随机场景下被 IDM 触发。两个可能：IDM 参数未按 3799 车型标定，或 8.0 代理值偏紧。待定，记入遗留。
+
+### 8.4 遗留（进 M5 前必须知道）
+
+- **`replay` 控制器在 gigaflow 下不是真见证人**：gigaflow 是随机 spawn，没有录制轨迹可回放。真正的可行性裁判必须跑在**录制场景**上（即 bad case 挖掘产物）。当前实现只验证了“模板会/不会误触发”的机制，不是场景统计。
+- 3 条谓词依赖的指标引擎没有 → 桥接层任务（与 M2 的 6 个“仅数据源”字段一起排期）。
+
+---
+
+## 9. 下一步（M5）
+
+bad case 自动挖掘 + 场景切片：用 `metrics_array` 18 项 + 20 条模板谓词批量扫数据湖，切片窗口 16+80，`scenario_id` 编码 `bag_id#frame`，附 provenance（地图/感知版本），入口做物理可行性门禁（实测湖里有 38 m/s 的定位跳变）。验收物：扫描结果直方图（每模板命中数 / 每 bag 命中密度）+ 切片清单。
