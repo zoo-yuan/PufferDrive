@@ -156,3 +156,57 @@ def test_raw_control_diverges_from_model_intent():
         "raw acceleration unexpectedly matched the model intent; "
         "either nova dropped its wash-in or the bridge is applying it twice"
     )
+
+
+# --- 桥接层（生产代码路径）--------------------------------------------------
+# 上面的 test_acceleration_wash_in_reproduces_model_intent 用测试内的实现验证语义；
+# 下面这几条验证 pufferlib/ocean/drive/control_bridge.py 就是那个实现，且边界行为明确。
+
+def test_bridge_wash_in_reproduces_model_intent(seed=0):
+    from pufferlib.ocean.drive.control_bridge import build_control_actions
+
+    controls = sample_controls(seed)
+    env = make_env(seed)
+    env.reset()
+    initial = read_agent(env)[:5]
+    reference, _washed = nova_integrate_control(initial, controls, inter_acc=True)
+    actions = build_control_actions(controls[:, 0], controls[:, 1], initial[4])
+    got = run_controls(env, actions)
+    assert_parity(got, reference)
+
+
+def test_bridge_wash_in_touches_only_the_first_four_samples():
+    from pufferlib.ocean.drive.control_bridge import apply_acc_wash_in
+
+    accel = np.array([1.0, 2.0, 3.0, 4.0, 0.5, 0.6], dtype=np.float32)
+    washed = apply_acc_wash_in(accel, 0.0)
+    assert np.array_equal(washed[4:], accel[4:]), "wash-in must not touch samples past the first four"
+
+
+def test_bridge_wash_in_is_identity_for_constant_acceleration():
+    """全序列等于当前加速度时，target == a0，wash-in 不该改动任何东西。"""
+    from pufferlib.ocean.drive.control_bridge import apply_acc_wash_in
+
+    accel = np.full(6, -1.5, dtype=np.float32)
+    washed = apply_acc_wash_in(accel, -1.5)
+    assert np.allclose(washed, accel, atol=1e-7)
+
+
+def test_bridge_wash_in_handles_short_sequences():
+    """不足 4 个样本、或不足 5 个样本时不能崩，也不能读到越界。"""
+    from pufferlib.ocean.drive.control_bridge import apply_acc_wash_in
+
+    for length in (1, 2, 3):
+        accel = np.arange(1, length + 1, dtype=np.float32)
+        washed = apply_acc_wash_in(accel, 0.0)
+        assert washed.shape == accel.shape
+        assert np.all(np.isfinite(washed))
+
+
+def test_build_control_actions_rejects_mismatched_lengths():
+    import pytest as _pytest
+
+    from pufferlib.ocean.drive.control_bridge import build_control_actions
+
+    with _pytest.raises(ValueError):
+        build_control_actions(np.zeros(5), np.zeros(4), 0.0)

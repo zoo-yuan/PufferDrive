@@ -1,0 +1,92 @@
+{
+ "bags": [
+  {
+   "bag": "2292",
+   "map": null,
+   "status": "missing_map_bin",
+   "summary": null
+  },
+  {
+   "bag": "2477",
+   "map": "5537_yanfaceshi-jiangsuchangzhouliyang-1418",
+   "status": "missing_bag",
+   "summary": null
+  },
+  {
+   "bag": "2688",
+   "map": "wuhan_qianjinjiayuan_shunfeng",
+   "status": "ok",
+   "summary": {
+    "match_rate": 1.0,
+    "signed_median_m": 0.010317224695419689,
+    "abs_p50_m": 0.028383053652758408,
+    "abs_p90_m": 0.06284213457314963,
+    "abs_p99_m": 0.08918777966235589,
+    "abs_max_m": 0.09292898056050167,
+    "heading_p50_deg": 0.282873255641345,
+    "heading_p90_deg": 0.5776427132411978,
+    "heading_max_deg": 4.298618091122045,
+    "lane_transitions": 8,
+    "distinct_lanes": 5,
+    "over_limit_frames": 600
+   }
+  },
+  {
+   "bag": "2714",
+   "map": "chongqing_yongnan_shunfeng",
+   "status": "ok",
+   "summary": {
+    "match_rate": 1.0,
+    "signed_median_m": -0.30947854825684745,
+    "abs_p50_m": 0.30804695152484074,
+    "abs_p90_m": 0.5443447420443243,
+    "abs_p99_m": 0.5537103200411531,
+    "abs_max_m": 0.5573444193694944,
+    "heading_p50_deg": 0.9007093445493608,
+    "heading_p90_deg": 2.6754013319360386,
+    "heading_max_deg": 3.0227600355493016,
+    "lane_transitions": 2,
+    "distinct_lanes": 3,
+    "over_limit_frames": 600
+   }
+  },
+  {
+   "bag": "3123",
+   "map": null,
+   "status": "missing_map_bin",
+   "summary": null
+  },
+  {
+   "bag": "3139",
+   "map": null,
+   "status": "missing_map_bin",
+   "summary": null
+  },
+  {
+   "bag": "3183",
+   "map": "8997_shunfengsuyunjiningshi537Wyanzhouzhuanyunzhongxin-1906",
+   "status": "ok",
+   "summary": {
+    "match_rate": 1.0,
+    "signed_median_m": 0.012858662796589607,
+    "abs_p50_m": 0.013398052080842049,
+    "abs_p90_m": 0.03383869390914355,
+    "abs_p99_m": 0.0462162043150811,
+    "abs_max_m": 0.04827415283280696,
+    "heading_p50_deg": 0.13160516648142445,
+    "heading_p90_deg": 0.29971915772033003,
+    "heading_max_deg": 0.6170290832929978,
+    "lane_transitions": 3,
+    "distinct_lanes": 4,
+    "over_limit_frames": 600
+   }
+  },
+  {
+   "bag": "3890-dual-drive",
+   "map": "5537_yanfaceshi-jiangsuchangzhouliyang-1418",
+   "status": "missing_bag",
+   "summary": null
+  }
+ ],
+ "gate": []
+}

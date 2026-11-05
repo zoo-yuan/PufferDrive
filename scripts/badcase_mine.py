@@ -36,6 +36,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+from data_utils.apollo_lane_index import load_lane_index  # noqa: E402
 from data_utils.apollo_record import (  # noqa: E402
     decode_localization_pose,
     decode_perception_obstacles,
@@ -65,6 +66,17 @@ ADJACENT_LATERAL_MAX_M = 3.5        # 邻道候选上界
 ACCEL_FIT_WINDOW_S = 1.0            # 纵向速度三次拟合窗口；1.0 s 时 |jerk| p50=1.11（阈值 5）
 MAX_PLAUSIBLE_LONG_ACCEL_MPS2 = 10.0
 CATEGORY_COLOR = {"violation": "#cf222e", "comfort": "#9a6700", "progress": "#0b6bcb"}
+
+
+def find_lane_index(record_dir, map_root):
+    """bag 旁边的地图软链 → base_map.bin → 车道索引。没有就返回 (None, 原因)。"""
+    for link in Path(record_dir).iterdir():
+        if not link.is_symlink():
+            continue
+        map_bin = map_root / link.name / "base_map.bin"
+        if map_bin.exists():
+            return load_lane_index(map_bin), link.name
+    return None, "no_base_map_bin"
 
 
 def norm(value):
@@ -233,7 +245,7 @@ def plausible(row, gate):
     return True, ""
 
 
-def scan_bag(path, contract, templates):
+def scan_bag(path, contract, templates, lane_index=None):
     gate = contract["feasibility_gate"]
     channels = contract["channels"]
     frame_rows = []
@@ -270,6 +282,26 @@ def scan_bag(path, contract, templates):
             history = []
             continue
         row = frame_features(pose, candidate_obstacles(pose), history, gate, contract["slice"])
+        if lane_index is not None:
+            match = lane_index.match(norm(pose["x_m"]), norm(pose["y_m"]), norm(pose["heading_rad"]))
+            if match is None:
+                row["lane_id"] = None
+            else:
+                offset = match["lateral_m"]
+                row["lane_id"] = match["lane_id"]
+                row["lane_abs_offset_m"] = abs(offset)
+                row["lane_heading_cos"] = math.cos(match["heading_diff_rad"])
+                limit = match["speed_limit_mps"]
+                row["speed_over_limit_mps"] = (
+                    row["ego_speed_mps"] - limit if limit > 0.0 else float("-inf")
+                )
+                previous = history[-1][3] if history and len(history[-1]) > 3 else 0.0
+                straddling = 0.9 <= abs(offset) <= 1.6
+                row["seconds_straddling_s"] = (
+                    previous + contract["slice"]["step_s"] if straddling else 0.0
+                )
+        else:
+            row["lane_id"] = None
         ok, reason = plausible(row, gate)
         if not ok:
             rejects[reason] += 1
@@ -278,7 +310,9 @@ def scan_bag(path, contract, templates):
         row["t_s"] = current_time
         frame_rows.append(row)
         stopped = row["seconds_stopped_s"]
-        history.append((current_time, row["accel_long_mps2"], stopped))
+        history.append(
+            (current_time, row["accel_long_mps2"], stopped, row.get("seconds_straddling_s", 0.0))
+        )
         if len(history) > 3:
             history.pop(0)
 
@@ -449,7 +483,7 @@ def histogram_svg(values, thresholds, title, width=520, height=150, bins=40):
     return "".join(parts)
 
 
-def render(contract, entries, bag_names, counts, slices_by_bag, features_by_bag, summary, failures, constraints_meta):
+def render(contract, entries, bag_names, counts, slices_by_bag, features_by_bag, summary, failures, constraints_meta, lane_support=None):
     gate_state = "PASS" if not failures else "FAIL"
     gate_color = "#1a7f37" if not failures else "#cf222e"
     total_slices = sum(len(items) for items in slices_by_bag.values())
@@ -538,6 +572,18 @@ code {{ background:var(--soft); border:1px solid var(--line); border-radius:4px;
             + " 在这 6 条包里一次都没越过阈值。例如 <code>lat_accel_over</code> 的阈值是 8.0 m/s²，"
             "而 596 s 实测的 |a_lat| 最大只有 7.92 —— 说明这批数据里根本没有横向极限工况，"
             "要挖这类 case 得去数据湖里按横向加速度排序取头部。</div>"
+        )
+
+    lane_rows = [entry["id"] for entry in entries if entry.get("requires_lane")]
+    if lane_rows:
+        supported = [bag for bag, note in (lane_support or {}).items() if note and note != "no_base_map_bin"]
+        unsupported = [bag for bag in bag_names if bag not in supported]
+        parts.append(
+            '<div class="warn"><b>车道类约束只在有 <code>base_map.bin</code> 的 bag 上评价</b>：'
+            f"支持 {len(supported)}/{len(bag_names)} 条（{', '.join(supported) or '无'}）；"
+            f"缺地图的 {len(unsupported)} 条（{', '.join(unsupported) or '无'}）"
+            f"对这 {len(lane_rows)} 条（{', '.join(lane_rows)}）<b>不出判定</b>，"
+            "不是没问题，是算不了。</div>"
         )
 
     parts.append("<h2>2. 逐 bag 时间轴</h2>")
@@ -632,6 +678,7 @@ def main():
     parser.add_argument("--contract", type=Path, default=DEFAULT_CONTRACT)
     parser.add_argument("--constraints", type=Path, default=DEFAULT_CONSTRAINTS)
     parser.add_argument("--bag-glob", default=DEFAULT_BAG_GLOB)
+    parser.add_argument("--data-root", type=Path, default=Path("/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995"))
     parser.add_argument("--json-out", type=Path, default=DEFAULT_JSON)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--check", action="store_true")
@@ -672,14 +719,20 @@ def main():
     rejected_total = 0
     frames_total = 0
 
+    map_root = Path(args.data_root) / "apollo_map" / "data"
+    lane_support = {}
     for path, bag in zip(bag_paths, bag_names):
-        rows, rejects = scan_bag(path, contract, entries)
+        lane_index, map_note = find_lane_index(Path(path).parent, map_root)
+        lane_support[bag] = map_note
+        rows, rejects = scan_bag(path, contract, entries, lane_index)
         rejected_total += sum(rejects.values())
         frames_total += len(rows)
         features_by_bag[bag] = rows
         hits = []
         for row in rows:
             for entry in entries:
+                if entry.get("requires_lane") and row.get("lane_id") is None:
+                    continue
                 if evaluate_bag_template(entry, row):
                     hits.append((entry["id"], row))
         hits.sort(key=lambda item: (item[1]["t_s"], item[0]))
@@ -758,7 +811,7 @@ def main():
         args.out.write_text(
             render(
                 contract, entries, bag_names, counts, slices_by_bag, features_by_bag,
-                summary, failures, template_meta,
+                summary, failures, template_meta, lane_support,
             ),
             encoding="utf-8",
         )

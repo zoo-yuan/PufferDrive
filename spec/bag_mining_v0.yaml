@@ -47,6 +47,10 @@ features:
   jerk_long_mps3: 滑窗三次多项式拟合有符号纵向速度后取 2*c2（窗口 1.0 s，时间分辨率 ±0.5 s）
   ttc_s: 最近同向障碍 gap / 闭合速度
   gap_m: 中心距 − (ego 长 + 障碍长)/2
+  lane_abs_offset_m: 自车到匹配车道中心线的有符号横向距离的绝对值
+  lane_heading_cos: cos(自车航向 − 车道切线方向)
+  speed_over_limit_mps: 自车速度 − 匹配车道 speed_limit
+  seconds_straddling_s: 连续满足 0.9 ≤ |lateral| ≤ 1.6 m 的累计时长
   obstacle_lateral_m: 最近 in-path 障碍相对 ego 航向的横向偏移
   adjacent_ttc_s: 邻道（1.0–3.5 m）最近前方障碍的 TTC
   seconds_stopped_s: 连续 speed < 0.5 m/s 的累计时长
@@ -109,6 +113,42 @@ bag_evaluable:
       jerk_max_mps3: {value: 5.0, unit: m/s³}
     caveat: 窗口 1.0 s（实测噪声地板 p50 = 1.11 m/s³，阈值 5 → SNR 4.5×）；窗口再窄噪声会吞掉判据（0.4 s 时 p50 = 4.19）
 
+  - id: lane_departure
+    template: lane_departure
+    requires_lane: true
+    predicate: {feature: lane_abs_offset_m, op: abs_gt, threshold_param: lane_dist_max_m}
+    guard: {feature: ego_speed_mps, op: gt, threshold_param: moving_speed_mps}
+    params:
+      lane_dist_max_m: {value: 0.9, unit: m}
+      moving_speed_mps: {value: 0.5, unit: m/s}
+    caveat: 引擎 lane_dist 是相对车道中心线的有符号距离，这里取绝对值；必须加"行驶中"guard —— 实测 3183 的 684 个偏离帧里 523 帧速度只有 0.02 m/s，那是停在装卸点不是偏离；2714 另有 −0.31 m 系统偏差
+
+  - id: heading_mismatch
+    template: heading_mismatch
+    requires_lane: true
+    predicate: {feature: lane_heading_cos, op: lt, threshold_param: min_cos}
+    params:
+      min_cos: {value: 0.0, unit: "1"}
+    caveat: cos(航向差) < 0 即车头与车道反向；引擎 lane_angle 存的也是 cos，可直接比
+
+  - id: overspeed
+    template: overspeed
+    requires_lane: true
+    predicate: {feature: speed_over_limit_mps, op: gt, threshold_param: overspeed_margin_mps}
+    params:
+      overspeed_margin_mps: {value: 2.0, unit: m/s}
+    caveat: 用匹配车道的 speed_limit；speed_limit=0 的车道（无标定）不参与评价而不是当成限速 0
+
+  - id: multi_lane_wander
+    template: multi_lane_wander
+    requires_lane: true
+    predicate: {feature: seconds_straddling_s, op: gt, threshold_param: wander_max_s}
+    guard: {feature: ego_speed_mps, op: gt, threshold_param: moving_speed_mps}
+    params:
+      wander_max_s: {value: 3.0, unit: s}
+      moving_speed_mps: {value: 0.5, unit: m/s}
+    caveat: 引擎真值是跨车道时间；这里用「|lateral| 连续落在 0.9–1.6 m 且车辆在动」代理压线漂移，不区分换道与骑线
+
   - id: stall_crawl
     template: stall_crawl
     predicate: {feature: seconds_stopped_s, op: gt, threshold_param: stall_max_s}
@@ -118,16 +158,13 @@ bag_evaluable:
       crawl_speed_mps: {value: 0.5, unit: m/s}
     caveat: 引擎真值是 progression < 0.1（相对目标进度）；bag 侧只能看是否长时间不动
 
+# 4 条车道类已升级为可挖（需 base_map.bin）；当前 6 条 bag 里 3 条有 bin
 not_bag_evaluable:
   - {id: red_light_cross, needs: stop line 几何 + 相位, reason: 需要 Apollo map 匹配与信号相位}
   - {id: stop_sign_roll, needs: stop sign 位置 + 停稳判定, reason: 需要 map 与停车点}
   - {id: collision_at_fault, needs: 责任判定, reason: bag 内无责任标签，只有 /apollo/safety/collision_event}
   - {id: offroad_exit, needs: 可行驶区域, reason: 需要 map 匹配}
-  - {id: overspeed, needs: 车道限速, reason: 需要 map 匹配到当前车道 speed_limit}
-  - {id: lane_departure, needs: 车道中心线, reason: 需要 map 匹配（bag 无 lane_dist）}
-  - {id: heading_mismatch, needs: 车道方向, reason: 需要 map 匹配（bag 无 lane_angle）}
   - {id: unprotected_turn_conflict, needs: 转向类型 + 对向流, reason: 需要 ADR-0008 的 turn 列}
   - {id: crossing_yield_fail, needs: crosswalk 几何, reason: 指标引擎与 bag 都没有}
   - {id: pedestrian_clearance, needs: 行人分类 + 最小间距, reason: 指标引擎与 bag 都没有}
   - {id: merge_yield_fail, needs: 路口占用, reason: 需要 overlap/junction 区域}
-  - {id: multi_lane_wander, needs: 跨车道时间, reason: 需要 map 匹配（引擎 MULTI_LANE_TIME_IDX）}

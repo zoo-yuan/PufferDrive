@@ -45,6 +45,8 @@ CONSTRAINTS_PATH = REPO_ROOT / "spec" / "constraints_v0.yaml"
 AUDIT_CACHE = REPO_ROOT / "docs" / "measured" / "audit_canonical_v0.json"
 ENVELOPE_JSON = REPO_ROOT / "docs" / "measured" / "obs_envelope_6bags.json"
 MINING_JSON = REPO_ROOT / "docs" / "measured" / "badcase_mining_v0.json"
+WASHIN_JSON = REPO_ROOT / "docs" / "measured" / "bridge_washin_v0.json"
+MAPMATCH_JSON = REPO_ROOT / "docs" / "measured" / "map_match_v0.json"
 
 CONSTRAINT_CATEGORY = {
     "ttc_shortfall": "violation",
@@ -55,6 +57,10 @@ CONSTRAINT_CATEGORY = {
     "long_accel_over": "comfort",
     "jerk_over": "comfort",
     "stall_crawl": "progress",
+    "lane_departure": "violation",
+    "heading_mismatch": "violation",
+    "overspeed": "violation",
+    "multi_lane_wander": "violation",
 }
 
 PALETTE = {
@@ -81,6 +87,10 @@ REQUIRED_ARTIFACTS = (
     "docs/html/constraints_v0_feasibility.html",
     "docs/html/badcase_mining_v0.html",
     "docs/measured/badcase_mining_v0.json",
+    "docs/html/bridge_washin_report.html",
+    "docs/html/map_match_report.html",
+    "docs/measured/bridge_washin_v0.json",
+    "docs/measured/map_match_v0.json",
 )
 ARTIFACT_NAV = (
     ("spec_v0_coverage.html", "M1 字段覆盖率", "73 字段 × 8 组，含阻塞清单"),
@@ -88,7 +98,9 @@ ARTIFACT_NAV = (
     ("spec_v0_obs_envelope.html", "M3 观测包络", "距离直方图 + 数据年龄"),
     ("constraints_v0_library.html", "M4 约束库", "20 模板 × 18 指标矩阵"),
     ("constraints_v0_feasibility.html", "M4 可行性裁判", "IDM / REPLAY / STATIC 真跑"),
-    ("badcase_mining_v0.html", "M5 bad case 挖掘", "8 条可挖约束 × 6 条录包"),
+    ("badcase_mining_v0.html", "M5 bad case 挖掘", "12 条可挖约束 × 6 条录包"),
+    ("bridge_washin_report.html", "M6 桥接 wash-in", "洗 vs 不洗的 Δxy 曲线"),
+    ("map_match_report.html", "M6 地图匹配", "bag ↔ 车道 匹配质量"),
 )
 SCRIPT_ARTIFACTS = (
     "scripts/spec_report.py",
@@ -183,6 +195,26 @@ def load_envelope_numbers():
     rows, histogram = collect_envelope(records)
     failures, summary = envelope_gate(rows, histogram)
     return {"rows": rows, "histogram": histogram, "summary": summary, "failures": failures}
+
+
+def load_bridge_numbers():
+    """M6 两块：桥接 wash-in 的偏差 + 地图匹配质量。"""
+    washin = json.loads(WASHIN_JSON.read_text(encoding="utf-8")) if WASHIN_JSON.exists() else None
+    mapmatch = json.loads(MAPMATCH_JSON.read_text(encoding="utf-8")) if MAPMATCH_JSON.exists() else None
+    if washin is None and mapmatch is None:
+        return None
+    washed = max((item["washed_max_m"] for item in washin["results"]), default=0.0) if washin else 0.0
+    raw = max((item["raw_max_m"] for item in washin["results"]), default=0.0) if washin else 0.0
+    matched = [bag for bag in (mapmatch or {}).get("bags", []) if bag["status"] == "ok"]
+    missing = [bag for bag in (mapmatch or {}).get("bags", []) if bag["status"] == "missing_map_bin"]
+    return {
+        "washed_max_m": washed,
+        "raw_max_m": raw,
+        "matched_bags": len(matched),
+        "missing_map_bags": len(missing),
+        "match_rate": min((bag["summary"]["match_rate"] for bag in matched), default=0.0),
+        "bias": {bag["bag"]: bag["summary"]["signed_median_m"] for bag in matched},
+    }
 
 
 def load_mining_numbers():
@@ -414,7 +446,7 @@ def gate_table(rows):
 
 
 # ---------------------------------------------------------------------- 页面
-def render(spec_n, audit_n, env_n, con_n, feas_n, mining_n, flow):
+def render(spec_n, audit_n, env_n, con_n, feas_n, mining_n, bridge_n, flow):
     blind_distance = OPERATIONAL_SPEED_MPS * FROZEN_DELAY_S
     status = spec_n["status"]
     verdicts = audit_n["verdicts"] if audit_n else Counter()
@@ -455,7 +487,7 @@ code { background:var(--soft); border:1px solid var(--line); border-radius:4px; 
 .ok { border-left:3px solid #1a7f37; background:#f2fbf4; padding:10px 14px; border-radius:0 6px 6px 0; margin:8px 0; font-size:13px; }
 .fail { border-left:3px solid #cf222e; background:#fff5f5; padding:10px 14px; border-radius:0 6px 6px 0; margin:8px 0; font-size:13px; }
 .note { color:var(--mute); font-size:12.5px; }
-.nav { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin:6px 0 10px; }
+.nav { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:6px 0 10px; }
 .navitem { display:block; border:1px solid var(--line); border-radius:9px; padding:9px 12px;
   text-decoration:none; background:#fff; }
 .navitem b { display:block; font-size:12.5px; color:#0b6bcb; }
@@ -466,7 +498,7 @@ a { color:#0b6bcb; }
 
     parts.append("""
 <h1>Milestone 评审看板</h1>
-<p class="sub">canonical spec v0 执行链 · M1 → M5 已收口 · 所有数字由 <code>scripts/milestone_review.py</code>
+<p class="sub">canonical spec v0 执行链 · M1 → M6 已收口 · 所有数字由 <code>scripts/milestone_review.py</code>
 从原始产物重算，不手抄</p>""")
 
     parts.append('<div class="nav">')
@@ -735,9 +767,10 @@ a { color:#0b6bcb; }
         parts.append('<div class="box">')
         parts.append("<h3>review 要点</h3>")
         parts.append(
-            '<div class="ok">8 条约束在 6 条录包上共挖出 '
+            f'<div class="ok">{len(mining_n["evaluable"])} 条约束在 6 条录包上共挖出 '
             f'<b>{mining_n["total_slices"]}</b> 个切片（占可信帧 {mining_n["total_slices"] / max(1, summary["frames"]):.1%}），'
-            "每条切片都带 <code>bag#frame</code> 与 provenance。</div>"
+            "每条切片都带 <code>bag#frame</code> 与 provenance；"
+            "车道类 4 条只在有 <code>base_map.bin</code> 的 3 条 bag 上评价。</div>"
         )
         parts.append(
             '<div class="warn"><b>零命中不是坏判据</b>：<code>lat_accel_over</code> 阈值 8.0 m/s²，'
@@ -754,8 +787,53 @@ a { color:#0b6bcb; }
     else:
         parts.append('<div class="fail">缺 <code>docs/measured/badcase_mining_v0.json</code></div>')
 
+    # ---- M6
+    parts.append("<h2>7. M6 —— 桥接 wash-in + 地图匹配</h2>")
+    if bridge_n:
+        parts.append('<div class="cards four">')
+        parts.append(kpi_card("洗过 max |Δxy|", f"{bridge_n['washed_max_m']:.1e} m", "判据 < 1e-4 m", "#1a7f37"))
+        parts.append(kpi_card("不洗 max |Δxy|", f"{bridge_n['raw_max_m']:.2f} m", "3 个种子"))
+        parts.append(kpi_card("可匹配 bag", f"{bridge_n['matched_bags']}", f"缺地图 bin {bridge_n['missing_map_bags']} 条"))
+        parts.append(kpi_card("最低匹配率", f"{bridge_n['match_rate'] * 100:.0f}%", "门槛 95%"))
+        parts.append("</div>")
+        parts.append('<div class="grid2">')
+        parts.append('<div class="box"><h3>可匹配 bag 的横向偏移中位（左正右负）</h3>')
+        parts.append(
+            hbars(
+                [
+                    (bag, abs(value) * 100, PALETTE["frozen"] if abs(value) < 0.1 else PALETTE["draft"])
+                    for bag, value in bridge_n["bias"].items()
+                ],
+                unit=" cm",
+            )
+        )
+        parts.append('<p class="note">条长 = |有符号中位|（cm）。明显偏一侧说明地图中心线与实际行车线有系统偏差。</p>')
+        parts.append("</div>")
+        parts.append('<div class="box"><h3>review 要点</h3>')
+        parts.append(
+            '<div class="ok"><b>wash-in 已落地生产代码</b>：<code>control_bridge.py</code>，'
+            f"洗过与模型意图一致到 {bridge_n['washed_max_m']:.1e} m，"
+            f"不洗偏 {bridge_n['raw_max_m']:.2f} m。</div>"
+        )
+        parts.append(
+            '<div class="warn"><b>4 条车道类约束解锁</b>：lane_departure / heading_mismatch / '
+            "overspeed / multi_lane_wander 现在可挖，但只在有 <code>base_map.bin</code> 的 bag 上评价。</div>"
+        )
+        parts.append(
+            '<div class="fail"><b>数据供给缺口</b>：'
+            f"{bridge_n['missing_map_bags']} 条 bag 的地图只有 GB 级 txt，没有 bin —— "
+            "这直接决定哪些 bag 能进 bad case 库。</div>"
+        )
+        parts.append(
+            '<p class="note">报告：<a href="bridge_washin_report.html">bridge_washin_report.html</a> · '
+            '<a href="map_match_report.html">map_match_report.html</a></p>'
+        )
+        parts.append("</div></div>")
+    else:
+        parts.append('<div class="fail">缺桥接/匹配测量结果</div>')
+
     # ---- 假设修正台账
-    parts.append("<h2>7. 被真实数据推翻的假设（review 重点）</h2>")
+    parts.append("<h2>8. 被真实数据推翻的假设（review 重点）</h2>")
     parts.append(
         "<table><thead><tr><th>#</th><th>原假设</th><th>实测</th><th>后果</th></tr></thead><tbody>"
         "<tr><td>1</td><td>occ 来自“bag perception 占据栅格”</td>"
@@ -773,6 +851,12 @@ a { color:#0b6bcb; }
         "<tr><td>5</td><td>“最近障碍”就是“前车”</td>"
         "<td>用双方车宽之和判定同车道，把邻道并排车算成前车，58% 的帧被判成追尾</td>"
         "<td>in-path 收紧到半个车宽 + 0.3 m，命中率降到 5.4%</td></tr>"
+        "<tr><td>7</td><td>车道偏离可以直接挖</td>"
+        "<td>3183 的 684 个“偏离”帧里 523 帧速度 0.02 m/s —— 那是停在装卸点</td>"
+        "<td>车道类谓词全部加“行驶中”guard，偏离切片 219 → 73</td></tr>"
+        "<tr><td>8</td><td>6 条录包都能上车道类约束</td>"
+        "<td>只有 3 条有 <code>base_map.bin</code>；另 3 条只有 GB 级 txt</td>"
+        "<td>车道类判定按 bag 分别标注“不出判定”，不猜</td></tr>"
         "<tr><td>6</td><td>pose 加速度差分就等于 jerk</td>"
         "<td>|jerk| 中位 5.5 m/s³、51% 帧超阈值、p90 到 41 —— 20 Hz 姿态噪声</td>"
         "<td>改为滑窗三次拟合速度求导（窗口 1.0 s），噪声地板 1.11 m/s³</td></tr>"
@@ -780,7 +864,7 @@ a { color:#0b6bcb; }
     )
 
     # ---- gate
-    parts.append("<h2>8. Gate 台账（可复跑）</h2>")
+    parts.append("<h2>9. Gate 台账（可复跑）</h2>")
     parts.append(
         gate_table(
             [
@@ -789,13 +873,15 @@ a { color:#0b6bcb; }
                 ("M3 观测包络", "python scripts/spec_envelope_report.py --check", "PASS", ">100 m 样本=0、p100 中位在 [60,80]、延迟中位在 [0.4,1.2]"),
                 ("M4 谓词可执行", "python scripts/constraint_judge.py --check", "PASS", "模板≥20、id 唯一、参数齐备、20/20 可执行"),
                 ("M4 可行性裁判", "python scripts/constraint_feasibility.py --check", "PASS", "三控制器均有有效评价步、STATIC 无独自触发的安全/体感谓词"),
-                ("M5 挖掘契约", "python scripts/badcase_mine.py --check", "PASS", "8 条可挖模板指回 constraints_v0、20 条全覆盖、所有 bag 被扫、门禁有计数"),
+                ("M5 挖掘契约", "python scripts/badcase_mine.py --check", "PASS", "12 条可挖模板指回 constraints_v0、20 条全覆盖、所有 bag 被扫、门禁有计数"),
+                ("M6 桥接 wash-in", "python scripts/bridge_washin_report.py --check", "PASS", "洗过 max |Δxy| < 1e-4 m 且不洗 > 0.1 m（保持分辨力）"),
+                ("M6 地图匹配", "python scripts/map_match_report.py --check", "PASS", "可匹配 bag 的匹配率 ≥95%、|heading| p90 <10°"),
             ]
         )
     )
 
     # ---- 下一步
-    parts.append("<h2>9. 下一步（M6）与已知边界</h2>")
+    parts.append("<h2>10. 下一步（M7）与已知边界</h2>")
     parts.append(
         "<table><thead><tr><th>项</th><th>内容</th><th>验收数字</th></tr></thead><tbody>"
         "<tr><td>M6</td><td>桥接层 acc wash-in + 切片入库（把 487 个切片变成可跑场景）</td>"
@@ -817,7 +903,7 @@ a { color:#0b6bcb; }
     return "".join(parts)
 
 
-def build_flow(spec_n, audit_n, env_n, con_n, feas_n, mining_n):
+def build_flow(spec_n, audit_n, env_n, con_n, feas_n, mining_n, bridge_n=None):
     verdicts = audit_n["verdicts"] if audit_n else Counter()
     return [
         {
@@ -886,10 +972,26 @@ def build_flow(spec_n, audit_n, env_n, con_n, feas_n, mining_n):
         },
         {
             "id": "M6",
-            "title": "桥接 + 入库",
+            "title": "桥接 wash-in + 匹配",
+            "state": "done" if bridge_n else "current",
+            "state_label": "已收口 · gate PASS" if bridge_n else "进行中",
+            "metrics": (
+                [
+                    f"洗过 {bridge_n['washed_max_m']:.0e} m",
+                    f"不洗 {bridge_n['raw_max_m']:.2f} m",
+                    f"可匹配 {bridge_n['matched_bags']} 条 bag",
+                ]
+                if bridge_n
+                else ["acc wash-in", "地图匹配", "—"]
+            ),
+            "artifact": "bridge_washin_report.html",
+        },
+        {
+            "id": "M7",
+            "title": "切片转场景",
             "state": "next",
             "state_label": "待排期",
-            "metrics": ["acc wash-in", "切片转场景", "对拍 < 1e-4 m"],
+            "metrics": ["636 切片入库", "场景级可行性", "失败原因分类"],
             "artifact": "（未生成）",
         },
     ]
@@ -908,6 +1010,7 @@ def main():
     env_n = load_envelope_numbers()
     con_n = load_constraint_numbers()
     mining_n = load_mining_numbers()
+    bridge_n = load_bridge_numbers()
 
     if args.no_run:
         from collections import Counter as _Counter
@@ -941,10 +1044,10 @@ def main():
     if args.check:
         return 1 if failures else 0
 
-    flow = build_flow(spec_n, audit_n, env_n, con_n, feas_n, mining_n)
+    flow = build_flow(spec_n, audit_n, env_n, con_n, feas_n, mining_n, bridge_n)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(
-        render(spec_n, audit_n, env_n, con_n, feas_n, mining_n, flow), encoding="utf-8"
+        render(spec_n, audit_n, env_n, con_n, feas_n, mining_n, bridge_n, flow), encoding="utf-8"
     )
     print(f"[report]     {args.out}")
     return 1 if failures else 0

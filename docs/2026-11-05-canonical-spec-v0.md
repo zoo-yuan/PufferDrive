@@ -289,19 +289,75 @@ bag 总量：26–36 通道 / 1.0–3.0 万消息 / 每条 10–20 s。
 
 ---
 
-## 10. 下一步（M6）
+## 10. M6 —— 桥接 wash-in + 地图匹配（已完成）
 
-桥接层 acc wash-in（对拍测试已就绪）+ 把 487 个切片转成可跑场景：
+验收物：`docs/html/bridge_washin_report.html`（Δxy 曲线）、`docs/html/map_match_report.html`（匹配质量 + 轨迹上色）。
+实现：`pufferlib/ocean/drive/control_bridge.py`、`data_utils/apollo_lane_index.py`。
 
-| 项 | 验收数字 |
-|---|---|
-| acc wash-in | 6 s 内 max \|Δxy\| < 1e-4 m |
-| 切片入库 | 487 个切片转 PufferDrive 场景的成功率，失败原因分类 |
-| 场景级可行性 | 每个切片用 IDM / REPLAY / STATIC 判定"可解 / 不可解"，不可解的直接弃用 |
+### 10.1 acc wash-in：把 0.39–0.92 m 的静默偏差关掉
+
+`control_bridge.py` 复刻 nova 的 `target = 2·mean(acc[:5] − a0) + a0`，前 4 个样本按 0.2/0.4/0.6/0.8 插值。
+**不改进公式**——它是模型侧既有行为，改了就与模型不一致。
+
+| seed | 不洗 max \|Δxy\| | 洗过 max \|Δxy\| |
+|---|---|---|
+| 0 | 0.916 m | 1.28e-05 m |
+| 1 | 0.527 m | 2.98e-05 m |
+| 2 | 0.394 m | 8.53e-06 m |
+
+gate：洗过 < 1e-4 m（float32 地板），不洗 > 0.1 m（否则测试失去分辨力）。
+`tests/unit_tests/test_control_mode_parity.py` 12 例全绿，其中 5 例专门钉这个生产模块
+（只动前 4 个样本、常量加速度恒等、短序列不崩、长度不匹配报错）。
+
+### 10.2 地图匹配：解锁 4 条车道类约束
+
+`data_utils/apollo_lane_index.py` 把 `base_map.bin` 的 `Curve → Segment → LineSegment → Point`
+解析成车道点列 + 网格索引，给出有符号横向偏移、航向差、车道限速、turn。
+
+| bag | 地图 | 匹配率 | lateral 中位 | \|lat\| max | \|heading\| p90 |
+|---|---|---|---|---|---|
+| 2688 | wuhan_qianjinjiayuan | 100% | **+0.01 m** | 0.09 m | 0.6° |
+| 2714 | chongqing_yongnan | 100% | **−0.31 m** | 0.56 m | 2.7° |
+| 3183 | 8997_shunfengsuyun… | 100% | **+0.01 m** | 0.05 m | 0.3° |
+| 2292 / 3123 / 3139 | — | 不可匹配 | 只有 21 GB / 34 GB 的 `base_map.txt` | | |
+
+- **符号是重点**：2714 整条轨迹恒偏左 0.31 m，说明地图中心线与实际行车线有系统偏差（不是匹配错误）。
+  它会吃掉 0.9 m 偏离阈值的约三分之一 —— 显式量化，不做静默校正。
+- **数据供给缺口**：3/6 条录包没有可解析的 `base_map.bin`，这些 bag 的车道类约束只能"不出判定"，不能猜。
+
+### 10.3 挖掘契约扩到 12 条（M5 的 8 条 + 4 条车道类）
+
+新增：`lane_departure`、`heading_mismatch`、`overspeed`、`multi_lane_wander`。重跑结果：
+
+| 量 | M5 | M6 |
+|---|---|---|
+| 可挖约束 | 8/20 | **12/20** |
+| 切片 | 487 | **636** |
+
+新增命中：`lane_departure` 73（全在 3183）、`multi_lane_wander` 2、`heading_mismatch` 1、`overspeed` **0**（车队没有超速，或匹配车道限速恰好更高）。
+
+### 10.4 又抓到两个 bug（都改掉了）
+
+1. **车道偏离在停车时触发**：3183 的 684 个"偏离"帧里 **523 帧速度只有 0.02 m/s** —— 那是停在装卸点，
+   不是偏离。车道类谓词全部加"行驶中" guard（`ego_speed_mps > 0.5`），偏离切片 219 → 73。
+2. **`lane_id` 解析带进了 protobuf 头**：解出来是 `'\n\x0815790859'`。某些地图代际把 id 包了一层 message，
+   现在先尝试整串 ASCII，失败则再拆一层。
 
 ---
 
-## 11. 评审仪式（每个 milestone 收口必须交的四件东西）
+## 11. 下一步（M7）
+
+把 636 个切片转成可跑的 PufferDrive 场景，并在真切片上做场景级可行性裁判：
+
+| 项 | 验收数字 |
+|---|---|
+| 切片入库 | 636 → 场景的成功率 + 失败原因分类（缺地图 bin / 缺 route / 缺 goal …） |
+| 场景级可行性 | 每切片 IDM / REPLAY / STATIC 三分判定，"不可解"直接弃用 |
+| 回归保留率 | 同一 bad case 在策略更新后是否仍然失败（1→100 的第二个 KPI） |
+
+---
+
+## 12. 评审仪式（每个 milestone 收口必须交的四件东西）
 
 收口不是"写完了"，而是"可被 review 了"。每个 milestone 必须同时产出：
 
@@ -315,13 +371,15 @@ bag 总量：26–36 通道 / 1.0–3.0 万消息 / 每条 10–20 s。
 
 | 文件 | 覆盖 | 生成命令 |
 |---|---|---|
-| `docs/html/milestone_review.html` | M1–M5 总览看板 | `python scripts/milestone_review.py` |
+| `docs/html/milestone_review.html` | M1–M6 总览看板 | `python scripts/milestone_review.py` |
 | `docs/html/spec_v0_coverage.html` | M1 字段覆盖率 | `python scripts/spec_report.py` |
 | `docs/html/spec_v0_data_audit.html` | M2 三源审计 | `python scripts/spec_audit.py` |
 | `docs/html/spec_v0_obs_envelope.html` | M3 观测包络 | `python scripts/spec_envelope_report.py` |
 | `docs/html/constraints_v0_library.html` | M4 约束库 | `python scripts/constraint_judge.py` |
 | `docs/html/constraints_v0_feasibility.html` | M4 可行性裁判 | `python scripts/constraint_feasibility.py` |
 | `docs/html/badcase_mining_v0.html` | M5 bad case 挖掘 | `python scripts/badcase_mine.py` |
+| `docs/html/bridge_washin_report.html` | M6 桥接 wash-in | `python scripts/bridge_washin_report.py` |
+| `docs/html/map_match_report.html` | M6 地图匹配 | `python scripts/map_match_report.py` |
 
 原则：**看板里的数字一律从原始产物重算**（`spec/*.yaml`、`docs/measured/audit_canonical_v0.json`、`docs/measured/obs_envelope_6bags.json`、真跑一遍可行性裁判），
 不手抄、不复用历史值。手抄的数字一旦漂移，看板就从"验收工具"变成"幻觉放大器"。
