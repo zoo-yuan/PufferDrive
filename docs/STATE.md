@@ -1,7 +1,7 @@
 # STATE
 
-As-of: 9d813755
-（2026-11-04 纯文档会话；代码 HEAD = 9d813755）
+As-of: 5cfe970a
+（2026-11-04 会话：车辆/观测实测 + ACTION_TYPE_CONTROL + 数值对拍；本次提交仅补 As-of，不改代码）
 约定：本仓库自有 `AGENTS.md` 仍是放置规则权威；strata 分层（STATE / adr / lessons）自 2026-10-09 启用。
 
 ## Where（现状，均已对照代码核实）
