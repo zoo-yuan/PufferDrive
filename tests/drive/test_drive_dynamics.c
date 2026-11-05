@@ -98,6 +98,125 @@ static int test_neutral_actions_zero_out(void) {
     return 0;
 }
 
+static void drive_set_agent_motion(Agent *agent, float x, float y, float heading, float speed) {
+    agent->sim_x = x;
+    agent->sim_y = y;
+    agent->sim_heading = heading;
+    agent->cos_heading = cosf(heading);
+    agent->sin_heading = sinf(heading);
+    agent->sim_vx = speed * cosf(heading);
+    agent->sim_vy = speed * sinf(heading);
+    agent->sim_speed = fabsf(speed);
+    agent->sim_speed_signed = speed;
+    agent->accel_long = 0.0f;
+    agent->accel_lat = 0.0f;
+    agent->steering_angle = 0.0f;
+    agent->wheelbase = 2.7f;
+    copy_pose_to_prev(agent);
+}
+
+static int test_control_mode_executes_accel_and_curvature(void) {
+    srand(31);
+    Drive env = drive_test_make_env(drive_carla_map(), SIMULATION_MODE_GIGAFLOW, 1, 0);
+    env.action_type = ACTION_TYPE_CONTROL;
+    env.integration_scheme = INTEGRATION_SCHEME_MODEL_EULER;
+    env.skip_actuator_limits = 1;
+    env.dynamics_model = DYNAMICS_MODEL_JERK;
+    int agent_idx = env.active_agent_indices[0];
+    Agent *agent = &env.agents[agent_idx];
+    drive_set_agent_motion(agent, 10.0f, 20.0f, 0.3f, 10.0f);
+
+    ((float (*)[2]) env.actions)[0][0] = 1.0f;  // a_long [m/s^2]
+    ((float (*)[2]) env.actions)[0][1] = 0.05f; // kappa [1/m]
+    move_dynamics(&env, 0, agent_idx);
+
+    float v_expected = 10.0f + 1.0f * env.dt;
+    float heading_expected = 0.3f + 0.05f * v_expected * env.dt;
+    EXPECT_NEAR(agent->sim_speed_signed, v_expected, 1e-5f);
+    EXPECT_NEAR(agent->sim_x, 10.0f + v_expected * cosf(heading_expected) * env.dt, 1e-4f);
+    EXPECT_NEAR(agent->sim_y, 20.0f + v_expected * sinf(heading_expected) * env.dt, 1e-4f);
+    EXPECT_NEAR(agent->sim_heading, heading_expected, 1e-5f);
+    EXPECT_NEAR(agent->accel_long, 1.0f, 1e-6f);
+    EXPECT_NEAR(agent->accel_lat, 0.05f * v_expected * v_expected, 1e-4f);
+    EXPECT_NEAR(agent->yaw_rate, 0.05f * v_expected, 1e-5f);
+    free_allocated(&env);
+    return 0;
+}
+
+static int test_control_mode_ignores_reward_coefficients(void) {
+    srand(37);
+    Drive env = drive_test_make_env(drive_carla_map(), SIMULATION_MODE_GIGAFLOW, 1, 0);
+    env.action_type = ACTION_TYPE_CONTROL;
+    env.integration_scheme = INTEGRATION_SCHEME_MODEL_EULER;
+    env.skip_actuator_limits = 1;
+    env.dynamics_model = DYNAMICS_MODEL_JERK;
+    int agent_idx = env.active_agent_indices[0];
+    Agent *agent = &env.agents[agent_idx];
+    drive_set_agent_motion(agent, 0.0f, 0.0f, 0.0f, 10.0f);
+    // Reward conditioning must not scale a direct control action.
+    agent->reward_coefs[REWARD_COEF_THROTTLE] = 0.1f;
+    agent->reward_coefs[REWARD_COEF_STEER] = 0.1f;
+    agent->reward_coefs[REWARD_COEF_ACC] = 0.1f;
+
+    ((float (*)[2]) env.actions)[0][0] = 2.0f;
+    ((float (*)[2]) env.actions)[0][1] = 0.0f;
+    move_dynamics(&env, 0, agent_idx);
+
+    EXPECT_NEAR(agent->accel_long, 2.0f, 1e-6f);
+    EXPECT_NEAR(agent->sim_speed_signed, 10.0f + 2.0f * env.dt, 1e-5f);
+    free_allocated(&env);
+    return 0;
+}
+
+static int test_control_mode_applies_actuator_limits(void) {
+    srand(41);
+    Drive env = drive_test_make_env(drive_carla_map(), SIMULATION_MODE_GIGAFLOW, 1, 0);
+    env.action_type = ACTION_TYPE_CONTROL;
+    env.integration_scheme = INTEGRATION_SCHEME_MODEL_EULER;
+    env.skip_actuator_limits = 0;
+    env.dynamics_model = DYNAMICS_MODEL_JERK;
+    int agent_idx = env.active_agent_indices[0];
+    Agent *agent = &env.agents[agent_idx];
+    drive_set_agent_motion(agent, 0.0f, 0.0f, 0.0f, 10.0f);
+
+    ((float (*)[2]) env.actions)[0][0] = -50.0f; // clipped to ACCEL_LONG_LIMIT[0]
+    ((float (*)[2]) env.actions)[0][1] = 5.0f;   // clipped by steering rate
+    move_dynamics(&env, 0, agent_idx);
+
+    EXPECT_NEAR(agent->accel_long, ACCEL_LONG_LIMIT[0], 1e-6f);
+    EXPECT_NEAR(agent->sim_speed_signed, 10.0f + ACCEL_LONG_LIMIT[0] * env.dt, 1e-5f);
+    EXPECT_TRUE(agent->steering_angle > 0.0f);
+    EXPECT_TRUE(agent->steering_angle <= STEER_RATE_LIMIT_RADPS * env.dt + 1e-6f);
+    free_allocated(&env);
+    return 0;
+}
+
+static int test_control_mode_euler_integrates_three_steps(void) {
+    srand(43);
+    Drive env = drive_test_make_env(drive_carla_map(), SIMULATION_MODE_GIGAFLOW, 1, 0);
+    env.action_type = ACTION_TYPE_CONTROL;
+    env.integration_scheme = INTEGRATION_SCHEME_MODEL_EULER;
+    env.skip_actuator_limits = 1;
+    env.dynamics_model = DYNAMICS_MODEL_JERK;
+    int agent_idx = env.active_agent_indices[0];
+    Agent *agent = &env.agents[agent_idx];
+    drive_set_agent_motion(agent, 0.0f, 0.0f, 0.0f, 8.0f);
+
+    ((float (*)[2]) env.actions)[0][0] = 0.5f;
+    ((float (*)[2]) env.actions)[0][1] = 0.02f;
+    for (int step = 0; step < 3; step++) {
+        move_dynamics(&env, 0, agent_idx);
+    }
+
+    // Independently computed semi-implicit Euler reference for the same inputs.
+    EXPECT_NEAR(agent->sim_speed_signed, 8.15f, 1e-4f);
+    EXPECT_NEAR(agent->sim_heading, 0.0486f, 1e-4f);
+    EXPECT_NEAR(agent->sim_x, 2.428511f, 1e-4f);
+    EXPECT_NEAR(agent->sim_y, 0.078712f, 1e-4f);
+    free_allocated(&env);
+    return 0;
+}
+
 int main(void) {
     int failures = 0;
     RUN_TEST(test_classic_action_clipping);
@@ -105,5 +224,9 @@ int main(void) {
     RUN_TEST(test_dynamics_stopped_agent_clears_motion);
     RUN_TEST(test_dynamics_removed_agent_invalidated);
     RUN_TEST(test_neutral_actions_zero_out);
+    RUN_TEST(test_control_mode_executes_accel_and_curvature);
+    RUN_TEST(test_control_mode_ignores_reward_coefficients);
+    RUN_TEST(test_control_mode_applies_actuator_limits);
+    RUN_TEST(test_control_mode_euler_integrates_three_steps);
     return test_summary(failures);
 }

@@ -1958,6 +1958,8 @@ static PyObject *map_cache_release_py(
 
 static int my_init(Env *env, PyObject *args, PyObject *kwargs) {
     env->action_type = (int) unpack(kwargs, "action_type");
+    env->integration_scheme = (int) unpack(kwargs, "integration_scheme");
+    env->skip_actuator_limits = (int) unpack(kwargs, "skip_actuator_limits");
     env->dynamics_model = (int) unpack(kwargs, "dynamics_model");
     env->reset_accel_on_stop = (bool) unpack(kwargs, "reset_accel_on_stop");
     env->reward_goal = (float) unpack(kwargs, "reward_goal");

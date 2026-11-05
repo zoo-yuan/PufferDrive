@@ -109,6 +109,12 @@ class SimulationMode(Enum):
 class ActionType(Enum):
     discrete = 0
     continuous = 1
+    control = 2
+
+
+class IntegrationScheme(Enum):
+    arc = 0
+    model_euler = 1
 
 
 class DynamicsModel(Enum):
@@ -246,6 +252,8 @@ class DriveEnvConfig:
     max_agents_per_env: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
     action_type: ActionType = MISSING
     dynamics_model: DynamicsModel = MISSING
+    integration_scheme: IntegrationScheme = IntegrationScheme.arc
+    skip_actuator_limits: bool = False
     reset_accel_on_stop: bool = MISSING
     dt: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     base_max_speed_mps: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)

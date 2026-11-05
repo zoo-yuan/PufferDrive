@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>从"能不能借用"到"可验证"：一次会话的因果链</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+      var sections = document.querySelectorAll('section[id]');
+      var links = document.querySelectorAll('.toc-list a');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            links.forEach(function(l) { l.classList.remove('active'); });
+            var a = document.querySelector('.toc-list a[href="#' + e.target.id + '"]');
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -60% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    });
+  </script>
+  <style>
+:root {
+  --bg: #f5f7fb; --card: #ffffff; --text: #1f2937; --muted: #667085;
+  --line: #e5e7eb; --primary: #7c3aed; --primary-soft: #faf5ff;
+  --accent: #2563eb; --shadow: 0 10px 30px rgba(15,23,42,0.08);
+  --radius: 18px; --max: 1640px; --toc-w: 240px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: linear-gradient(180deg,#fdf4ff 0%,var(--bg) 240px);
+  color: var(--text);
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height: 1.85;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.page { max-width: var(--max); margin: 0 auto; padding: 32px 24px 80px; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: var(--toc-w) minmax(0,1fr); gap: 28px; align-items: start; }
+.hero {
+  background: radial-gradient(circle at top right,rgba(124,58,237,0.12),transparent 30%),
+              radial-gradient(circle at left bottom,rgba(37,99,235,0.08),transparent 24%), var(--card);
+  border: 1px solid rgba(124,58,237,0.15); border-radius: 24px;
+  box-shadow: var(--shadow); padding: 36px 40px 30px; margin-bottom: 24px;
+}
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #faf5ff; color: #6d28d9; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+h1 { margin: 0 0 10px; font-size: 28px; line-height: 1.25; letter-spacing: -0.02em; }
+.subtitle { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* ── TOC ── */
+.toc { position: sticky; top: 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.toc h2 { margin: 0 0 12px; font-size: 15px; }
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-list li { margin: 0; }
+.toc-list a { display: block; padding: 5px 8px; border-radius: 8px; color: var(--muted); font-size: 13px; transition: all 0.15s; }
+.toc-list a:hover { color: var(--primary); background: #faf5ff; text-decoration: none; }
+.toc-list a.active { color: var(--primary); background: #eff6ff; font-weight: 600; border-left: 3px solid var(--primary); padding-left: 5px; }
+.toc-sub { list-style: none; padding-left: 12px; margin: 0; }
+.toc-sub a { font-size: 12px; padding: 3px 8px; }
+
+/* ── Content ── */
+.content { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 30px 36px; }
+h2 { margin: 0 0 16px; font-size: 24px; }
+h3 { margin: 24px 0 10px; font-size: 18px; color: #111827; border-left: 3px solid #e9d5ff; padding-left: 10px; }
+h4 { margin: 18px 0 8px; font-size: 16px; color: #374151; font-weight: 700; }
+p { margin: 0 0 12px; }
+
+/* ── Callouts ── */
+.callout-blue   { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-amber  { background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-green  { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-purple { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-red    { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-gray   { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-title  { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.callout-blue .callout-title   { color: #1d4ed8; }
+.callout-amber .callout-title  { color: #92400e; }
+.callout-green .callout-title  { color: #166534; }
+.callout-purple .callout-title { color: #6d28d9; }
+.callout-red .callout-title    { color: #9f1239; }
+.callout-gray .callout-title   { color: #334155; }
+
+/* ── Step boxes ── */
+.step-box { display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; padding: 16px 18px; background: #fafafa; border: 1px solid var(--line); border-radius: 14px; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.step-content { flex: 1; min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+.step-content strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: #faf5ff; color: #4c1d95; text-align: left; font-weight: 700; padding: 10px 14px; border-bottom: 2px solid #e9d5ff; }
+td { padding: 10px 14px; border-bottom: 1px solid #eef2f7; vertical-align: top; }
+tbody tr:nth-child(even) { background: #fefaff; }
+
+/* ── Code ── */
+pre { background: #1e1e2e; border-radius: 12px; padding: 16px 20px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; line-height: 1.8; color: #cdd6f4; white-space: pre; }
+code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 7px; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; color: #6d28d9; }
+pre code { background: none; border: none; padding: 0; color: #cdd6f4; }
+
+/* ── Misc ── */
+blockquote { margin: 18px 0; padding: 16px 20px; border-left: 4px solid var(--primary); background: rgba(124,58,237,0.05); border-radius: 0 12px 12px 0; color: #3f3f46; font-size: 15px; }
+ul, ol { padding-left: 24px; margin: 8px 0 12px; }
+li { margin: 6px 0; }
+img { max-width: 100%; border-radius: 12px; margin: 12px 0; }
+hr { border: none; border-top: 2px dashed #e9d5ff; margin: 24px 0; }
+
+/* ── Badges ── */
+.badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 99px; margin: 2px; }
+.badge-purple { background: #ede9fe; color: #4c1d95; }
+.badge-green  { background: #dcfce7; color: #166534; }
+.badge-amber  { background: #fef3c7; color: #92400e; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+
+@media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .toc { position: static; } }
+@media (max-width: 640px) { .page { padding: 18px 12px 56px; } .hero, .section { padding: 20px 18px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <div class="eyebrow">🧭 会话复盘</div>
+      <h1>从"能不能借用"到"可验证"：一次会话的因果链</h1>
+      <p class="subtitle">PufferDrive × Apollo HD map × rino data · 2026-11-04</p>
+    </div>
+    <div class="layout">
+      <nav class="toc">
+<h2>&#128209; &#30446;&#24405;</h2>
+<ul class="toc-list">
+<li><a href="#0">0. 一句话</a></li>
+<li><a href="#1">1. 起点：三个问题，一个真实决策</a></li>
+<li><a href="#2">2. 五个转折（触发 → 证据 → 裁决 → 产物）</a></li>
+<li><a href="#3">3. 总流程图</a></li>
+<li><a href="#4">4. 三条因果链</a></li>
+<ul class="toc-sub">
+<li><a href="#41">4.1 执行链：动作语义 → 积分器 → 对拍</a></li>
+<li><a href="#42-occ">4.2 世界链：地图 → 双视图 → occ → 两个域</a></li>
+<li><a href="#43-bad-case">4.3 迭代链：bad case → 种子 → 约束 → 回归</a></li>
+</ul>
+<li><a href="#5">5. 本次测出的关键数字</a></li>
+<li><a href="#6">6. 现在的位置</a></li>
+<li><a href="#7">7. 未决依赖图</a></li>
+<li><a href="#8">8. 一句话总结</a></li>
+</ul>
+</nav>
+      <div class="content">
+        <div class="section">
+<section id="0"><h2>0. 一句话</h2><p>这次会话<strong>没有写训练代码</strong>。它做的是把三个模糊主张——"地图能搬进来"、"RL 能出海量"、"bad case 能修"——逐个拆成<strong>可测的量</strong>，再把它们接到一条<strong>可复现的执行链</strong>上。</p>
+<div class="callout-purple">
+  <div class="callout-title">🔔 结论先行</div>
+  <div>地图能不能搬、RL 能多快、约束够不够，这三个问题的答案都不在文档里，而在<strong>三个实测数字</strong>里：感知 70 m、数据年龄 0.53 s、积分器偏差 3e-5 m。先有尺子，再谈模型。</div>
+</div>
+
+<hr /></div>
+<div class="section">
+<section id="1"><h2>1. 起点：三个问题，一个真实决策</h2><table>
+<thead>
+<tr>
+<th>层</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>表面问题</strong></td>
+<td>PufferDrive 的能力边界？能不能吃 Apollo HD map 格式？能不能用 bag（occ polygons + BEVDet bboxes）做海量 RL，训出 robust planner？</td>
+</tr>
+<tr>
+<td><strong>真实决策</strong></td>
+<td>要不要把"自有地图/日志 → 场景"这条 ETL 排到最前面？还是先承认 PufferDrive 的价值在<strong>世界与反馈回路</strong>，几何多样性用现成数据？</td>
+</tr>
+<tr>
+<td><strong>隐含成功标准</strong></td>
+<td>不是在仿真里刷分，而是<strong>部署模态下</strong>、在<strong>没见过的地图与感知抖动</strong>下都不退化，并且<strong>能持续吃 bad case</strong>。</td>
+</tr>
+<tr>
+<td><strong>硬约束</strong></td>
+<td>5000+ 车数据只采一次；12 个月；部署契约是 Nova；计算资源有限。</td>
+</tr>
+</tbody>
+</table>
+<hr /></div>
+<div class="section">
+<section id="2"><h2>2. 五个转折（触发 → 证据 → 裁决 → 产物）</h2><div class="step-box">
+  <div class="step-num">1</div>
+  <div class="step-content">
+    <strong>事实层：先把"能做什么"钉死</strong>
+    <div><p><strong>触发</strong>：需要知道 PufferDrive 到底能吃什么。</p>
+<p><strong>证据</strong>（读代码，不是猜）：</p>
+<ul>
+<li>观测是<strong>纯向量化</strong>：ego + 16 partner + 70 lane + 50 boundary + 4 traffic control（<code>drive.py:263-275</code>）</li>
+<li>地图 <code>.bin</code> 其实是 <strong>scene bundle</strong>：agents 全轨迹 + roads + traffic + <code>scenario_id</code>（<code>map_data.h:325-720</code>）</li>
+<li>objects 段被 <strong><code>fseek</code> 直接跳过</strong>（<code>map_data.h:636-646</code>）→ occ polygon 目前<strong>无处安放</strong></li>
+<li>仓库里<strong>没有任何 map loader</strong>：nuPlan/WOMD 的 bin 全部来自外部转换器（py123d / ScenarioMax）</li>
+<li>Apollo 地图实测：<strong>21,174 个 tile / 148 GB / 31 站点</strong>，protobuf + UTM</li>
+</ul>
+<p><strong>裁决</strong>：地图不是"搬进来"，而是<strong>分成两个消费者</strong>。</p></div>
+  </div>
+</div>
+
+<div class="step-box">
+  <div class="step-num">2</div>
+  <div class="step-content">
+    <strong>分歧：地图进 Core 还是进编码器</strong>
+    <div><p><strong>触发</strong>："没有 Apollo HD map，地图作为 env 一部分进 encoder 的需求就无法满足。"</p>
+<p><strong>证据</strong>：Core 的 <code>RoadMapElement</code> 只有 <code>type / entry / exit / speed_limit</code>；而编码器要的是 <code>lane_turn_type / boundary_type / overlap 拓扑</code>。</p>
+<p><strong>裁决</strong>：<strong>一源两投影</strong>——仿真视图（几何/连通/交通控制）给 Core，编码视图（Apollo 原生语义）给编码器。反推会丢信息。</p>
+<p><strong>产物</strong>：<code>docs/adr/0007</code>、<code>docs/vehicle_profile.md</code></p></div>
+  </div>
+</div>
+
+<div class="step-box">
+  <div class="step-num">3</div>
+  <div class="step-content">
+    <strong>关键变量：部署到底吃什么</strong>
+    <div><p><strong>触发</strong>：所有设计都取决于一件事——线上 planner 的输入契约。</p>
+<p><strong>证据</strong>：owner 回答 <strong>A：Nova，特权向量</strong>（HD map + 16 帧 track + occ + TL）。</p>
+<p><strong>裁决</strong>：接 A ≠ 把 Nova 当契约。owner 随后明确"<strong>不必拘泥 nova</strong>，能拿到 SOTA 就行"。
+→ <strong>canonical spec 模型无关；Nova 降级为基线 + 参考实现。</strong></p>
+<p><strong>产物</strong>：<code>docs/adr/0007</code> D2</p></div>
+  </div>
+</div>
+
+<div class="step-box">
+  <div class="step-num">4</div>
+  <div class="step-content">
+    <strong>方法论：RL 是核心，bad case 是种子</strong>
+    <div><p><strong>触发</strong>：owner 指出 RL 才是核心手段，并用 Terra 系列举证。</p>
+<p><strong>证据</strong>：TerraZero 纯 self-play、零人类演示，拿到 nuPlan val14 <strong>94.19（#1）</strong>、InterPlan <strong>70.87（#1）</strong>；吞吐 560K–2.8M agent-steps/s。</p>
+<p><strong>裁决</strong>：RL 承担 0→1；<strong>bad case 承担 1→100</strong>，且它是<strong>场景种子 + 约束束</strong>，不是标签。
+反馈契约 = <strong>A-only</strong>：只有约束、没有专家修正、没有好样本。
+分布口径：违规型 <strong>80%</strong> / 体感型 <strong>20%</strong>。</p>
+<p><strong>产物</strong>：<code>docs/2026-11-04-badcase-as-scenario-seed-constraint-loop.md</code>（1→100 回路、20 条约束模板、两个 KPI）</p></div>
+  </div>
+</div>
+
+<div class="step-box">
+  <div class="step-num">5</div>
+  <div class="step-content">
+    <strong>落地：从"能跑"到"能验"</strong>
+    <div><p><strong>触发</strong>：执行层的三个小问题——动作、积分器、限幅。</p>
+<p><strong>证据</strong>：</p>
+<ul>
+<li>Nova 的轨迹自带控制量 <code>(acc, κ)</code>；<code>a_lat = κ·v²</code> 与仿真可逆对接</li>
+<li>但 PufferDrive 的 jerk 接口有三处会<strong>静默改写</strong>控制量：反解饱和、<code>c_throttle/c_steer</code> 缩放、零穿越吸附</li>
+<li>Nova 的积分器是<strong>半隐式 Euler</strong>，PufferDrive 是<strong>梯形 + 精确圆弧</strong></li>
+<li>实车参数：δ_max 0.6056 rad、δ̇_max 0.4234 rad/s → <strong>满舵要 1.43 s</strong>（仿真只给 0.92–1.11 s）</li>
+</ul>
+<p><strong>裁决</strong>：先造尺子——<code>ACTION_TYPE_CONTROL</code> + <code>model_euler</code> + <code>skip_actuator_limits</code>，然后<strong>数值对拍</strong>。</p>
+<p><strong>产物</strong>：4 个 C 测试 + 7 个对拍测试；积分器偏差 <strong>1.7e-5–3.4e-5 m / 6 s</strong></p></div>
+  </div>
+</div>
+
+<hr /></div>
+<div class="section">
+<section id="3"><h2>3. 总流程图</h2><pre><code>┌──────────────────────────────────────────────────────────────────────┐
+│ 问题：PufferDrive 能不能承载 rino 数据的 RL？                        │
+└───────────────────────────────┬──────────────────────────────────────┘
+                                │
+        ┌───────────────────────┴────────────────────────┐
+        ▼                                                ▼
+┌───────────────────┐                          ┌────────────────────┐
+│ 事实：能吃什么？  │                          │ 变量：部署吃什么？ │
+│ · obs 纯向量化    │                          │ → A：Nova 特权向量 │
+│ · bin=scene bundle│                          └─────────┬──────────┘
+│ · objects 被跳过  │                                    │
+│ · 无 map loader   │                                    ▼
+└─────────┬─────────┘                          ┌────────────────────┐
+          │                                    │ 裁决：模型无关     │
+          ▼                                    │ Nova = 基线        │
+┌───────────────────┐                          └─────────┬──────────┘
+│ 裁决：一源两投影  │                                    │
+│ 仿真视图 / 编码视图│                                   │
+└─────────┬─────────┘                                    │
+          │                                              │
+          └───────────────┬──────────────────────────────┘
+                          ▼
+              ┌──────────────────────────┐
+              │ 方法论：RL 为核心        │
+              │ bad case = 种子 + 约束   │
+              │ A-only · 80/20           │
+              └────────────┬─────────────┘
+                           │
+                           ▼
+              ┌──────────────────────────┐
+              │ 执行链：动作 → 积分 → 对拍│
+              │ 发现：acc wash-in        │
+              │ 0.39–0.92 m / 6 s        │
+              └────────────┬─────────────┘
+                           │
+                           ▼
+              ┌──────────────────────────┐
+              │ 观测链：70 m / 0.53 s    │
+              │ → agent_range_m          │
+              │ → observation_delay_s    │
+              └────────────┬─────────────┘
+                           │
+                           ▼
+              ┌──────────────────────────┐
+              │ 未决：canonical spec     │
+              │ （其余全部排在它后面）    │
+              └──────────────────────────┘
+</code></pre>
+<hr /></div>
+<div class="section">
+<section id="4"><h2>4. 三条因果链</h2><h3 id="41">4.1 执行链：动作语义 → 积分器 → 对拍</h3>
+<pre><code>模型输出 (acc, κ)
+   │
+   ├─ 仿真若走 jerk 接口 → 被三处静默改写（反解饱和 / 奖励系数 / 零穿越吸附）
+   │     └─▶ 无法归因：车没按模型走，是谁的错？
+   │
+   ├─ 新增 ACTION_TYPE_CONTROL → 直连 (a_long, κ)
+   │     └─▶ 还剩一个问题：积分器不一样（梯形+圆弧 vs 半隐式 Euler）
+   │
+   ├─ 新增 integration_scheme=model_euler
+   │     └─▶ 对拍通过：60 步偏差 3e-5 m（float32 噪声）
+   │
+   └─ 对拍时发现：Nova inference 会对前 4 个加速度做 wash-in
+         └─▶ 不洗：6 s 偏 0.39–0.92 m（比积分器误差大 4 个数量级）
+               └─▶ 裁决：wash-in 归桥接层，已有测试双向钉住
+</code></pre>
+<h3 id="42-occ">4.2 世界链：地图 → 双视图 → occ → 两个域</h3>
+<pre><code>Apollo HD map (protobuf, 21k tiles)
+   │
+   ├─ 仿真视图：几何 + 连通 + 交通控制 ──▶ PufferDrive bin
+   │     └─ 只服务物理/碰撞/route/IDM
+   │
+   ├─ 编码视图：Apollo 原生语义 ────────▶ encoder
+   │     └─ 不经过 Core（否则丢 boundary_type / turn_type / overlap）
+   │
+   ├─ occ：当前 loader 直接跳过 objects，且 object 只有 9 条 float 轨迹
+   │     └─▶ 裁决：occ 是物理实体 → 必须新增表示（碰撞 + 导出）
+   │
+   └─ 场景来源：走廊锚定（有日志可对拍） + 全图漫游（无真值，靠内禀约束）
+         └─▶ 两个合法性域，两套裁判
+</code></pre>
+<h3 id="43-bad-case">4.3 迭代链：bad case → 种子 → 约束 → 回归</h3>
+<pre><code>bad case（bag + t + 可下载 HD map）
+   │
+   ├─ 只有&quot;约束&quot;，没有专家修正/好样本/标签（A-only）
+   │
+   ├─ 违规型 80%：18 项 metrics 就是谓词 → 全自动挖掘，零标注
+   │     └─ 入口需物理可行性门禁（实测有 38 m/s 的定位跳变）
+   │
+   ├─ 体感型 20%：必须人工翻译成量化谓词
+   │     └─ 翻译不了的就明确放弃（&quot;约束全绿、司机不认&quot;是这个方案最可能的失败形态）
+   │
+   └─ 回路：场景切片 → 场景族 → 可行性裁判 → RL fine-tune → 回归保留
+         └─ KPI 不是分数，是「约束覆盖率」与「回归保留率」
+</code></pre>
+<hr /></div>
+<div class="section">
+<section id="5"><h2>5. 本次测出的关键数字</h2><table>
+<thead>
+<tr>
+<th>量</th>
+<th>值</th>
+<th>它改变了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前轮最大转角 / 角速率</td>
+<td>0.60564 rad / 0.42336 rad/s</td>
+<td>仿真限幅从 0.667/0.6 改到真值</td>
+</tr>
+<tr>
+<td>直线 → 满舵</td>
+<td>1.43 s（仿真原 0.92–1.11 s）</td>
+<td>模型学的"可行性边界"原来偏乐观 35–55%</td>
+</tr>
+<tr>
+<td>运营速度</td>
+<td>12.5 m/s（AD 能力，非底盘硬限）</td>
+<td>不能写成动力学夹，要写成约束</td>
+</tr>
+<tr>
+<td>底盘设计速度</td>
+<td>50–60 km/h</td>
+<td>动力学夹应落在这里</td>
+</tr>
+<tr>
+<td>a_lat 实测代理</td>
+<td>8.0 m/s²（596 s 样本，未冻结）</td>
+<td>替换那个把高速转弯砍半的 ±4</td>
+</tr>
+<tr>
+<td>感知最远距离</td>
+<td>≈70 m（&gt;100 m 为 0）</td>
+<td>仿真 partner 观测 200 m → 差 2.8 倍</td>
+</tr>
+<tr>
+<td>控制侧数据年龄</td>
+<td>0.53 s（12.5 m/s 下盲开 6.6 m）</td>
+<td>仿真零延迟 → 策略比实车激进</td>
+</tr>
+<tr>
+<td>积分器偏差</td>
+<td>3e-5 m / 6 s</td>
+<td>执行链干净</td>
+</tr>
+<tr>
+<td>不做 wash-in 的偏差</td>
+<td>0.39–0.92 m / 6 s</td>
+<td>桥接层必需预处理</td>
+</tr>
+<tr>
+<td>数据质量</td>
+<td>38 m/s、κ&gt;κ_max 的帧存在</td>
+<td>场景抽取必须门禁</td>
+</tr>
+</tbody>
+</table>
+<hr /></div>
+<div class="section">
+<section id="6"><h2>6. 现在的位置</h2><table>
+<thead>
+<tr>
+<th>能做</th>
+<th>不能做（以及为什么）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>直连执行 <code>(acc, κ)</code> 并用 <code>model_euler</code> 精确复现模型轨迹</td>
+<td>不能把 <code>(acc, κ)</code> 原样喂进去——wash-in 还没进桥接层</td>
+</tr>
+<tr>
+<td>用 <code>metrics_array</code> 18 项自动挖违规帧</td>
+<td>不能扫 rino bag——bag→scene 转换器还不存在</td>
+</tr>
+<tr>
+<td>量任意 Apollo bag 的感知距离/延迟/横向包络</td>
+<td>不能训练——canonical spec 未冻结，且 <code>pufferlib._C</code> 缺 C++20</td>
+</tr>
+<tr>
+<td>跑 C 单测（10 个程序）与对拍（7 例）</td>
+<td>不能证明"仿真里变好 = 实车变好"——回归相关性那层还没建</td>
+</tr>
+</tbody>
+</table>
+<hr /></div>
+<div class="section">
+<section id="7"><h2>7. 未决依赖图</h2><pre><code>canonical spec（未冻结）
+   ├── observation_delay_s / agent_range_m 的实现
+   ├── 三源 adapter（WOMD / nuPlan / rino）
+   ├── 桥接层的 acc wash-in 落位
+   └── 约束模板库的参数字典
+
+g++ 11/13（未安装）
+   └── pufferlib._C → puffer train 全链路
+</code></pre>
+<div class="callout-amber">
+  <div class="callout-title">⚠️ 最容易忘的一条</div>
+  <div>12.5 m/s 与 a_lat 8.0 都是<strong>系统能力 / 轮胎代理</strong>，不是动力学硬限。写进动力学夹会同时犯两个错：伪造物理、让策略学不到"超速后怎么收"。</div>
+</div>
+
+<hr /></div>
+<div class="section">
+<section id="8"><h2>8. 一句话总结</h2><p><strong>这次会话的产出不是"能跑的模型"，而是一把尺子和一张地图</strong>：尺子能量出仿真与实车在动作、积分、观测、延迟上的偏差；地图标出了从 bad case 到回归集的回路。<strong>下一步不是继续造尺子，是冻结 canonical spec——它是唯一挡在所有实现前面的东西。</strong></p></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

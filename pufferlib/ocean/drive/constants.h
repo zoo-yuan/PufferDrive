@@ -116,6 +116,19 @@
 // Action representation
 #define ACTION_TYPE_DISCRETE 0
 #define ACTION_TYPE_CONTINUOUS 1
+// Direct control: action = (longitudinal acceleration [m/s^2], curvature [1/m]).
+// Bypasses jerk inversion, reward-conditioning coefficients and zero-crossing
+// snap so a trajectory-level planner's control sequence executes as written.
+#define ACTION_TYPE_CONTROL 2
+
+// Pose integration scheme for ACTION_TYPE_CONTROL.
+//   ARC         - legacy bicycle arc (d = mean speed * dt, theta = d * kappa)
+//   MODEL_EULER - semi-implicit Euler used by the nova planner integration:
+//                 v += a*dt; yaw += kappa*v*dt; xy += v*(cos yaw, sin yaw)*dt
+#define INTEGRATION_SCHEME_ARC 0
+#define INTEGRATION_SCHEME_MODEL_EULER 1
+
+#define STEER_RATE_LIMIT_RADPS 0.6f
 
 // =====================================================================================
 // 3. DYNAMICS

@@ -155,6 +155,8 @@ struct Drive {
     int num_max_agents;
     int num_agents;
     int action_type;
+    int integration_scheme;   // INTEGRATION_SCHEME_*; ACTION_TYPE_CONTROL only
+    int skip_actuator_limits; // ACTION_TYPE_CONTROL only; parity tests set this
     int static_agent_count;
     int *static_agent_indices;
     int expert_static_agent_count;
@@ -4187,6 +4189,65 @@ static void compute_observations(Drive *env) {
     }
 }
 
+static void move_dynamics_control(Drive *env, int action_idx, int agent_idx) {
+    Agent *agent = &env->agents[agent_idx];
+    float (*action_array_f)[2] = (float (*)[2]) env->actions;
+    float a_long = action_array_f[action_idx][0];
+    float kappa = action_array_f[action_idx][1];
+
+    if (!env->skip_actuator_limits) {
+        a_long = clip(a_long, ACCEL_LONG_LIMIT[0], ACCEL_LONG_LIMIT[1]);
+        float target_steer = atanf(kappa * agent->wheelbase);
+        float steer_delta = clip(
+            target_steer - agent->steering_angle, -STEER_RATE_LIMIT_RADPS * env->dt, STEER_RATE_LIMIT_RADPS * env->dt);
+        agent->steering_angle = clip(agent->steering_angle + steer_delta, -STEERING_LIMIT, STEERING_LIMIT);
+        kappa = tanf(agent->steering_angle) / agent->wheelbase;
+    } else {
+        agent->steering_angle = atanf(kappa * agent->wheelbase);
+    }
+
+    float v_old = agent->sim_speed_signed;
+    float v_new = v_old + a_long * env->dt;
+    if (!env->skip_actuator_limits) {
+        v_new = clip(v_new, MAX_BACKWARD_SPEED, env->base_max_speed_mps);
+    }
+
+    float yaw_rate = kappa * v_new;
+    float heading_new = normalize_heading(agent->sim_heading + yaw_rate * env->dt);
+
+    if (env->integration_scheme == INTEGRATION_SCHEME_MODEL_EULER) {
+        agent->sim_x += v_new * cosf(heading_new) * env->dt;
+        agent->sim_y += v_new * sinf(heading_new) * env->dt;
+    } else {
+        float d = 0.5f * (v_new + v_old) * env->dt;
+        float theta = d * kappa;
+        float dx_local = d;
+        float dy_local = 0.0f;
+        if (fabsf(kappa) >= 1e-5f && fabsf(theta) >= 1e-5f) {
+            dx_local = sinf(theta) / kappa;
+            dy_local = (1.0f - cosf(theta)) / kappa;
+        }
+        agent->sim_x += dx_local * agent->cos_heading - dy_local * agent->sin_heading;
+        agent->sim_y += dx_local * agent->sin_heading + dy_local * agent->cos_heading;
+    }
+
+    agent->sim_heading = heading_new;
+    agent->cos_heading = cosf(heading_new);
+    agent->sin_heading = sinf(heading_new);
+    agent->sim_vx = v_new * agent->cos_heading;
+    agent->sim_vy = v_new * agent->sin_heading;
+    agent->yaw_rate = yaw_rate;
+
+    float a_lat_new = kappa * v_new * v_new;
+    update_agent_speed(agent);
+    agent->jerk_long = (a_long - agent->accel_long) / env->dt;
+    agent->jerk_lat = (a_lat_new - agent->accel_lat) / env->dt;
+    agent->accel_long = a_long;
+    agent->accel_lat = a_lat_new;
+
+    update_agent_z(env, agent);
+}
+
 static void move_dynamics(Drive *env, int action_idx, int agent_idx) {
     Agent *agent = &env->agents[agent_idx];
     copy_pose_to_prev(agent);
@@ -4198,6 +4259,11 @@ static void move_dynamics(Drive *env, int action_idx, int agent_idx) {
     if (agent->stopped) {
         clear_agent_motion(agent);
         agent->steering_angle = 0.0f;
+        return;
+    }
+
+    if (env->action_type == ACTION_TYPE_CONTROL) {
+        move_dynamics_control(env, action_idx, agent_idx);
         return;
     }
 

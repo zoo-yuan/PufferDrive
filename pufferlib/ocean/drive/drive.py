@@ -59,6 +59,8 @@ class Drive(pufferlib.PufferEnv):
         max_agents_per_env=64,
         action_type="discrete",
         dynamics_model="classic",
+        integration_scheme="arc",
+        skip_actuator_limits=False,
         reset_accel_on_stop=False,
         simulation_mode="gigaflow",
         termination_mode=False,
@@ -188,6 +190,11 @@ class Drive(pufferlib.PufferEnv):
             "classic": binding.DYNAMICS_MODEL_CLASSIC,
             "jerk": binding.DYNAMICS_MODEL_JERK,
         }[dynamics_model]
+        self.integration_scheme_flag = {
+            "arc": binding.INTEGRATION_SCHEME_ARC,
+            "model_euler": binding.INTEGRATION_SCHEME_MODEL_EULER,
+        }[integration_scheme]
+        self.skip_actuator_limits = bool(skip_actuator_limits)
         self.reset_accel_on_stop = reset_accel_on_stop
         self.eval_mode = eval_mode
         self.num_eval_scenarios = num_eval_scenarios
@@ -343,6 +350,15 @@ class Drive(pufferlib.PufferEnv):
                 )
             else:
                 self.single_action_space = gymnasium.spaces.Discrete(len(binding.JERK_LONG) * len(binding.JERK_LAT))
+        elif action_type == "control":
+            # Physical units: (longitudinal acceleration [m/s^2], curvature [1/m]).
+            # The C side clamps to actuator limits unless skip_actuator_limits is set.
+            self._action_type_flag = binding.ACTION_TYPE_CONTROL
+            self.single_action_space = gymnasium.spaces.Box(
+                low=np.full(2, -np.inf, dtype=np.float32),
+                high=np.full(2, np.inf, dtype=np.float32),
+                dtype=np.float32,
+            )
         else:
             self._action_type_flag = binding.ACTION_TYPE_CONTINUOUS
             self.single_action_space = gymnasium.spaces.Box(low=-1, high=1, shape=(2,), dtype=np.float32)
@@ -428,6 +444,8 @@ class Drive(pufferlib.PufferEnv):
         return {
             "action_type": self._action_type_flag,
             "dynamics_model": self.dynamics_model_flag,
+            "integration_scheme": self.integration_scheme_flag,
+            "skip_actuator_limits": int(self.skip_actuator_limits),
             "reset_accel_on_stop": self.reset_accel_on_stop,
             "reward_goal": self.reward_goal,
             "reward_collision": self.reward_collision,
