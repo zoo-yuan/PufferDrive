@@ -1,0 +1,768 @@
+# L0 canonical scene/feature spec —— v0（模型无关）
+#
+# 权威裁决：docs/adr/0007-badcase-as-scenario-seed-and-constraint-only-feedback.md（decision 3）
+# 本文件是「字段清单」的唯一真值源；docs/ 里的散文表格由 scripts/spec_report.py 生成，不手写。
+# 变更协议见 spec/README.md：改字段 = 改本文件 + 跑报告器 + 数字过 gate。
+#
+# 属性语义：
+#   unit    物理单位；无量纲写 "1"，索引/id 写 "-"
+#   frame   global | ego_rfu | agent_rfu | screen（坐标系，混用是本项目历史第一大 bug 源）
+#   dtype   f32 | i32 | i64 | bool | f32[N]
+#   time    current | history16 | future80 | future60 | static
+#   truth   该字段的一手真值来源（不可自我生成）
+#   sim     native（仿真内核已有）| bridged（需桥接层产出）| absent（两侧都没有）
+#   nova    在 Nova 19 输入 / 4 输出里的落点；"projection" 表示派生视图，不是核心字段
+#   status  frozen（已定，可依赖）| draft（待 owner 确认）| blocked（依赖未决项）
+#
+# 硬约束（gate）：
+#   1. 禁字段缺失任一必填属性
+#   2. occ 是物理实体（进碰撞/offroad 热路径），不得仅作观测通道
+#   3. 地图射程与障碍射程必须两个字段，不得合并（ADR-0007 / vehicle_profile §4.2）
+
+schema_version: canonical_v0
+as_of: 2026-11-04
+baseline_commit: 5cfe970a
+owner_decision: docs/adr/0007-badcase-as-scenario-seed-and-constraint-only-feedback.md
+envelope_source: docs/vehicle_profile.md
+
+groups:
+  # ---------------------------------------------------------------- ego
+  - id: ego
+    label: 自车状态（t0 与历史）
+    fields:
+      - id: ego_pose_x_m
+        unit: m
+        frame: global
+        dtype: f32
+        time: current
+        truth: bag Apollo localization（localization pose）
+        sim: native
+        nova: ego_xy
+        status: frozen
+        note: PufferDrive world 系 heading 0 = +x；换 RFU 时 p_l = R(π/2−θ)(p_g−t)
+      - id: ego_pose_y_m
+        unit: m
+        frame: global
+        dtype: f32
+        time: current
+        truth: bag Apollo localization
+        sim: native
+        nova: ego_xy
+        status: frozen
+      - id: ego_pose_z_m
+        unit: m
+        frame: global
+        dtype: f32
+        time: current
+        truth: bag Apollo localization
+        sim: native
+        nova: "-"
+        status: draft
+        note: 3D 碰撞 z 轴拒绝已达标；观测侧是否暴露待定
+      - id: ego_heading_rad
+        unit: rad
+        frame: global
+        dtype: f32
+        time: current
+        truth: bag Apollo localization
+        sim: native
+        nova: ego_heading
+        status: frozen
+      - id: ego_speed_mps
+        unit: m/s
+        frame: ego_rfu
+        dtype: f32
+        time: current
+        truth: bag Apollo localization（速度模长）
+        sim: native
+        nova: ego_v
+        status: frozen
+      - id: ego_vel_xy_mps
+        unit: m/s
+        frame: global
+        dtype: f32[2]
+        time: current
+        truth: bag Apollo localization
+        sim: native
+        nova: ego_vx_vy
+        status: frozen
+        note: PufferDrive 侧为包围盒中心速度；后轴中心需用 yaw_rate 换算
+      - id: ego_acc_long_mps2
+        unit: m/s²
+        frame: ego_rfu
+        dtype: f32
+        time: current
+        truth: bag localization 二阶差分（需 wash-in）
+        sim: native
+        nova: ego_acc
+        status: frozen
+        note: 不洗前 4 步 ⇒ 6 s 偏 0.39–0.92 m（test_raw_control_diverges_from_model_intent）
+      - id: ego_acc_lat_mps2
+        unit: m/s²
+        frame: ego_rfu
+        dtype: f32
+        time: current
+        truth: bag 实测代理 8.0 m/s²（596 s 样本，未冻结）
+        sim: bridged
+        nova: ego_acc_lat
+        status: draft
+        note: 不是底盘硬限；12.5 m/s 与 a_lat 均为约束性质（vehicle_profile §4.1）
+      - id: ego_kappa_1pm
+        unit: 1/m
+        frame: ego_rfu
+        dtype: f32
+        time: current
+        truth: ψ̇ / v（yaw_rate ÷ speed）
+        sim: native
+        nova: ego_kappa
+        status: frozen
+        note: κ_max = 0.3147（= tan(0.60564)/2.20），超限帧入口门禁拒绝
+      - id: ego_steering_angle_rad
+        unit: rad
+        frame: ego_rfu
+        dtype: f32
+        time: current
+        truth: 前轮转角 = 方向盘角 / steer_ratio(14.84)
+        sim: native
+        nova: "-"
+        status: frozen
+        note: 方向盘语义与 δ_max = 0.60564 不可混用；STEER_RATE_LIMIT = 0.42336 rad/s
+      - id: ego_yaw_rate_radps
+        unit: rad/s
+        frame: global
+        dtype: f32
+        time: current
+        truth: bag localization（heading 差分）
+        sim: native
+        nova: "-"
+        status: frozen
+      - id: ego_length_m
+        unit: m
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: vehicle_param（1.39/3.865 包围盒）
+        sim: native
+        nova: ego_shape
+        status: frozen
+      - id: ego_width_m
+        unit: m
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: vehicle_param
+        sim: native
+        nova: ego_shape
+        status: frozen
+      - id: ego_height_m
+        unit: m
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: vehicle_param（2.10）
+        sim: native
+        nova: "-"
+        status: frozen
+        note: 车顶无传感器（vehicle_profile §1）
+      - id: ego_wheelbase_m
+        unit: m
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: vehicle_param（2.20）
+        sim: bridged
+        nova: "-"
+        status: draft
+        note: 需把 ego wheelbase 从当前值改为 2.20（STATE P0 限幅标定）
+      - id: vehicle_param_id
+        unit: "-"
+        frame: "-"
+        dtype: i32
+        time: static
+        truth: vehicle_param 档案（3799 = 车型类，非单车）
+        sim: absent
+        nova: "-"
+        status: frozen
+        note: 多车型接入必须带此字段；新增车型按 vehicle_profile §6 复制
+      - id: ego_history16_pose
+        unit: m
+        frame: global
+        dtype: f32[16][4]
+        time: history16
+        truth: bag localization 16 帧 @10Hz
+        sim: native
+        nova: ego_his
+        status: frozen
+        note: t0 = 第 16 帧；观察历史不可与 GT 未来混用
+
+  # -------------------------------------------------------------- agents
+  - id: agents
+    label: 其他交通参与者
+    fields:
+      - id: agent_count
+        unit: "-"
+        frame: "-"
+        dtype: i32
+        time: current
+        truth: bag perception 轨迹 + 有效性过滤（不用 GT 全集）
+        sim: native
+        nova: agent_mask
+        status: frozen
+        note: 密度是独立可调变量；agent 集合先保真
+      - id: agent_id
+        unit: "-"
+        frame: "-"
+        dtype: i32
+        time: current
+        truth: bag perception track id
+        sim: native
+        nova: "-"
+        status: frozen
+        note: 跨帧稳定 id 才可用于 track 级抖动注入（ADR-0004）
+      - id: agent_type
+        unit: "-"
+        frame: "-"
+        dtype: i32
+        time: current
+        truth: bag perception 分类（vehicle/ped/cyclist/static）
+        sim: native
+        nova: agent_type
+        status: frozen
+      - id: agent_pose_xy_m
+        unit: m
+        frame: global
+        dtype: f32[N][2]
+        time: current
+        truth: bag perception
+        sim: native
+        nova: agent_xy
+        status: frozen
+      - id: agent_heading_rad
+        unit: rad
+        frame: global
+        dtype: f32[N]
+        time: current
+        truth: bag perception（+ 抖动注入，ADR-0004）
+        sim: native
+        nova: agent_heading
+        status: frozen
+      - id: agent_vel_mps
+        unit: m/s
+        frame: global
+        dtype: f32[N][2]
+        time: current
+        truth: bag perception
+        sim: native
+        nova: agent_v
+        status: frozen
+      - id: agent_dims_m
+        unit: m
+        frame: agent_rfu
+        dtype: f32[N][3]
+        time: current
+        truth: bag perception（L/W/H）
+        sim: native
+        nova: agent_shape
+        status: frozen
+      - id: agent_valid_mask
+        unit: "1"
+        frame: "-"
+        dtype: bool[N]
+        time: current
+        truth: 感知有效性 + sensor_age 门禁
+        sim: native
+        nova: agent_mask
+        status: frozen
+      - id: agent_history16
+        unit: m
+        frame: global
+        dtype: f32[N][16][5]
+        time: history16
+        truth: bag perception 16 帧
+        sim: native
+        nova: obs_his
+        status: frozen
+        note: 抖动注入点（track 级时间相关 + CIPV 加权，ADR-0004）
+      - id: agent_controller
+        unit: "-"
+        frame: "-"
+        dtype: i32
+        time: current
+        truth: 仿真侧编排（STATIC/POLICY/REPLAY/IDM）
+        sim: native
+        nova: "-"
+        status: frozen
+        note: 反应性轴：E1a = REPLAY，E1b = IDM/RL（CONTEXT E1a/E1b）
+      - id: agent_route_ids
+        unit: "-"
+        frame: "-"
+        dtype: i32[N][K]
+        time: static
+        truth: 地图拓扑推导（route lanes）
+        sim: native
+        nova: "-"
+        status: draft
+        note: route_length / current_route_idx / route_gt_len 语义未在 spec 层固化
+
+  # ----------------------------------------------------------------- occ
+  - id: occ
+    label: 占据/静态障碍（物理实体）
+    fields:
+      - id: occ_count
+        unit: "-"
+        frame: "-"
+        dtype: i32
+        time: current
+        truth: 派生 = perception obstacles 实例数 + HD map 静态物数
+        sim: native
+        nova: "-"
+        status: frozen
+        note: occ 进碰撞/offroad 热路径（ADR-0007 decision 4），不是纯观测；bag 内无占据栅格通道（审计实证）
+      - id: occ_polygons_xy_m
+        unit: m
+        frame: global
+        dtype: f32[M][P][2]
+        time: current
+        truth: bag /apollo/perception/obstacles 的 polygon_point（100% 实例带多边形，中位 9 点）+ HD map 静态物
+        sim: native
+        nova: occ_polygons（仅训练侧 ESDF）
+        status: frozen
+        note: 不是占据栅格——bag 内无 occ/grid 通道；perception 只给对象级多边形，静态多边形来自 HD map
+      - id: occ_heights_m
+        unit: m
+        frame: global
+        dtype: f32[M]
+        time: current
+        truth: 派生 = perception obstacle.height + HD map 静态物高度
+        sim: bridged
+        nova: static_polygon_heights
+        status: draft
+      - id: occ_types
+        unit: "-"
+        frame: "-"
+        dtype: i32[M]
+        time: current
+        truth: 派生 = perception obstacle.type + HD map 静态物类别（token 0–7）
+        sim: bridged
+        nova: static_polygon_types
+        status: draft
+      - id: occ_valid_mask
+        unit: "1"
+        frame: "-"
+        dtype: bool[M]
+        time: current
+        truth: 派生 = perception 有效性位 + map 静态物存在性
+        sim: bridged
+        nova: static_polygon_mask
+        status: draft
+      - id: static_objects_from_map
+        unit: "-"
+        frame: global
+        dtype: f32[K][4]
+        time: static
+        truth: HD map 静态物（PufferDrive 40 个 -> cap 32）
+        sim: native
+        nova: static_polygon_*（projection）
+        status: draft
+        note: cap 32 按 AABB 到 ego 距离升序截断，丢弃数必须上报
+
+  # ------------------------------------------------------- map/topology
+  - id: map
+    label: HD 地图几何与拓扑
+    fields:
+      - id: map_lane_centerline
+        unit: m
+        frame: ego_rfu
+        dtype: f32[E][P][7]
+        time: static
+        truth: Apollo HD Map → Producer 14ch（LanePolyline）
+        sim: bridged
+        nova: map_vector_features（15 维统一元素）
+        status: frozen
+        note: Core 只认几何/连通/交通控制；14ch 由语义外挂给，不经过 Core
+      - id: map_lane_boundary
+        unit: m
+        frame: ego_rfu
+        dtype: f32[E][P][7]
+        time: static
+        truth: Apollo HD Map（LaneBoundaryPolyline）
+        sim: bridged
+        nova: map_vector_features
+        status: frozen
+      - id: map_hard_boundary
+        unit: m
+        frame: ego_rfu
+        dtype: f32[E][P][7]
+        time: static
+        truth: Apollo HD Map（HardboundaryPolyline）
+        sim: bridged
+        nova: map_vector_features
+        status: frozen
+      - id: map_crosswalk
+        unit: m
+        frame: ego_rfu
+        dtype: f32[E][P][5]
+        time: static
+        truth: Apollo HD Map（CrosswalkPolyline）
+        sim: bridged
+        nova: map_vector_features
+        status: frozen
+      - id: map_stopline
+        unit: m
+        frame: ego_rfu
+        dtype: f32[E][P][10]
+        time: static
+        truth: Apollo HD Map（StoplinePolyline）
+        sim: bridged
+        nova: map_vector_features
+        status: frozen
+      - id: map_semantic_label
+        unit: "-"
+        frame: "-"
+        dtype: i32[E]
+        time: static
+        truth: Producer 编码（0=centerline/3=stopline/4=crosswalk/6=hard_boundary）
+        sim: bridged
+        nova: map_vector_features
+        status: frozen
+      - id: map_topology_predecessor
+        unit: "-"
+        frame: "-"
+        dtype: i32[E][K]
+        time: static
+        truth: Apollo HD Map Lane.predecessor_id
+        sim: native
+        nova: map_vector_features（隐式）
+        status: frozen
+        note: Core 已有 num_entries/entry_lanes（lane 索引，非 Apollo id）；转换器负责 id→索引映射
+      - id: map_topology_successor
+        unit: "-"
+        frame: "-"
+        dtype: i32[E][K]
+        time: static
+        truth: Apollo HD Map Lane.successor_id
+        sim: native
+        nova: map_vector_features（隐式）
+        status: frozen
+        note: Core 已有 num_exits/exit_lanes；路网连通裁判可用（审计：3/3 地图密度 1.05–1.08）
+      - id: map_turn_type
+        unit: "-"
+        frame: "-"
+        dtype: i32[E]
+        time: static
+        truth: Apollo HD Map Lane.turn
+        sim: bridged
+        nova: map_vector_features
+        status: frozen
+        note: owner 裁决 2026-11-05 = map 侧表（lane_id→turn），不进 RoadMapElement（ADR-0008）；Apollo 侧 100% 覆盖（1.00/lane）
+      - id: map_speed_limit_mps
+        unit: m/s
+        frame: "-"
+        dtype: f32[E]
+        time: static
+        truth: Apollo HD Map Lane.speed_limit
+        sim: native
+        nova: map_vector_features
+        status: frozen
+        note: 超速约束 12.5 m/s 是 AD 能力上限，与此字段不同性质（vehicle_profile §4.1）
+      - id: map_map_range_m
+        unit: m
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: 编码窗口（200 m）
+        sim: native
+        nova: map_vector_features
+        status: frozen
+        note: 地图可看远，障碍物不能——与 agent_range_m 是两个字段
+
+  # ---------------------------------------------------- traffic controls
+  - id: traffic
+    label: 交通控制（信号灯/停车标志/相位）
+    fields:
+      - id: tl_id
+        unit: "-"
+        frame: "-"
+        dtype: i32[T]
+        time: current
+        truth: Apollo HD Map Signal + 实时相位（bag）
+        sim: native
+        nova: "-"
+        status: frozen
+      - id: tl_state
+        unit: "-"
+        frame: "-"
+        dtype: i32[T]
+        time: current
+        truth: bag 实时灯色
+        sim: native
+        nova: traffic_light_state
+        status: frozen
+        note: pred_traffic_light_decision 已随 ADR-0006 删除，只保留状态输入
+      - id: tl_remaining_s
+        unit: s
+        frame: "-"
+        dtype: f32[T]
+        time: current
+        truth: 信号相位表（map）− 当前时刻
+        sim: bridged
+        nova: traffic_light_remaining
+        status: draft
+        note: 倒计时在 A-only 下是强约束来源（闯灯判定），需与信号相位对齐
+      - id: tl_stop_line_xy_m
+        unit: m
+        frame: global
+        dtype: f32[T][2]
+        time: static
+        truth: Apollo HD Map Stopline / Signal.stop_line
+        sim: bridged
+        nova: stop_line_info（global，唯一非 RFU 输入）
+        status: frozen
+        note: 契约里 stop_line_info 是 global，不要 RFU 化
+      - id: traffic_control_type
+        unit: "-"
+        frame: "-"
+        dtype: i32[T]
+        time: static
+        truth: HD map（signal / stop_sign / yield）
+        sim: native
+        nova: "-"
+        status: frozen
+      - id: tl_phase_schedule
+        unit: s
+        frame: "-"
+        dtype: f32[T][G][2]
+        time: static
+        truth: Apollo HD Map Signal phases
+        sim: bridged
+        nova: "-"
+        status: draft
+
+  # ------------------------------------------------------- route / goal
+  - id: route
+    label: 参考线与目标
+    fields:
+      - id: refline_slots_xy_m
+        unit: m
+        frame: ego_rfu
+        dtype: f32[3][P][2]
+        time: static
+        truth: 录制 5 条严格序（ego/left/right/left-left/right-right）→ 3 槽几何序
+        sim: bridged
+        nova: refline_slots
+        status: frozen
+        note: 按最近有效点 |lat| 升序；三槽全零 = 占位帧，必须跳过推理
+      - id: refline_slot0_is_ego
+        unit: "1"
+        frame: "-"
+        dtype: bool
+        time: static
+        truth: 几何序校验（slot0 必须真实 ego 线）
+        sim: bridged
+        nova: refline_slots
+        status: frozen
+        note: ADR-0006 硬约束；无真实 ego 线 ⇒ 该帧跳过推理
+      - id: route_points_xy_m
+        unit: m
+        frame: global
+        dtype: f32[R][2]
+        time: static
+        truth: 地图拓扑串联（routing）
+        sim: native
+        nova: "-"
+        status: draft
+      - id: goal_xy_m
+        unit: m
+        frame: global
+        dtype: f32[3]
+        time: static
+        truth: agent GT 轨迹终点（scene 构建时）
+        sim: native
+        nova: "-"
+        status: frozen
+      - id: goal_source
+        unit: "-"
+        frame: "-"
+        dtype: i32
+        time: static
+        truth: 构建策略（GT 终点 / 手动 / 采样）
+        sim: native
+        nova: "-"
+        status: frozen
+        note: 漫游域与走廊域的 goal 来源不同，是合法性域判据的一部分
+
+  # --------------------------------------------------------- provenance
+  - id: provenance
+    label: 溯源与观测包络
+    fields:
+      - id: scenario_id
+        unit: "-"
+        frame: "-"
+        dtype: str
+        time: static
+        truth: 编码 bag_id#frame（map_data.h scenario_id[128]）
+        sim: native
+        nova: "-"
+        status: frozen
+        note: 语义外挂与 Core 靠它对齐；也是 bad case 切片主键
+      - id: bag_id
+        unit: "-"
+        frame: "-"
+        dtype: str
+        time: static
+        truth: 数据湖 record 名
+        sim: absent
+        nova: "-"
+        status: frozen
+      - id: frame_timestamp_s
+        unit: s
+        frame: "-"
+        dtype: f64
+        time: static
+        truth: bag header.timestamp_sec
+        sim: bridged
+        nova: "-"
+        status: frozen
+        note: 复现 bad case 的唯一入口（bag + 时间戳）
+      - id: data_age_s
+        unit: s
+        frame: "-"
+        dtype: f32
+        time: current
+        truth: 实测 0.53 s（simple 包 p50）
+        sim: bridged
+        nova: "-"
+        status: draft
+        note: bev 包 1.04 s 含录包开销，只作上界
+      - id: sensor_age_s
+        unit: s
+        frame: "-"
+        dtype: f32
+        time: current
+        truth: perception 侧 publish_lag
+        sim: absent
+        nova: "-"
+        status: draft
+        note: fork 约定 header.timestamp_sec == lidar_timestamp，真实延迟在 publish_lag
+      - id: map_version
+        unit: "-"
+        frame: "-"
+        dtype: str
+        time: static
+        truth: HD map 版本号
+        sim: absent
+        nova: "-"
+        status: frozen
+        note: 切片必须带地图版本，否则 bad case 不可复现
+      - id: perception_version
+        unit: "-"
+        frame: "-"
+        dtype: str
+        time: static
+        truth: 外部台账（release.info 的 version/commit/branch/time）
+        sim: absent
+        nova: "-"
+        status: frozen
+      - id: models_version
+        unit: "-"
+        frame: "-"
+        dtype: str
+        time: static
+        truth: 外部台账（构建清单 / release.info）
+        sim: absent
+        nova: "-"
+        status: frozen
+      - id: map_range_m
+        unit: m
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: 编码窗口 200
+        sim: native
+        nova: map_vector_features
+        status: frozen
+        note: 与 map.map_map_range_m 同值同源（此处为全局参数视图）
+      - id: agent_range_m
+        unit: m
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: 6 条录包实测：per-message max p50 66.2 m / p100 中位 73.4 m；89,304 个观测中 >100 m 为 0
+        sim: native
+        nova: agent_*
+        status: frozen
+        note: 已落地 obs_range_partner_m 200→70（puffer_drive.yaml）；地图仍 200（两个字段不可合并）
+      - id: observation_delay_s
+        unit: s
+        frame: "-"
+        dtype: f32
+        time: current
+        truth: 6 条录包实测 control 侧数据年龄 p50 中位 0.78 s（0.41–1.21）；保留为 per-scenario provenance
+        sim: bridged
+        nova: "-"
+        status: frozen
+        note: 已落地 Drive._apply_observation_delay（ring buffer，量化到 dt）；dt=0.3 时 3 步 = 0.9 s；原候选 0.53 仅来自 rx-2714 单条
+        note: 当前 0；12.5 m/s 下盲开 6.6 m；与 agent_range_m 必须同时上
+
+  # ------------------------------------------------------ driver profile
+  - id: vehicle
+    label: 车辆能力（限幅/约束分性质）
+    fields:
+      - id: max_steer_angle_rad
+        unit: rad
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: vehicle_param 8.9877/14.84 = 0.60564（前轮）
+        sim: bridged
+        nova: "-"
+        status: frozen
+        note: 当前 STEERING_LIMIT 0.667，需改 0.60564（classic+jerk 两处同源）
+      - id: max_steer_rate_radps
+        unit: rad/s
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: vehicle_param 6.2827/14.84 = 0.42336
+        sim: bridged
+        nova: "-"
+        status: frozen
+        note: 当前 0.6；满舵 1.43 s（仿真现为 0.92–1.11 s）
+      - id: max_accel_mps2
+        unit: m/s²
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: vehicle_param 3.0（硬限）
+        sim: bridged
+        nova: "-"
+        status: frozen
+      - id: max_decel_mps2
+        unit: m/s²
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: vehicle_param −6.0（硬限）
+        sim: bridged
+        nova: "-"
+        status: frozen
+      - id: max_speed_mps
+        unit: m/s
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: 底盘设计上限 16.7（50–60 km/h）
+        sim: bridged
+        nova: "-"
+        status: frozen
+        note: 12.5 m/s 是 AD 系统能力 ⇒ 约束/指标，不进动力学夹
+      - id: lat_accel_limit_mps2
+        unit: m/s²
+        frame: ego_rfu
+        dtype: f32
+        time: static
+        truth: bag 实测代理 8.0（596 s，未冻结）
+        sim: bridged
+        nova: "-"
+        status: draft
+        note: control 模式已撤 ACCEL_LAT_LIMIT 硬夹；待数据湖重跑
