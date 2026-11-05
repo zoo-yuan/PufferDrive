@@ -44,6 +44,18 @@ SPEC_PATH = REPO_ROOT / "spec" / "canonical_v0.yaml"
 CONSTRAINTS_PATH = REPO_ROOT / "spec" / "constraints_v0.yaml"
 AUDIT_CACHE = REPO_ROOT / "docs" / "measured" / "audit_canonical_v0.json"
 ENVELOPE_JSON = REPO_ROOT / "docs" / "measured" / "obs_envelope_6bags.json"
+MINING_JSON = REPO_ROOT / "docs" / "measured" / "badcase_mining_v0.json"
+
+CONSTRAINT_CATEGORY = {
+    "ttc_shortfall": "violation",
+    "braking_distance_short": "violation",
+    "collision_any": "violation",
+    "cut_in_conflict": "violation",
+    "lat_accel_over": "comfort",
+    "long_accel_over": "comfort",
+    "jerk_over": "comfort",
+    "stall_crawl": "progress",
+}
 
 PALETTE = {
     "frozen": "#1a7f37",
@@ -67,6 +79,8 @@ REQUIRED_ARTIFACTS = (
     "docs/html/spec_v0_obs_envelope.html",
     "docs/html/constraints_v0_library.html",
     "docs/html/constraints_v0_feasibility.html",
+    "docs/html/badcase_mining_v0.html",
+    "docs/measured/badcase_mining_v0.json",
 )
 ARTIFACT_NAV = (
     ("spec_v0_coverage.html", "M1 字段覆盖率", "73 字段 × 8 组，含阻塞清单"),
@@ -74,6 +88,7 @@ ARTIFACT_NAV = (
     ("spec_v0_obs_envelope.html", "M3 观测包络", "距离直方图 + 数据年龄"),
     ("constraints_v0_library.html", "M4 约束库", "20 模板 × 18 指标矩阵"),
     ("constraints_v0_feasibility.html", "M4 可行性裁判", "IDM / REPLAY / STATIC 真跑"),
+    ("badcase_mining_v0.html", "M5 bad case 挖掘", "8 条可挖约束 × 6 条录包"),
 )
 SCRIPT_ARTIFACTS = (
     "scripts/spec_report.py",
@@ -84,7 +99,7 @@ SCRIPT_ARTIFACTS = (
 )
 
 
-def consistency_gate(spec_n, audit_n, env_n, con_n, feas_n):
+def consistency_gate(spec_n, audit_n, env_n, con_n, feas_n, mining_n):
     """看板自身的 gate：上游数字一致 + 验收物在位。
 
     看板不重跑上游 gate（每条都能单独跑），但它必须保证自己读到的数字没漂：
@@ -106,6 +121,10 @@ def consistency_gate(spec_n, audit_n, env_n, con_n, feas_n):
     judged = sum(feas_n["verdicts"].values())
     if judged != con_n["templates"]:
         failures.append(f"可行性判定 {judged} != 模板数 {con_n['templates']}")
+    if mining_n is None:
+        failures.append("缺 M5 挖掘结果（先跑 scripts/badcase_mine.py）")
+    elif mining_n["total_slices"] != sum(mining_n["per_bag"].values()):
+        failures.append("挖掘切片总数与 per-bag 汇总不一致")
     for artifact in REQUIRED_ARTIFACTS + SCRIPT_ARTIFACTS:
         if not (REPO_ROOT / artifact).exists():
             failures.append(f"缺验收物 {artifact}")
@@ -164,6 +183,27 @@ def load_envelope_numbers():
     rows, histogram = collect_envelope(records)
     failures, summary = envelope_gate(rows, histogram)
     return {"rows": rows, "histogram": histogram, "summary": summary, "failures": failures}
+
+
+def load_mining_numbers():
+    if not MINING_JSON.exists():
+        return None
+    data = json.loads(MINING_JSON.read_text(encoding="utf-8"))
+    per_template = {}
+    per_bag = {}
+    for key, value in data.get("counts", {}).items():
+        template_id, bag = key.split("|")
+        per_template[template_id] = per_template.get(template_id, 0) + value
+        per_bag[bag] = per_bag.get(bag, 0) + value
+    return {
+        "evaluable": data.get("evaluable_templates", []),
+        "summary": data["summary"],
+        "slices": data["slices"],
+        "per_template": per_template,
+        "per_bag": per_bag,
+        "bags": data["bags"],
+        "total_slices": sum(len(items) for items in data["slices"].values()),
+    }
 
 
 def load_constraint_numbers():
@@ -374,7 +414,7 @@ def gate_table(rows):
 
 
 # ---------------------------------------------------------------------- 页面
-def render(spec_n, audit_n, env_n, con_n, feas_n, flow):
+def render(spec_n, audit_n, env_n, con_n, feas_n, mining_n, flow):
     blind_distance = OPERATIONAL_SPEED_MPS * FROZEN_DELAY_S
     status = spec_n["status"]
     verdicts = audit_n["verdicts"] if audit_n else Counter()
@@ -415,7 +455,7 @@ code { background:var(--soft); border:1px solid var(--line); border-radius:4px; 
 .ok { border-left:3px solid #1a7f37; background:#f2fbf4; padding:10px 14px; border-radius:0 6px 6px 0; margin:8px 0; font-size:13px; }
 .fail { border-left:3px solid #cf222e; background:#fff5f5; padding:10px 14px; border-radius:0 6px 6px 0; margin:8px 0; font-size:13px; }
 .note { color:var(--mute); font-size:12.5px; }
-.nav { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:6px 0 10px; }
+.nav { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin:6px 0 10px; }
 .navitem { display:block; border:1px solid var(--line); border-radius:9px; padding:9px 12px;
   text-decoration:none; background:#fff; }
 .navitem b { display:block; font-size:12.5px; color:#0b6bcb; }
@@ -426,7 +466,7 @@ a { color:#0b6bcb; }
 
     parts.append("""
 <h1>Milestone 评审看板</h1>
-<p class="sub">canonical spec v0 执行链 · M1 → M4 已收口 · 所有数字由 <code>scripts/milestone_review.py</code>
+<p class="sub">canonical spec v0 执行链 · M1 → M5 已收口 · 所有数字由 <code>scripts/milestone_review.py</code>
 从原始产物重算，不手抄</p>""")
 
     parts.append('<div class="nav">')
@@ -653,8 +693,69 @@ a { color:#0b6bcb; }
     )
     parts.append("</div></div>")
 
+    # ---- M5
+    parts.append("<h2>6. M5 —— bad case 自动挖掘</h2>")
+    if mining_n:
+        summary = mining_n["summary"]
+        parts.append('<div class="cards four">')
+        parts.append(
+            kpi_card(
+                "可挖约束",
+                f"{len(mining_n['evaluable'])}/{summary['template_total']}",
+                f"其余 {summary['template_total'] - len(mining_n['evaluable'])} 条缺地图匹配",
+            )
+        )
+        parts.append(kpi_card("可信帧", summary["frames"], f"拒绝 {summary['rejected']} 帧"))
+        parts.append(kpi_card("切片", mining_n["total_slices"], "16 历史 + 80 未来"))
+        parts.append(kpi_card("命中 bag", summary["bags_with_hits"], f"共 {len(mining_n['bags'])} 条"))
+        parts.append("</div>")
+        parts.append('<div class="grid2">')
+        parts.append('<div class="box">')
+        parts.append("<h3>每模板切片数</h3>")
+        parts.append(
+            hbars(
+                sorted(
+                    [
+                        (name, value, PALETTE.get(CONSTRAINT_CATEGORY.get(name, ""), "#57606a"))
+                        for name, value in mining_n["per_template"].items()
+                    ],
+                    key=lambda item: -item[1],
+                ),
+                unit=" 条",
+            )
+        )
+        parts.append("<h3>每 bag 切片数</h3>")
+        parts.append(
+            hbars(
+                [(bag, mining_n["per_bag"].get(bag, 0), PALETTE["source_bridged"]) for bag in mining_n["bags"]],
+                unit=" 条",
+            )
+        )
+        parts.append("</div>")
+        parts.append('<div class="box">')
+        parts.append("<h3>review 要点</h3>")
+        parts.append(
+            '<div class="ok">8 条约束在 6 条录包上共挖出 '
+            f'<b>{mining_n["total_slices"]}</b> 个切片（占可信帧 {mining_n["total_slices"] / max(1, summary["frames"]):.1%}），'
+            "每条切片都带 <code>bag#frame</code> 与 provenance。</div>"
+        )
+        parts.append(
+            '<div class="warn"><b>零命中不是坏判据</b>：<code>lat_accel_over</code> 阈值 8.0 m/s²，'
+            "而这批数据 |a_lat| 最大只有 7.92 —— 这批包没有横向极限工况。</div>"
+        )
+        parts.append(
+            '<div class="warn"><b>挖掘裁判自己抓到的三个 bug</b>：'
+            "① in-path 用了车宽之和 → 邻道并排车被当成前车（命中率一度 58%）；"
+            "② pose 加速度直接差分 → |jerk| p50 5.5 m/s³（噪声），改滑窗三次拟合后 1.11；"
+            "③ cut_in 与 in-path 横向互斥 → 永远不触发，新增邻道候选特征。</div>"
+        )
+        parts.append('<p class="note">完整报告：<a href="badcase_mining_v0.html">badcase_mining_v0.html</a></p>')
+        parts.append("</div></div>")
+    else:
+        parts.append('<div class="fail">缺 <code>docs/measured/badcase_mining_v0.json</code></div>')
+
     # ---- 假设修正台账
-    parts.append("<h2>6. 被真实数据推翻的假设（review 重点）</h2>")
+    parts.append("<h2>7. 被真实数据推翻的假设（review 重点）</h2>")
     parts.append(
         "<table><thead><tr><th>#</th><th>原假设</th><th>实测</th><th>后果</th></tr></thead><tbody>"
         "<tr><td>1</td><td>occ 来自“bag perception 占据栅格”</td>"
@@ -669,11 +770,17 @@ a { color:#0b6bcb; }
         "<tr><td>4</td><td>约束谓词写出来就能用</td>"
         "<td><code>stall_crawl</code> 在静止起步就触发；IDM 自身违反 comfort 阈值</td>"
         "<td>加 warmup_s；IDM 标定问题入遗留</td></tr>"
+        "<tr><td>5</td><td>“最近障碍”就是“前车”</td>"
+        "<td>用双方车宽之和判定同车道，把邻道并排车算成前车，58% 的帧被判成追尾</td>"
+        "<td>in-path 收紧到半个车宽 + 0.3 m，命中率降到 5.4%</td></tr>"
+        "<tr><td>6</td><td>pose 加速度差分就等于 jerk</td>"
+        "<td>|jerk| 中位 5.5 m/s³、51% 帧超阈值、p90 到 41 —— 20 Hz 姿态噪声</td>"
+        "<td>改为滑窗三次拟合速度求导（窗口 1.0 s），噪声地板 1.11 m/s³</td></tr>"
         "</tbody></table>"
     )
 
     # ---- gate
-    parts.append("<h2>7. Gate 台账（可复跑）</h2>")
+    parts.append("<h2>8. Gate 台账（可复跑）</h2>")
     parts.append(
         gate_table(
             [
@@ -682,16 +789,17 @@ a { color:#0b6bcb; }
                 ("M3 观测包络", "python scripts/spec_envelope_report.py --check", "PASS", ">100 m 样本=0、p100 中位在 [60,80]、延迟中位在 [0.4,1.2]"),
                 ("M4 谓词可执行", "python scripts/constraint_judge.py --check", "PASS", "模板≥20、id 唯一、参数齐备、20/20 可执行"),
                 ("M4 可行性裁判", "python scripts/constraint_feasibility.py --check", "PASS", "三控制器均有有效评价步、STATIC 无独自触发的安全/体感谓词"),
+                ("M5 挖掘契约", "python scripts/badcase_mine.py --check", "PASS", "8 条可挖模板指回 constraints_v0、20 条全覆盖、所有 bag 被扫、门禁有计数"),
             ]
         )
     )
 
     # ---- 下一步
-    parts.append("<h2>8. 下一步（M5）与已知边界</h2>")
+    parts.append("<h2>9. 下一步（M6）与已知边界</h2>")
     parts.append(
         "<table><thead><tr><th>项</th><th>内容</th><th>验收数字</th></tr></thead><tbody>"
-        "<tr><td>M5</td><td>bad case 自动挖掘 + 场景切片（18 指标 + 20 条谓词扫数据湖）</td>"
-        "<td>每模板命中数分布、每 bag 命中密度、切片清单（含 provenance）</td></tr>"
+        "<tr><td>M6</td><td>桥接层 acc wash-in + 切片入库（把 487 个切片变成可跑场景）</td>"
+        "<td>6 s 内 max |Δxy| &lt; 1e-4 m；切片转 PufferDrive 场景成功率</td></tr>"
         "<tr><td>M6</td><td>桥接层 acc wash-in（对拍已就绪）</td>"
         "<td>6 s 内 max |Δxy| &lt; 1e-4 m</td></tr>"
         "</tbody></table>"
@@ -709,7 +817,7 @@ a { color:#0b6bcb; }
     return "".join(parts)
 
 
-def build_flow(spec_n, audit_n, env_n, con_n, feas_n):
+def build_flow(spec_n, audit_n, env_n, con_n, feas_n, mining_n):
     verdicts = audit_n["verdicts"] if audit_n else Counter()
     return [
         {
@@ -763,13 +871,25 @@ def build_flow(spec_n, audit_n, env_n, con_n, feas_n):
         {
             "id": "M5",
             "title": "bad case 挖掘",
+            "state": "done" if mining_n else "current",
+            "state_label": "已收口 · gate PASS" if mining_n else "进行中",
+            "metrics": (
+                [
+                    f"可挖 {len(mining_n['evaluable'])}/{mining_n['summary']['template_total']} 条约束",
+                    f"切片 {mining_n['total_slices']}",
+                    f"可信帧 {mining_n['summary']['frames']}",
+                ]
+                if mining_n
+                else ["扫数据湖", "切片 16+80", "—"]
+            ),
+            "artifact": "badcase_mining_v0.html",
+        },
+        {
+            "id": "M6",
+            "title": "桥接 + 入库",
             "state": "next",
             "state_label": "待排期",
-            "metrics": [
-                "扫数据湖（bag + HD map）",
-                "切片 16+80",
-                "每模板命中分布",
-            ],
+            "metrics": ["acc wash-in", "切片转场景", "对拍 < 1e-4 m"],
             "artifact": "（未生成）",
         },
     ]
@@ -787,6 +907,7 @@ def main():
     audit_n = load_audit_numbers()
     env_n = load_envelope_numbers()
     con_n = load_constraint_numbers()
+    mining_n = load_mining_numbers()
 
     if args.no_run:
         from collections import Counter as _Counter
@@ -810,17 +931,21 @@ def main():
         print("[audit]      " + " / ".join(f"{k}={v}" for k, v in audit_n["verdicts"].items()))
     print(f"[envelope]   p100 中位 {env_n['summary']['p100_median']:.1f} m，延迟中位 {env_n['summary']['delay_median']:.2f} s")
     print(f"[constraints] 模板 {con_n['templates']}，可执行 {con_n['executable']}")
+    if mining_n:
+        print(f"[mining]     可挖 {len(mining_n['evaluable'])} 条 · 切片 {mining_n['total_slices']} · 帧 {mining_n['summary']['frames']}")
 
-    failures = consistency_gate(spec_n, audit_n, env_n, con_n, feas_n)
+    failures = consistency_gate(spec_n, audit_n, env_n, con_n, feas_n, mining_n)
     for item in failures:
         print(f"GATE FAIL   : {item}")
     print("GATE        : " + ("PASS" if not failures else "FAIL"))
     if args.check:
         return 1 if failures else 0
 
-    flow = build_flow(spec_n, audit_n, env_n, con_n, feas_n)
+    flow = build_flow(spec_n, audit_n, env_n, con_n, feas_n, mining_n)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(render(spec_n, audit_n, env_n, con_n, feas_n, flow), encoding="utf-8")
+    args.out.write_text(
+        render(spec_n, audit_n, env_n, con_n, feas_n, mining_n, flow), encoding="utf-8"
+    )
     print(f"[report]     {args.out}")
     return 1 if failures else 0
 

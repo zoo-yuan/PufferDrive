@@ -1,0 +1,133 @@
+# bag 侧挖掘契约 v0 —— 哪 8 条约束可以只靠录包算出来，哪 12 条不能
+#
+# 为什么需要这个文件
+# ------------------
+# `spec/constraints_v0.yaml` 的谓词读的是引擎的 `metrics_array`（例如 lane_dist 需要地图匹配、
+# red_light 需要 stop line 几何）。数据湖里只有 bag，没有引擎状态。如果不把这个差集显式写下来，
+# 挖掘脚本就会悄悄少挖一批 case 而没人知道。
+#
+# 所以：能挖的逐条写"bag 侧特征 + 谓词投影 + 口径偏差"，不能挖的逐条写"缺什么"。
+# 挖到的每条都带 `template` 指回 constraints_v0，保证两边不会各说各话。
+#
+# 口径原则：bag 侧一律是**代理量**（proxy），不是引擎真值。每条都在 caveat 里写明偏差方向，
+# 便于判断"挖出来的 case 是偏多还是偏少"。
+
+schema_version: bag_mining_v0
+as_of: 2026-11-05
+source_constraints: spec/constraints_v0.yaml
+vehicle_profile: docs/vehicle_profile.md
+
+channels:
+  ego: /apollo/localization/pose
+  obstacles: /apollo/perception/obstacles
+  traffic_light: /apollo/perception/traffic_light
+  collision_event: /apollo/safety/collision_event
+
+# 入口物理可行性门禁：数据湖里有定位跳变（38 m/s、kappa > 1/m），必须拒绝而不是夹断
+feasibility_gate:
+  max_plausible_speed_mps: 15.0      # 1.2 × 运营上限 12.5
+  max_plausible_lat_accel_mps2: 10.0
+  max_plausible_long_accel_mps2: 10.0  # raw 湖里有 -16.8 m/s²，超出 -6.0 硬限近 3 倍
+  max_plausible_kappa_1pm: 0.3147    # = tan(0.60564) / 2.20
+  max_sample_gap_s: 0.5              # 姿态断档时不伪造导数
+  ego_length_m: 3.865                # 3799 车型包围盒（bag 内无 ego 尺寸）
+  ego_width_m: 1.39
+
+slice:
+  step_s: 0.1
+  crawl_speed_mps: 0.5              # 低于此速度计为“静止”（与 stall_crawl 的 guard 一致）
+  warmup_steps: 16                   # 16 历史
+  horizon_steps: 80                  # 80 未来（8 s）
+  merge_gap_s: 1.0                   # 同模板命中间隔小于此值合并为一个切片
+
+features:
+  ego_speed_mps: hypot(vx, vy)
+  accel_long_mps2: 局部纵向加速度（pose 加速度投影 与 速度差分 取 pose）
+  accel_lat_mps2: v × yaw_rate
+  jerk_long_mps3: 滑窗三次多项式拟合有符号纵向速度后取 2*c2（窗口 1.0 s，时间分辨率 ±0.5 s）
+  ttc_s: 最近同向障碍 gap / 闭合速度
+  gap_m: 中心距 − (ego 长 + 障碍长)/2
+  obstacle_lateral_m: 最近 in-path 障碍相对 ego 航向的横向偏移
+  adjacent_ttc_s: 邻道（1.0–3.5 m）最近前方障碍的 TTC
+  seconds_stopped_s: 连续 speed < 0.5 m/s 的累计时长
+  bbox_overlap: 中心距 < (长和)/2 且 横向 < (宽和)/2
+
+bag_evaluable:
+  - id: ttc_shortfall
+    template: ttc_shortfall
+    predicate: {feature: ttc_s, op: lt, threshold_param: ttc_min_s}
+    guard: {feature: ego_speed_mps, op: gt, threshold_param: moving_speed_mps}
+    params:
+      ttc_min_s: {value: 1.5, unit: s}
+      moving_speed_mps: {value: 0.5, unit: m/s}
+    caveat: 中心距减半车长近似 gap；感知丢检会让 TTC 偏大（漏挖），不会偏小
+
+  - id: braking_distance_short
+    template: braking_distance_short
+    predicate: {feature: gap_m, op: lt, threshold_param: min_gap_m}
+    guard: {feature: ego_speed_mps, op: gt, threshold_param: moving_speed_mps}
+    params:
+      min_gap_m: {value: 2.0, unit: m}
+      moving_speed_mps: {value: 0.5, unit: m/s}
+    caveat: 同上；未区分同向/对向
+
+  - id: collision_any
+    template: collision_any
+    predicate: {feature: bbox_overlap, op: ge, threshold_param: overlap_flag}
+    params:
+      overlap_flag: {value: 1.0, unit: "1"}
+    caveat: 几何重叠代理，无责任归属；遮挡导致的感知漏检会漏挖
+
+  - id: cut_in_conflict
+    template: cut_in_conflict
+    predicate: {feature: adjacent_ttc_s, op: lt, threshold_param: ttc_min_s}
+    params:
+      ttc_min_s: {value: 2.0, unit: s}
+    caveat: 邻道候选 = 横向 1.0–3.5 m 的前方障碍；与 in-path 互斥，靠 band 代替引擎的 lane_dist guard
+
+  - id: lat_accel_over
+    template: lat_accel_over
+    predicate: {feature: accel_lat_mps2, op: abs_gt, threshold_param: lat_accel_max_mps2}
+    params:
+      lat_accel_max_mps2: {value: 8.0, unit: m/s²}
+    caveat: v × yaw_rate，与引擎的 accel_lat 定义一致；8.0 为 596 s 实测代理上限
+
+  - id: long_accel_over
+    template: long_accel_over
+    predicate:
+      - {feature: accel_long_mps2, op: gt, threshold_param: accel_max_mps2}
+      - {feature: accel_long_mps2, op: lt, threshold_param: decel_max_mps2}
+    params:
+      accel_max_mps2: {value: 3.0, unit: m/s²}
+      decel_max_mps2: {value: -6.0, unit: m/s²}
+    caveat: 非对称硬限；pose 加速度方向若反（世界系投影错误）会整体翻号，故用速度差分交叉校验
+
+  - id: jerk_over
+    template: jerk_over
+    predicate: {feature: jerk_long_mps3, op: abs_gt, threshold_param: jerk_max_mps3}
+    params:
+      jerk_max_mps3: {value: 5.0, unit: m/s³}
+    caveat: 窗口 1.0 s（实测噪声地板 p50 = 1.11 m/s³，阈值 5 → SNR 4.5×）；窗口再窄噪声会吞掉判据（0.4 s 时 p50 = 4.19）
+
+  - id: stall_crawl
+    template: stall_crawl
+    predicate: {feature: seconds_stopped_s, op: gt, threshold_param: stall_max_s}
+    guard: {feature: ego_speed_mps, op: lt, threshold_param: crawl_speed_mps}
+    params:
+      stall_max_s: {value: 5.0, unit: s}
+      crawl_speed_mps: {value: 0.5, unit: m/s}
+    caveat: 引擎真值是 progression < 0.1（相对目标进度）；bag 侧只能看是否长时间不动
+
+not_bag_evaluable:
+  - {id: red_light_cross, needs: stop line 几何 + 相位, reason: 需要 Apollo map 匹配与信号相位}
+  - {id: stop_sign_roll, needs: stop sign 位置 + 停稳判定, reason: 需要 map 与停车点}
+  - {id: collision_at_fault, needs: 责任判定, reason: bag 内无责任标签，只有 /apollo/safety/collision_event}
+  - {id: offroad_exit, needs: 可行驶区域, reason: 需要 map 匹配}
+  - {id: overspeed, needs: 车道限速, reason: 需要 map 匹配到当前车道 speed_limit}
+  - {id: lane_departure, needs: 车道中心线, reason: 需要 map 匹配（bag 无 lane_dist）}
+  - {id: heading_mismatch, needs: 车道方向, reason: 需要 map 匹配（bag 无 lane_angle）}
+  - {id: unprotected_turn_conflict, needs: 转向类型 + 对向流, reason: 需要 ADR-0008 的 turn 列}
+  - {id: crossing_yield_fail, needs: crosswalk 几何, reason: 指标引擎与 bag 都没有}
+  - {id: pedestrian_clearance, needs: 行人分类 + 最小间距, reason: 指标引擎与 bag 都没有}
+  - {id: merge_yield_fail, needs: 路口占用, reason: 需要 overlap/junction 区域}
+  - {id: multi_lane_wander, needs: 跨车道时间, reason: 需要 map 匹配（引擎 MULTI_LANE_TIME_IDX）}

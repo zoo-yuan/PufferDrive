@@ -25,6 +25,9 @@ L0 canonical spec 从"要冻结的一张表"变成**可校验、可审计、数�
 | `docs/html/spec_v0_data_audit.html` | M2 验收物：bag 通道矩阵、地图拓扑实测、派生证据、字段×三源判定 | 生成物 |
 | `scripts/milestone_review.py` | M1–M4 总览评审看板（流程 + KPI + 图 + 假设台账 + gate 台账） | 可用 |
 | `docs/html/milestone_review.html` | 总览评审看板（每个 milestone 收口时重新生成） | 生成物 |
+| `spec/bag_mining_v0.yaml` | bag 侧挖掘契约：8 条可挖 / 12 条不可挖 + 门禁 + 切片窗口 | 现行 |
+| `scripts/badcase_mine.py` | 挖掘器（bag → 特征 → 谓词 → 切片）+ 报告 | 可用 |
+| `docs/html/badcase_mining_v0.html` | M5 验收物：命中矩阵、时间轴、特征分布、切片清单 | 生成物 |
 | `docs/measured/audit_canonical_v0.json` | 审计摘要（bag 通道计数、地图统计、判定行） | 入库，供看板复算 |
 | `docs/measured/obs_envelope_6bags.json` | 观测包络测量结果（6 条 bag） | 入库，供看板复算 |
 
@@ -223,13 +226,82 @@ bag 总量：26–36 通道 / 1.0–3.0 万消息 / 每条 10–20 s。
 
 ---
 
-## 9. 下一步（M5）
+## 9. M5 —— bad case 自动挖掘（已完成）
 
-bad case 自动挖掘 + 场景切片：用 `metrics_array` 18 项 + 20 条模板谓词批量扫数据湖，切片窗口 16+80，`scenario_id` 编码 `bag_id#frame`，附 provenance（地图/感知版本），入口做物理可行性门禁（实测湖里有 38 m/s 的定位跳变）。验收物：扫描结果直方图（每模板命中数 / 每 bag 命中密度）+ 切片清单。
+验收物：`docs/html/badcase_mining_v0.html`（命中矩阵 + 逐 bag 时间轴 + 特征分布 + 切片清单）；
+契约：`spec/bag_mining_v0.yaml`；脚本：`scripts/badcase_mine.py`；结果：`docs/measured/badcase_mining_v0.json`。
+
+### 9.1 先把"能不能挖"写成数据
+
+`constraints_v0` 的谓词读引擎 `metrics_array`（`lane_dist` / `red_light` 都要地图匹配），而数据湖里只有 bag。
+契约显式写下差集：**8 条可挖、12 条不可挖并写明缺什么**。这样挖掘脚本不会因为"算不出来"而悄悄少挖。
+
+| | 条数 | 内容 |
+|---|---|---|
+| 可挖 | 8 | ttc_shortfall、braking_distance_short、collision_any、cut_in_conflict、lat_accel_over、long_accel_over、jerk_over、stall_crawl |
+| 不可挖 | 12 | 需要地图匹配（红绿灯/停车标志/越野/超速/车道偏离/朝向/多车道/汇入）、责任判定、或引擎与 bag 都没有的指标（斑马线/行人间距） |
+
+### 9.2 结果数字
+
+| 量 | 值 |
+|---|---|
+| 录包 | 6 条（8992 个可信帧） |
+| 被门禁拒绝 | 22 帧（`implausible_long_accel`：raw 里有 −16.8 m/s²，超出 −6.0 硬限近 3 倍） |
+| 切片 | **487**（占可信帧 5.4%），每条带 `bag#frame` + 16 历史 + 80 未来 |
+
+| 模板 | 切片 | 分布 |
+|---|---|---|
+| jerk_over | 161 | 散在各条包 |
+| cut_in_conflict | 117 | 强集中在 2688 / 3139 / 3123（城区） |
+| long_accel_over | 104 | 2714 / 3123 为主 |
+| ttc_shortfall | 60 | 2688 / 3139 |
+| braking_distance_short | 27 | 全在 3139 |
+| collision_any | 14 | 全在 3139（gap −0.04…−0.29 m、横向 0.69 m、≈5 m/s：真实轻碰） |
+| stall_crawl | 4 | 2292 / 2714 / 3183 |
+| lat_accel_over | **0** | 阈值 8.0 m/s²，而这批数据 \|a_lat\| 最大 7.92 → 这批包没有横向极限工况 |
+
+### 9.3 挖掘器自己抓到的三个 bug（都改掉了）
+
+1. **"最近障碍" ≠ "前车"**：in-path 判定用了双方车宽之和，邻道并排车被当成前车，58% 的帧被判成追尾（5207 切片）。
+   收紧到「半个车宽 + 0.3 m」后命中率降到 5.4%。**碰撞重叠是双方车宽之和，在不在我这条车道是我的车宽** —— 两个概念。
+2. **pose 加速度差分 ≠ jerk**：实测 \|jerk\| 中位 5.5 m/s³、51% 的帧超阈值、p90 到 41 —— 那是 20 Hz 姿态噪声。
+   改为**滑窗三次多项式拟合有符号纵向速度**再求导，窗口扫描结果：
+
+   | 窗口 | \|jerk\| p50 | p90 | >5 m/s³ 帧占比 |
+   |---|---|---|---|
+   | 0.4 s | 4.19 | 9.86 | 39.9% |
+   | 0.8 s | 1.29 | 5.09 | 10.1% |
+   | **1.0 s** | **1.11** | 4.20 | 7.4% |
+   | 1.5 s | 0.79 | 3.08 | 4.5% |
+
+   取 1.0 s：噪声地板 1.11 对阈值 5 → SNR 4.5×，代价是时间分辨率 ±0.5 s（已写进契约）。
+3. **cut_in 与 in-path 横向互斥**：in-path 收紧后横向必然 ≤1.0 m，而 cut_in 的 guard 要求 >1.0 m，永远不触发。
+   新增**邻道候选**特征（横向 1.0–3.5 m 的前方障碍的 TTC），用 band 代替引擎的 `lane_dist` guard。
+
+另外补了一个门禁缺口：纵向加速度也要做物理可行性判定（`max_plausible_long_accel_mps2 = 10.0`）。
+
+### 9.4 遗留
+
+- 12 条不可挖的约束全部依赖地图匹配（把 ego 贴到 Apollo map 的 lane 上）。这是 M6 之后的第一优先级，
+  否则 60% 的违规型约束永远只能靠仿真挖。
+- `cut_in_conflict` 是最松的代理（横向 band + TTC），117 个切片里预计有偏多；需要在真场景上标定。
+- `replay` 控制器在 gigaflow 下仍不是真见证人；用这 487 个切片跑可行性裁判才能给出场景级判定。
 
 ---
 
-## 10. 评审仪式（每个 milestone 收口必须交的四件东西）
+## 10. 下一步（M6）
+
+桥接层 acc wash-in（对拍测试已就绪）+ 把 487 个切片转成可跑场景：
+
+| 项 | 验收数字 |
+|---|---|
+| acc wash-in | 6 s 内 max \|Δxy\| < 1e-4 m |
+| 切片入库 | 487 个切片转 PufferDrive 场景的成功率，失败原因分类 |
+| 场景级可行性 | 每个切片用 IDM / REPLAY / STATIC 判定"可解 / 不可解"，不可解的直接弃用 |
+
+---
+
+## 11. 评审仪式（每个 milestone 收口必须交的四件东西）
 
 收口不是"写完了"，而是"可被 review 了"。每个 milestone 必须同时产出：
 
@@ -243,12 +315,13 @@ bad case 自动挖掘 + 场景切片：用 `metrics_array` 18 项 + 20 条模板
 
 | 文件 | 覆盖 | 生成命令 |
 |---|---|---|
-| `docs/html/milestone_review.html` | M1–M4 总览看板 | `python scripts/milestone_review.py` |
+| `docs/html/milestone_review.html` | M1–M5 总览看板 | `python scripts/milestone_review.py` |
 | `docs/html/spec_v0_coverage.html` | M1 字段覆盖率 | `python scripts/spec_report.py` |
 | `docs/html/spec_v0_data_audit.html` | M2 三源审计 | `python scripts/spec_audit.py` |
 | `docs/html/spec_v0_obs_envelope.html` | M3 观测包络 | `python scripts/spec_envelope_report.py` |
 | `docs/html/constraints_v0_library.html` | M4 约束库 | `python scripts/constraint_judge.py` |
 | `docs/html/constraints_v0_feasibility.html` | M4 可行性裁判 | `python scripts/constraint_feasibility.py` |
+| `docs/html/badcase_mining_v0.html` | M5 bad case 挖掘 | `python scripts/badcase_mine.py` |
 
 原则：**看板里的数字一律从原始产物重算**（`spec/*.yaml`、`docs/measured/audit_canonical_v0.json`、`docs/measured/obs_envelope_6bags.json`、真跑一遍可行性裁判），
 不手抄、不复用历史值。手抄的数字一旦漂移，看板就从"验收工具"变成"幻觉放大器"。
