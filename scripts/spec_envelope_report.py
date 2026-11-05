@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_INPUT = REPO_ROOT / ".scratch" / "m3" / "obs_envelope_6bags.json"
+DEFAULT_INPUT = REPO_ROOT / "docs" / "measured" / "obs_envelope_6bags.json"
 DEFAULT_OUT = REPO_ROOT / "docs" / "html" / "spec_v0_obs_envelope.html"
 
 OPERATIONAL_SPEED_MPS = 12.5
@@ -156,8 +156,8 @@ def range_panel_svg(rows, histogram):
 
 def delay_panel_svg(rows):
     """面板 ②：每条 bag 的数据年龄（control / planning）+ 冻结值标线。"""
-    width, height = 1120, 320
-    left, right, top, bottom = 96, 40, 26, 52
+    width, height = 1120, 356
+    left, right, top, bottom = 96, 40, 26, 78
     plot_w = width - left - right
     plot_h = height - top - bottom
     max_delay = max(max(row["delay_control_s"] for row in rows), FROZEN_DELAY_S) * 1.15

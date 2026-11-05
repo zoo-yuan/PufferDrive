@@ -31,6 +31,7 @@ As-of: 5cfe970a
 - `docs/2026-11-04-session-handoff.md` — **会话交接**：30 秒恢复上下文、八条裁决 + 证据、已完成产物表、关键实测数字、四个阻塞项、下一步依赖顺序、复现命令。**新会话从这里开始。**
 - `docs/2026-11-05-canonical-spec-v0.md` — **现行**（M1/M2）：`spec/canonical_v0.yaml` 73 字段注册表 + 两个可复跑闸门（`scripts/spec_report.py` 覆盖率、`scripts/spec_audit.py` 三源审计）。含两处被真数据推翻的假设（occ 不是占据栅格、Core 已有 entry/exit）与 7 个「仅数据源」字段清单。验收物 `docs/html/spec_v0_coverage.html` / `spec_v0_data_audit.html`。
 - `docs/2026-11-05-canonical-spec-v0.md` §7–§8 — **M3/M4**：观测包络（70 m / 0.78 s）与约束模板库 v0（20 条，20/20 可执行谓词，3 控制器可行性裁判）。验收物 `docs/html/spec_v0_obs_envelope.html` / `constraints_v0_library.html` / `constraints_v0_feasibility.html`。
+- `docs/html/milestone_review.html`（`scripts/milestone_review.py`）— **milestone 总览评审看板**：流程条 + 每站 KPI + 图表 + 被推翻的假设台账 + gate 台账。**每个 milestone 收口必须重新生成**（仪式见 `docs/2026-11-05-canonical-spec-v0.md` §10）。数字一律从原始产物重算，不手抄。
 - `docs/2026-11-04-session-causal-chain.md`（HTML 于 `docs/html/`）— 本次会话的因果链复盘：五个转折（事实层 → 双视图 → 关键变量 → RL/种子 → 执行链）、总流程图、三条因果链（执行/世界/迭代）、数字表、现在能/不能、未决依赖图。**给人看的那份。**
 
 ## Next（下一步）

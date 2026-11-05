@@ -9,7 +9,7 @@
 
 ## 0. 一句话
 
-L0 canonical spec 从"要冻结的一张表"变成**可校验、可审计、数字可复跑**的注册表：73 字段、8 组、56 frozen（76.7%），并对 6 条真 bag + 3 张真地图逐字段给出了"数据源有没有真值 / 仿真有没有实现"的实证判定。
+L0 canonical spec 从"要冻结的一张表"变成**可校验、可审计、数字可复跑**的注册表：73 字段、8 组、59 frozen（80.8%），并对 6 条真 bag + 3 张真地图逐字段给出了"数据源有没有真值 / 仿真有没有实现"的实证判定。
 
 ---
 
@@ -23,7 +23,10 @@ L0 canonical spec 从"要冻结的一张表"变成**可校验、可审计、数�
 | `scripts/spec_audit.py` | 三源审计（6 bag + 3 map + 车型档案），带缓存 | 可用 |
 | `docs/html/spec_v0_coverage.html` | M1 验收物：组×属性热图、状态分布、全字段表、阻塞清单 | 生成物 |
 | `docs/html/spec_v0_data_audit.html` | M2 验收物：bag 通道矩阵、地图拓扑实测、派生证据、字段×三源判定 | 生成物 |
-| `.scratch/m2/audit.json` | 审计缓存（bag 通道计数、地图统计、判定行） | 中间物 |
+| `scripts/milestone_review.py` | M1–M4 总览评审看板（流程 + KPI + 图 + 假设台账 + gate 台账） | 可用 |
+| `docs/html/milestone_review.html` | 总览评审看板（每个 milestone 收口时重新生成） | 生成物 |
+| `docs/measured/audit_canonical_v0.json` | 审计摘要（bag 通道计数、地图统计、判定行） | 入库，供看板复算 |
+| `docs/measured/obs_envelope_6bags.json` | 观测包络测量结果（6 条 bag） | 入库，供看板复算 |
 
 复现：
 
@@ -223,3 +226,29 @@ bag 总量：26–36 通道 / 1.0–3.0 万消息 / 每条 10–20 s。
 ## 9. 下一步（M5）
 
 bad case 自动挖掘 + 场景切片：用 `metrics_array` 18 项 + 20 条模板谓词批量扫数据湖，切片窗口 16+80，`scenario_id` 编码 `bag_id#frame`，附 provenance（地图/感知版本），入口做物理可行性门禁（实测湖里有 38 m/s 的定位跳变）。验收物：扫描结果直方图（每模板命中数 / 每 bag 命中密度）+ 切片清单。
+
+---
+
+## 10. 评审仪式（每个 milestone 收口必须交的四件东西）
+
+收口不是"写完了"，而是"可被 review 了"。每个 milestone 必须同时产出：
+
+1. **一条可复跑的 gate 命令**：`python scripts/<report>.py --check`，失败时退出码非 0。
+2. **一份 HTML 验收物**：数字 + 图，落在 `docs/html/`，由脚本生成而非手写。
+3. **总览看板重新生成**：`python scripts/milestone_review.py` → `docs/html/milestone_review.html`
+   （流程条 + 每站 KPI + 图表 + 被推翻的假设台账 + gate 台账）。
+4. **会话里贴三样**：gate 状态、关键数字、**被真实数据推翻的假设**（这一项最有 review 价值）。
+
+现有六份验收物：
+
+| 文件 | 覆盖 | 生成命令 |
+|---|---|---|
+| `docs/html/milestone_review.html` | M1–M4 总览看板 | `python scripts/milestone_review.py` |
+| `docs/html/spec_v0_coverage.html` | M1 字段覆盖率 | `python scripts/spec_report.py` |
+| `docs/html/spec_v0_data_audit.html` | M2 三源审计 | `python scripts/spec_audit.py` |
+| `docs/html/spec_v0_obs_envelope.html` | M3 观测包络 | `python scripts/spec_envelope_report.py` |
+| `docs/html/constraints_v0_library.html` | M4 约束库 | `python scripts/constraint_judge.py` |
+| `docs/html/constraints_v0_feasibility.html` | M4 可行性裁判 | `python scripts/constraint_feasibility.py` |
+
+原则：**看板里的数字一律从原始产物重算**（`spec/*.yaml`、`docs/measured/audit_canonical_v0.json`、`docs/measured/obs_envelope_6bags.json`、真跑一遍可行性裁判），
+不手抄、不复用历史值。手抄的数字一旦漂移，看板就从"验收工具"变成"幻觉放大器"。

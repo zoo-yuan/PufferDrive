@@ -1,0 +1,662 @@
+[
+  {
+    "record": "/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995/rx-2292/white-rhino-2292.20260922.simple.1790061062-1790061082.bag",
+    "obstacle_channel": "/apollo/perception/obstacles",
+    "counts": {
+      "pose": 1999,
+      "perception": 161,
+      "planning": 72,
+      "control": 2003,
+      "obstacles": 16764,
+      "dropped_far_outliers": 0
+    },
+    "perception_range_m": {
+      "per_message_max": {
+        "p50": 66.636,
+        "p90": 71.748,
+        "p99": 74.9302,
+        "p100": 76.07
+      },
+      "all_obstacles": {
+        "p50": 28.148,
+        "p90": 43.7435,
+        "p99": 64.4747,
+        "p100": 76.07
+      },
+      "distance_histogram": {
+        "0-30m": 9705,
+        "30-60m": 6719,
+        "60-100m": 340,
+        "100-150m": 0,
+        ">=150m": 0
+      },
+      "type_counts": {
+        "5": 7225,
+        "4": 6969,
+        "3": 591,
+        "7": 1187,
+        "9": 11,
+        "1": 19,
+        "6": 762
+      }
+    },
+    "publish_lag_s": {
+      "perception": {
+        "p50": 0.2237,
+        "p90": 0.2995,
+        "p99": 0.4646,
+        "p100": 0.7438
+      },
+      "planning": {
+        "p50": 0.0317,
+        "p90": 0.0489,
+        "p99": 0.0754,
+        "p100": 0.0838
+      },
+      "control": {
+        "p50": 0.0005,
+        "p90": 0.0078,
+        "p99": 0.0339,
+        "p100": 0.1026
+      }
+    },
+    "sensor_age_s": {
+      "perception": {
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "p100": 0.0
+      },
+      "planning": {
+        "p50": 0.8124,
+        "p90": 1.2784,
+        "p99": 1.6074,
+        "p100": 1.7514
+      },
+      "control": {
+        "p50": 1.0587,
+        "p90": 1.5243,
+        "p99": 2.0932,
+        "p100": 2.3244
+      }
+    },
+    "end_to_end_planning_s": {
+      "p50": 0.0575,
+      "p90": 0.1383,
+      "p99": 0.2089,
+      "p100": 0.2358
+    },
+    "plan_time_origin_residual_s": {
+      "p50": 0.1932,
+      "p90": 0.5841,
+      "p99": 0.828,
+      "p100": 0.8718
+    },
+    "planning_latency_total_ms": {
+      "p50": 159.6831,
+      "p90": 293.1057,
+      "p99": 436.0393,
+      "p100": 529.3555
+    },
+    "planning_reported_perception_latency_ms": {
+      "p50": 274.2181,
+      "p90": 359.5313,
+      "p99": 406.68,
+      "p100": 412.1513
+    },
+    "reaction_distance_at_operational_speed_m": {
+      "from_planning": 10.16,
+      "from_control": 13.23
+    }
+  },
+  {
+    "record": "/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995/rx-2688/white-rhino-2688.20260403.bev_bag.1775174611-1775174622.bag",
+    "obstacle_channel": "/apollo/perception/obstacles",
+    "counts": {
+      "pose": 1031,
+      "perception": 55,
+      "planning": 50,
+      "control": 1008,
+      "obstacles": 10288,
+      "dropped_far_outliers": 0
+    },
+    "perception_range_m": {
+      "per_message_max": {
+        "p50": 66.7729,
+        "p90": 75.9337,
+        "p99": 78.2675,
+        "p100": 78.8088
+      },
+      "all_obstacles": {
+        "p50": 26.7628,
+        "p90": 52.6152,
+        "p99": 69.2389,
+        "p100": 78.8088
+      },
+      "distance_histogram": {
+        "0-30m": 6257,
+        "30-60m": 3505,
+        "60-100m": 526,
+        "100-150m": 0,
+        ">=150m": 0
+      },
+      "type_counts": {
+        "5": 594,
+        "4": 2170,
+        "3": 2149,
+        "9": 78,
+        "7": 3947,
+        "6": 1333,
+        "1": 17
+      }
+    },
+    "publish_lag_s": {
+      "perception": {
+        "p50": 0.3707,
+        "p90": 0.5575,
+        "p99": 0.6598,
+        "p100": 0.6912
+      },
+      "planning": {
+        "p50": 0.0055,
+        "p90": 0.0228,
+        "p99": 0.0721,
+        "p100": 0.0735
+      },
+      "control": {
+        "p50": 0.0003,
+        "p90": 0.0069,
+        "p99": 0.0686,
+        "p100": 0.1281
+      }
+    },
+    "sensor_age_s": {
+      "perception": {
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "p100": 0.0
+      },
+      "planning": {
+        "p50": 0.9295,
+        "p90": 1.1036,
+        "p99": 1.1942,
+        "p100": 1.1946
+      },
+      "control": {
+        "p50": 1.0377,
+        "p90": 1.2834,
+        "p99": 1.4816,
+        "p100": 1.5707
+      }
+    },
+    "end_to_end_planning_s": {
+      "p50": 0.0977,
+      "p90": 0.2074,
+      "p99": 0.4445,
+      "p100": 0.51
+    },
+    "plan_time_origin_residual_s": {
+      "p50": 0.3134,
+      "p90": 0.5235,
+      "p99": 0.7182,
+      "p100": 0.79
+    },
+    "planning_latency_total_ms": {
+      "p50": 168.3121,
+      "p90": 266.697,
+      "p99": 322.004,
+      "p100": 331.039
+    },
+    "planning_reported_perception_latency_ms": {
+      "p50": 475.2898,
+      "p90": 639.1003,
+      "p99": 730.9738,
+      "p100": 774.9116
+    },
+    "reaction_distance_at_operational_speed_m": {
+      "from_planning": 11.62,
+      "from_control": 12.97
+    }
+  },
+  {
+    "record": "/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995/rx-2714/white-rhino-2714.20260513.simple.1778662611-1778662631.bag",
+    "obstacle_channel": "/apollo/perception/obstacles",
+    "counts": {
+      "pose": 2000,
+      "perception": 200,
+      "planning": 202,
+      "control": 2000,
+      "obstacles": 24923,
+      "dropped_far_outliers": 0
+    },
+    "perception_range_m": {
+      "per_message_max": {
+        "p50": 66.0133,
+        "p90": 66.9878,
+        "p99": 69.4806,
+        "p100": 72.2916
+      },
+      "all_obstacles": {
+        "p50": 22.4755,
+        "p90": 50.4974,
+        "p99": 65.2837,
+        "p100": 72.2916
+      },
+      "distance_histogram": {
+        "0-30m": 17809,
+        "30-60m": 6067,
+        "60-100m": 1047,
+        "100-150m": 0,
+        ">=150m": 0
+      },
+      "type_counts": {
+        "5": 8972,
+        "4": 8692,
+        "3": 1013,
+        "6": 5263,
+        "9": 21,
+        "7": 820,
+        "1": 142
+      }
+    },
+    "publish_lag_s": {
+      "perception": {
+        "p50": 0.1258,
+        "p90": 0.148,
+        "p99": 0.1716,
+        "p100": 0.1886
+      },
+      "planning": {
+        "p50": 0.0026,
+        "p90": 0.0068,
+        "p99": 0.0103,
+        "p100": 0.0138
+      },
+      "control": {
+        "p50": 0.0003,
+        "p90": 0.0012,
+        "p99": 0.0046,
+        "p100": 0.0109
+      }
+    },
+    "sensor_age_s": {
+      "perception": {
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "p100": 0.0
+      },
+      "planning": {
+        "p50": 0.4588,
+        "p90": 0.5698,
+        "p99": 0.6885,
+        "p100": 0.7072
+      },
+      "control": {
+        "p50": 0.5259,
+        "p90": 0.6513,
+        "p99": 0.7611,
+        "p100": 0.8124
+      }
+    },
+    "end_to_end_planning_s": {
+      "p50": 0.0462,
+      "p90": 0.0971,
+      "p99": 0.0997,
+      "p100": 0.1014
+    },
+    "plan_time_origin_residual_s": {
+      "p50": -0.0532,
+      "p90": 0.0513,
+      "p99": 0.1911,
+      "p100": 0.4468
+    },
+    "planning_latency_total_ms": {
+      "p50": 71.9858,
+      "p90": 98.247,
+      "p99": 128.8361,
+      "p100": 137.6934
+    },
+    "planning_reported_perception_latency_ms": {
+      "p50": 150.1539,
+      "p90": 220.6045,
+      "p99": 231.704,
+      "p100": 250.6001
+    },
+    "reaction_distance_at_operational_speed_m": {
+      "from_planning": 5.73,
+      "from_control": 6.57
+    }
+  },
+  {
+    "record": "/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995/rx-3123/white-rhino-3123.20260927.simple.1790500860-1790500880.bag",
+    "obstacle_channel": "/apollo/perception/obstacles",
+    "counts": {
+      "pose": 1926,
+      "perception": 122,
+      "planning": 100,
+      "control": 1639,
+      "obstacles": 24897,
+      "dropped_far_outliers": 0
+    },
+    "perception_range_m": {
+      "per_message_max": {
+        "p50": 66.4325,
+        "p90": 69.8137,
+        "p99": 70.9539,
+        "p100": 71.6902
+      },
+      "all_obstacles": {
+        "p50": 23.172,
+        "p90": 47.8826,
+        "p99": 63.9806,
+        "p100": 71.6902
+      },
+      "distance_histogram": {
+        "0-30m": 16709,
+        "30-60m": 7673,
+        "60-100m": 515,
+        "100-150m": 0,
+        ">=150m": 0
+      },
+      "type_counts": {
+        "5": 4284,
+        "4": 6976,
+        "3": 4497,
+        "7": 2137,
+        "6": 6218,
+        "9": 736,
+        "1": 49
+      }
+    },
+    "publish_lag_s": {
+      "perception": {
+        "p50": 0.3703,
+        "p90": 0.5443,
+        "p99": 0.7249,
+        "p100": 0.742
+      },
+      "planning": {
+        "p50": 0.0208,
+        "p90": 0.168,
+        "p99": 0.2637,
+        "p100": 0.277
+      },
+      "control": {
+        "p50": 0.0011,
+        "p90": 0.1057,
+        "p99": 0.263,
+        "p100": 0.3019
+      }
+    },
+    "sensor_age_s": {
+      "perception": {
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "p100": 0.0
+      },
+      "planning": {
+        "p50": 1.0036,
+        "p90": 1.2945,
+        "p99": 1.3991,
+        "p100": 1.441
+      },
+      "control": {
+        "p50": 1.2128,
+        "p90": 1.5897,
+        "p99": 1.8331,
+        "p100": 1.9339
+      }
+    },
+    "end_to_end_planning_s": {
+      "p50": 0.0814,
+      "p90": 0.1923,
+      "p99": 0.4065,
+      "p100": 0.5607
+    },
+    "plan_time_origin_residual_s": {
+      "p50": 0.7555,
+      "p90": 1.0721,
+      "p99": 1.2438,
+      "p100": 1.327
+    },
+    "planning_latency_total_ms": {
+      "p50": 238.7829,
+      "p90": 352.8388,
+      "p99": 433.965,
+      "p100": 438.4487
+    },
+    "planning_reported_perception_latency_ms": {
+      "p50": 434.7308,
+      "p90": 657.3021,
+      "p99": 968.4504,
+      "p100": 1047.0107
+    },
+    "reaction_distance_at_operational_speed_m": {
+      "from_planning": 12.54,
+      "from_control": 15.16
+    }
+  },
+  {
+    "record": "/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995/rx-3139/white-rhino-3139.20260930.simple.1790748300-1790748320.bag",
+    "obstacle_channel": "/apollo/perception/obstacles",
+    "counts": {
+      "pose": 1088,
+      "perception": 189,
+      "planning": 2142,
+      "control": 7478,
+      "obstacles": 5920,
+      "dropped_far_outliers": 0
+    },
+    "perception_range_m": {
+      "per_message_max": {
+        "p50": 30.1258,
+        "p90": 56.7217,
+        "p99": 64.543,
+        "p100": 65.4099
+      },
+      "all_obstacles": {
+        "p50": 14.5261,
+        "p90": 28.0768,
+        "p99": 46.9064,
+        "p100": 65.4099
+      },
+      "distance_histogram": {
+        "0-30m": 5777,
+        "30-60m": 136,
+        "60-100m": 7,
+        "100-150m": 0,
+        ">=150m": 0
+      },
+      "type_counts": {
+        "5": 324,
+        "6": 5469,
+        "7": 53,
+        "4": 45,
+        "3": 24,
+        "1": 4,
+        "9": 1
+      }
+    },
+    "publish_lag_s": {
+      "perception": {
+        "p50": 0.0891,
+        "p90": 0.2381,
+        "p99": 0.5935,
+        "p100": 1.1836
+      },
+      "planning": {
+        "p50": 0.0003,
+        "p90": 0.009,
+        "p99": 0.3425,
+        "p100": 0.4043
+      },
+      "control": {
+        "p50": 0.0003,
+        "p90": 0.011,
+        "p99": 0.4117,
+        "p100": 0.7241
+      }
+    },
+    "sensor_age_s": {
+      "perception": {
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "p100": 0.0
+      },
+      "planning": {
+        "p50": 0.3183,
+        "p90": 0.3872,
+        "p99": 0.4463,
+        "p100": 0.4549
+      },
+      "control": {
+        "p50": 0.4114,
+        "p90": 0.501,
+        "p99": 0.5916,
+        "p100": 0.6548
+      }
+    },
+    "end_to_end_planning_s": {
+      "p50": 0.055,
+      "p90": 0.0941,
+      "p99": 1.122,
+      "p100": 1.2691
+    },
+    "plan_time_origin_residual_s": {
+      "p50": -0.2128,
+      "p90": -0.1128,
+      "p99": 0.2591,
+      "p100": 0.269
+    },
+    "planning_latency_total_ms": {
+      "p50": 87.6625,
+      "p90": 112.6606,
+      "p99": 155.8229,
+      "p100": 176.8482
+    },
+    "planning_reported_perception_latency_ms": {
+      "p50": 151.4461,
+      "p90": 212.3654,
+      "p99": 248.2261,
+      "p100": 291.1928
+    },
+    "reaction_distance_at_operational_speed_m": {
+      "from_planning": 3.98,
+      "from_control": 5.14
+    }
+  },
+  {
+    "record": "/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995/rx-3183/white-rhino-3183.20260907.simple.1788734621-1788734641.bag",
+    "obstacle_channel": "/apollo/perception/obstacles",
+    "counts": {
+      "pose": 1720,
+      "perception": 170,
+      "planning": 173,
+      "control": 1059,
+      "obstacles": 6512,
+      "dropped_far_outliers": 0
+    },
+    "perception_range_m": {
+      "per_message_max": {
+        "p50": 62.8434,
+        "p90": 68.9543,
+        "p99": 71.5641,
+        "p100": 74.4986
+      },
+      "all_obstacles": {
+        "p50": 17.175,
+        "p90": 43.9223,
+        "p99": 65.5169,
+        "p100": 74.4986
+      },
+      "distance_histogram": {
+        "0-30m": 5283,
+        "30-60m": 1040,
+        "60-100m": 189,
+        "100-150m": 0,
+        ">=150m": 0
+      },
+      "type_counts": {
+        "5": 1437,
+        "4": 762,
+        "6": 4108,
+        "7": 88,
+        "3": 69,
+        "9": 8,
+        "1": 40
+      }
+    },
+    "publish_lag_s": {
+      "perception": {
+        "p50": 0.1168,
+        "p90": 1.5372,
+        "p99": 2.3661,
+        "p100": 2.3825
+      },
+      "planning": {
+        "p50": 0.0324,
+        "p90": 1.7675,
+        "p99": 2.2577,
+        "p100": 2.2586
+      },
+      "control": {
+        "p50": 0.003,
+        "p90": 1.4249,
+        "p99": 2.2631,
+        "p100": 2.2836
+      }
+    },
+    "sensor_age_s": {
+      "perception": {
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "p100": 0.0
+      },
+      "planning": {
+        "p50": 0.3202,
+        "p90": 0.3967,
+        "p99": 0.4646,
+        "p100": 0.4895
+      },
+      "control": {
+        "p50": 0.4124,
+        "p90": 0.5345,
+        "p99": 0.6597,
+        "p100": 0.7263
+      }
+    },
+    "end_to_end_planning_s": {
+      "p50": 0.0674,
+      "p90": 0.7921,
+      "p99": 2.2274,
+      "p100": 2.3375
+    },
+    "plan_time_origin_residual_s": {
+      "p50": 0.1979,
+      "p90": 0.3334,
+      "p99": 0.3744,
+      "p100": 0.3923
+    },
+    "planning_latency_total_ms": {
+      "p50": 78.8119,
+      "p90": 130.9896,
+      "p99": 193.6601,
+      "p100": 223.9335
+    },
+    "planning_reported_perception_latency_ms": {
+      "p50": 178.2627,
+      "p90": 238.7404,
+      "p99": 292.782,
+      "p100": 298.0807
+    },
+    "reaction_distance_at_operational_speed_m": {
+      "from_planning": 4.0,
+      "from_control": 5.16
+    }
+  }
+]

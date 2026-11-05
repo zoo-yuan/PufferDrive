@@ -35,7 +35,7 @@ from data_utils.apollo_record import iter_fields, iter_messages, list_channels  
 
 DEFAULT_SPEC = REPO_ROOT / "spec" / "canonical_v0.yaml"
 DEFAULT_OUT = REPO_ROOT / "docs" / "html" / "spec_v0_data_audit.html"
-DEFAULT_CACHE = REPO_ROOT / ".scratch" / "m2" / "audit.json"
+DEFAULT_CACHE = REPO_ROOT / "docs" / "measured" / "audit_canonical_v0.json"
 DEFAULT_DATA_ROOT = Path("/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995")
 DEFAULT_MAP_ROOT = DEFAULT_DATA_ROOT / "apollo_map" / "data"
 DEFAULT_VEHICLE_PARAM = Path.home() / "Downloads" / "data_xijiao-master-3799_vehicle_param.pb.txt"
