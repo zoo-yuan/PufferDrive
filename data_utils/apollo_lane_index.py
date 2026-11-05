@@ -25,6 +25,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 import struct
 from dataclasses import dataclass, field
@@ -37,6 +38,11 @@ from data_utils.apollo_record import _point3d, iter_fields
 
 WIRE_LEN = 2
 MATCH_RADIUS_M = 6.0
+# 双向道路的对向车道中心线通常只差一个车道宽（~3.5 m）。只按"最近点"匹配会把车贴到
+# 对向车道上（实测 p90 航向差 179°），所以候选点还必须与航向一致。
+MATCH_MAX_HEADING_DIFF_RAD = math.radians(60.0)
+# 横向超过一个车道宽说明贴到了邻道/对向/无车道区域：宁可不给判定，也不伪造车道偏离。
+MATCH_MAX_LATERAL_M = 3.0
 GRID_CELL_M = 25.0
 MIN_POINT_SPACING_M = 0.05
 
@@ -71,51 +77,80 @@ class LaneIndex:
                 cells.append((cell_x, cell_y))
         return cells
 
-    def match(self, x: float, y: float, heading: float) -> Optional[dict]:
-        """返回最近车道点的匹配结果；超出半径返回 None（不猜）。"""
-        best = None
+    def _candidates(self, x: float, y: float):
+        """返回半径内所有 (lane_index, point_index, distance)，按距离升序、去重。"""
+        seen = set()
+        candidates = []
         for cell in self._cells_for(x, y):
             points = self.cell_points.get(cell)
             if points is None:
                 continue
             offsets = np.hypot(points[:, 0] - x, points[:, 1] - y)
-            index = int(np.argmin(offsets))
-            distance = float(offsets[index])
-            if best is None or distance < best[0]:
-                best = (distance, cell, index)
-        if best is None or best[0] > self.match_radius_m:
-            return None
+            for index in np.nonzero(offsets <= self.match_radius_m)[0]:
+                lane_index = int(self.cell_lane_index[cell][index])
+                point_index = int(self.cell_point_index[cell][index])
+                key = (lane_index, point_index)
+                if key in seen:
+                    continue
+                seen.add(key)
+                candidates.append((lane_index, point_index, float(offsets[index])))
+        candidates.sort(key=lambda item: item[2])
+        return candidates
 
-        distance, cell, cell_index = best
-        lane_index = int(self.cell_lane_index[cell][cell_index])
-        point_index = int(self.cell_point_index[cell][cell_index])
+    def _geometry(self, lane_index: int, point_index: int, x: float, y: float, heading: float):
         lane = self.lanes[lane_index]
         points = lane.points
-        # 用相邻点估计切向（端点退化为单侧差分）
         low = max(0, point_index - 1)
         high = min(len(points) - 1, point_index + 1)
         tangent = points[high] - points[low]
-        tangent_norm = float(np.hypot(tangent[0], tangent[1]))
-        if tangent_norm < 1e-6:
+        if float(np.hypot(tangent[0], tangent[1])) < 1e-6:
             return None
         tangent_heading = math.atan2(tangent[1], tangent[0])
-        # 有符号横向距离：左正右负
-        to_ego = np.array([x, y]) - points[point_index]
-        lateral = -to_ego[0] * math.sin(tangent_heading) + to_ego[1] * math.cos(tangent_heading)
         heading_diff = math.atan2(
             math.sin(heading - tangent_heading), math.cos(heading - tangent_heading)
         )
-        return {
-            "lane_index": lane_index,
-            "lane_id": lane.lane_id,
-            "distance_m": distance,
-            "lateral_m": float(lateral),
-            "heading_diff_rad": heading_diff,
-            "lane_heading_rad": tangent_heading,
-            "speed_limit_mps": lane.speed_limit_mps,
-            "turn": lane.turn,
-            "lane_type": lane.lane_type,
-        }
+        to_ego = np.array([x, y]) - points[point_index]
+        lateral = -to_ego[0] * math.sin(tangent_heading) + to_ego[1] * math.cos(tangent_heading)
+        return lane, float(lateral), heading_diff, tangent_heading
+
+    def match(self, x: float, y: float, heading: float) -> Optional[dict]:
+        """最近且**航向一致**的车道点；超出半径或没有同向候选时返回 None（不猜）。"""
+        candidates = self._candidates(x, y)
+        if not candidates:
+            return None
+
+        chosen = None
+        fallback = None
+        for lane_index, point_index, distance in candidates:
+            geometry = self._geometry(lane_index, point_index, x, y, heading)
+            if geometry is None:
+                continue
+            lane, lateral, heading_diff, tangent_heading = geometry
+            entry = {
+                "lane_index": lane_index,
+                "lane_id": lane.lane_id,
+                "distance_m": distance,
+                "lateral_m": lateral,
+                "heading_diff_rad": heading_diff,
+                "lane_heading_rad": tangent_heading,
+                "speed_limit_mps": lane.speed_limit_mps,
+                "turn": lane.turn,
+                "lane_type": lane.lane_type,
+            }
+            if abs(heading_diff) > MATCH_MAX_HEADING_DIFF_RAD:
+                if fallback is None:
+                    fallback = entry
+                continue
+            if abs(lateral) > MATCH_MAX_LATERAL_M:
+                continue
+            chosen = entry
+            break
+            if fallback is None:
+                fallback = entry
+        # 宁可不出判定，也不贴到对向车道上
+        if chosen is None:
+            return None
+        return chosen
 
 
 def _parse_curve_points(lane_bytes: bytes) -> np.ndarray:
@@ -185,8 +220,114 @@ def _decode_text(raw: bytes) -> str:
     return ""
 
 
+CATALOG_CACHE_DIR = Path(".scratch") / "map_cache"
+CATALOG_TILE_MARGIN_M = 100.0
+
+
+def parse_map_catalog(catalog_path: Path) -> List[dict]:
+    """解析 ``base_map.catelog``（Apollo 拼写如此）：tile 列表 + bbox。
+
+    结构：MapCatalog.tiles(2) → MapTile{ id(1) varint, path(2) string,
+    sw.x(3) sw.y(4) ne.x(5) ne.y(6) 都是 double, 其余是元素 id 列表 }。
+    大图（21–34 GB 的 base_map.txt）就是靠这张表切成一万多个 500 m tile。
+    """
+    raw = Path(catalog_path).read_bytes()
+    tiles = []
+    for field_number, _wire, value in iter_fields(raw):
+        if field_number != 2 or not isinstance(value, bytes):
+            continue
+        scalars = read_scalar_fields(value)
+        path = _find_text_field(value, 2)
+        if not path or 3 not in scalars:
+            continue
+        tiles.append(
+            {
+                "path": path,
+                "min_x": scalars[3],
+                "min_y": scalars[4],
+                "max_x": scalars[5],
+                "max_y": scalars[6],
+            }
+        )
+    if not tiles:
+        raise ValueError(f"{catalog_path}: no tiles parsed")
+    return tiles
+
+
+def load_catalog_tiles(map_dir: Path) -> List[dict]:
+    """带磁盘缓存的 catalog 解析（84–115 MB 每次重解析太浪费）。"""
+    map_dir = Path(map_dir)
+    catalog_path = map_dir / "base_map.catelog"
+    if not catalog_path.exists():
+        catalog_path = map_dir / "base_map.catalog"
+    if not catalog_path.exists():
+        raise FileNotFoundError(f"{map_dir}: no base_map.catelog")
+
+    CATALOG_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path = CATALOG_CACHE_DIR / f"{map_dir.name}_catalog.json"
+    if cache_path.exists() and cache_path.stat().st_mtime >= catalog_path.stat().st_mtime:
+        return json.loads(cache_path.read_text(encoding="utf-8"))
+
+    tiles = parse_map_catalog(catalog_path)
+    cache_path.write_text(json.dumps(tiles), encoding="utf-8")
+    return tiles
+
+
+def select_tiles(tiles: List[dict], min_x: float, min_y: float, max_x: float, max_y: float,
+                 margin_m: float = CATALOG_TILE_MARGIN_M) -> List[dict]:
+    selected = [
+        tile
+        for tile in tiles
+        if not (
+            tile["max_x"] < min_x - margin_m
+            or tile["min_x"] > max_x + margin_m
+            or tile["max_y"] < min_y - margin_m
+            or tile["min_y"] > max_y + margin_m
+        )
+    ]
+    return selected
+
+
+def load_tiled_lane_index(map_dir: Path, min_x: float, min_y: float, max_x: float, max_y: float) -> LaneIndex:
+    """按轨迹 bbox 只加载相关 tile，合并成一个索引。"""
+    map_dir = Path(map_dir)
+    tiles = load_catalog_tiles(map_dir)
+    selected = select_tiles(tiles, min_x, min_y, max_x, max_y)
+    if not selected:
+        raise ValueError(f"{map_dir}: no tile covers bbox ({min_x:.0f},{min_y:.0f})-({max_x:.0f},{max_y:.0f})")
+
+    lanes: List[Lane] = []
+    for tile in selected:
+        tile_path = map_dir / tile["path"]
+        if not tile_path.exists():
+            continue
+        lanes.extend(_parse_lanes(tile_path.read_bytes()))
+    if not lanes:
+        raise ValueError(f"{map_dir}: selected {len(selected)} tiles but parsed no lanes")
+    return _build_index(lanes)
+
+
+def load_lane_index_for_map_dir(map_dir: Path, bbox=None):
+    """小图走 base_map.bin，分块大图走 base_map.catelog + 轨迹 bbox。返回 (索引, 来源说明)。"""
+    map_dir = Path(map_dir)
+    map_bin = map_dir / "base_map.bin"
+    if map_bin.exists() and map_bin.stat().st_size > 0:
+        return load_lane_index(map_bin), "base_map.bin"
+    if (map_dir / "base_map.catelog").exists() or (map_dir / "base_map.catalog").exists():
+        if bbox is None:
+            raise ValueError(f"{map_dir}: tiled map requires a pose bbox")
+        return load_tiled_lane_index(map_dir, *bbox), "base_map.catelog(tiles)"
+    raise FileNotFoundError(f"{map_dir}: neither base_map.bin nor base_map.catelog")
+
+
 def load_lane_index(map_bin: Path) -> LaneIndex:
-    raw = Path(map_bin).read_bytes()
+    lanes = _parse_lanes(Path(map_bin).read_bytes())
+    if not lanes:
+        raise ValueError(f"{map_bin}: no lanes parsed")
+    return _build_index(lanes)
+
+
+def _parse_lanes(raw: bytes) -> List[Lane]:
     lanes: List[Lane] = []
     for field_number, wire, value in iter_fields(raw):
         if field_number != 4 or wire != WIRE_LEN or not isinstance(value, bytes):
@@ -203,9 +344,10 @@ def load_lane_index(map_bin: Path) -> LaneIndex:
                 length_m=float(fields.get(5) or 0.0),
             )
         )
-    if not lanes:
-        raise ValueError(f"{map_bin}: no lanes parsed")
+    return lanes
 
+
+def _build_index(lanes: List[Lane]) -> LaneIndex:
     cell_points: Dict[Tuple[int, int], List[np.ndarray]] = {}
     cell_lane_index: Dict[Tuple[int, int], List[int]] = {}
     cell_point_index: Dict[Tuple[int, int], List[int]] = {}

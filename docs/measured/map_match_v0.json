@@ -2,9 +2,25 @@
  "bags": [
   {
    "bag": "2292",
-   "map": null,
-   "status": "missing_map_bin",
-   "summary": null
+   "map": "6501_shunfengtongchenghuoyun-1595",
+   "status": "ok",
+   "summary": {
+    "match_rate": 1.0,
+    "signed_median_m": 0.4169797086755354,
+    "abs_p50_m": 0.4479263561577633,
+    "abs_p90_m": 0.680819791213136,
+    "abs_p99_m": 0.7193775076605876,
+    "abs_max_m": 0.8329655855919239,
+    "heading_p50_deg": 2.9331001249385635,
+    "heading_p90_deg": 33.72644615726241,
+    "heading_max_deg": 36.32047733538947,
+    "driving_frames": 519,
+    "driving_heading_p90_deg": 33.65317345218429,
+    "confident_rate": 0.715,
+    "lane_transitions": 18,
+    "distinct_lanes": 7,
+    "over_limit_frames": 600
+   }
   },
   {
    "bag": "2477",
@@ -26,6 +42,9 @@
     "heading_p50_deg": 0.282873255641345,
     "heading_p90_deg": 0.5776427132411978,
     "heading_max_deg": 4.298618091122045,
+    "driving_frames": 600,
+    "driving_heading_p90_deg": 0.5776427132411978,
+    "confident_rate": 1.0,
     "lane_transitions": 8,
     "distinct_lanes": 5,
     "over_limit_frames": 600
@@ -45,6 +64,9 @@
     "heading_p50_deg": 0.9007093445493608,
     "heading_p90_deg": 2.6754013319360386,
     "heading_max_deg": 3.0227600355493016,
+    "driving_frames": 600,
+    "driving_heading_p90_deg": 2.6754013319360386,
+    "confident_rate": 1.0,
     "lane_transitions": 2,
     "distinct_lanes": 3,
     "over_limit_frames": 600
@@ -52,15 +74,47 @@
   },
   {
    "bag": "3123",
-   "map": null,
-   "status": "missing_map_bin",
-   "summary": null
+   "map": "7235_huolalalinyi-1588",
+   "status": "ok",
+   "summary": {
+    "match_rate": 1.0,
+    "signed_median_m": 0.11744847177488743,
+    "abs_p50_m": 0.11738619458477458,
+    "abs_p90_m": 0.2451419206084999,
+    "abs_p99_m": 0.31056572395541476,
+    "abs_max_m": 0.32018811102154543,
+    "heading_p50_deg": 0.6981969280802062,
+    "heading_p90_deg": 1.1106780547266504,
+    "heading_max_deg": 1.2642425078516621,
+    "driving_frames": 600,
+    "driving_heading_p90_deg": 1.1106780547266504,
+    "confident_rate": 1.0,
+    "lane_transitions": 3,
+    "distinct_lanes": 4,
+    "over_limit_frames": 600
+   }
   },
   {
    "bag": "3139",
-   "map": null,
-   "status": "missing_map_bin",
-   "summary": null
+   "map": "7235_huolalalinyi-1588",
+   "status": "ok",
+   "summary": {
+    "match_rate": 1.0,
+    "signed_median_m": -0.5944176797256426,
+    "abs_p50_m": 0.5932802874463398,
+    "abs_p90_m": 0.9256818572141903,
+    "abs_p99_m": 0.9842807226227547,
+    "abs_max_m": 0.9923421095282182,
+    "heading_p50_deg": 2.18927959759179,
+    "heading_p90_deg": 6.855850815221704,
+    "heading_max_deg": 9.064127913882759,
+    "driving_frames": 600,
+    "driving_heading_p90_deg": 6.855850815221704,
+    "confident_rate": 1.0,
+    "lane_transitions": 3,
+    "distinct_lanes": 4,
+    "over_limit_frames": 600
+   }
   },
   {
    "bag": "3183",
@@ -76,6 +130,9 @@
     "heading_p50_deg": 0.13160516648142445,
     "heading_p90_deg": 0.29971915772033003,
     "heading_max_deg": 0.6170290832929978,
+    "driving_frames": 600,
+    "driving_heading_p90_deg": 0.29971915772033003,
+    "confident_rate": 1.0,
     "lane_transitions": 3,
     "distinct_lanes": 4,
     "over_limit_frames": 600

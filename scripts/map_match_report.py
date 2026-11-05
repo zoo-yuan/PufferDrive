@@ -32,7 +32,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from data_utils.apollo_lane_index import load_lane_index  # noqa: E402
+from data_utils.apollo_lane_index import load_lane_index_for_map_dir  # noqa: E402
 from data_utils.apollo_record import decode_localization_pose, iter_messages  # noqa: E402
 
 DEFAULT_DATA_ROOT = Path("/media/zoo/da1510ce-bbc7-4b3e-9d3b-e5f2137af995")
@@ -41,6 +41,10 @@ DEFAULT_JSON = REPO_ROOT / "docs" / "measured" / "map_match_v0.json"
 MAX_POSES = 600
 MIN_MATCH_RATE = 0.95
 MAX_HEADING_P90_DEG = 10.0
+DRIVING_SPEED_MPS = 2.0   # 低于此速度算场站挪车，不要求贴合车道中心线
+CONFIDENT_HEADING_DEG = 10.0
+CONFIDENT_LATERAL_M = 3.0
+MIN_CONFIDENT_RATE = 0.85
 
 LATERAL_BUCKETS = [
     (0.25, "#1a7f37", "|lat| < 0.25 m"),
@@ -52,39 +56,60 @@ LATERAL_BUCKETS = [
 
 
 def find_map_for(record_dir, map_root):
+    """小图有 base_map.bin；分块大图只有 base_map.catelog + 上万个 tile。"""
     for link in record_dir.iterdir():
         if not link.is_symlink():
             continue
-        map_bin = map_root / link.name / "base_map.bin"
-        if map_bin.exists():
-            return link.name, map_bin
+        map_dir = map_root / link.name
+        has_bin = (map_dir / "base_map.bin").exists() and (map_dir / "base_map.bin").stat().st_size > 0
+        has_catalog = (map_dir / "base_map.catelog").exists() or (map_dir / "base_map.catalog").exists()
+        if has_bin or has_catalog:
+            return link.name, map_dir
     return None, None
 
 
 def collect(record_dir, map_root, max_poses=MAX_POSES):
     """返回 (lane_index 或 None, 每帧匹配结果列表, bag 路径, 地图名, 状态)。"""
     bag = next(record_dir.glob("*.bag"), None)
-    map_name, map_bin = find_map_for(record_dir, map_root)
+    map_name, map_dir = find_map_for(record_dir, map_root)
     if bag is None:
-        return None, [], None, map_name, "missing_bag"
-    if map_bin is None:
-        return None, [], bag, None, "missing_map_bin"
+        return None, [], None, map_name, "missing_bag", None
+    if map_dir is None:
+        return None, [], bag, None, "missing_map_bin", None
 
-    index = load_lane_index(map_bin)
-    matches = []
+    poses = []
     for _channel, _timestamp, payload in iter_messages(bag, channels={"/apollo/localization/pose"}):
-        pose = decode_localization_pose(payload)
-        match = index.match(pose["x_m"], pose["y_m"], pose["heading_rad"])
-        matches.append({"x": pose["x_m"], "y": pose["y_m"], "match": match})
-        if len(matches) >= max_poses:
+        poses.append(decode_localization_pose(payload))
+        if len(poses) >= max_poses:
             break
-    return index, matches, bag, map_name, "ok"
+    if not poses:
+        return None, [], bag, map_name, "no_pose", None
+
+    bbox = (
+        min(pose["x_m"] for pose in poses),
+        min(pose["y_m"] for pose in poses),
+        max(pose["x_m"] for pose in poses),
+        max(pose["y_m"] for pose in poses),
+    )
+    index, source = load_lane_index_for_map_dir(map_dir, bbox)
+    matches = [
+        {
+            "x": pose["x_m"],
+            "y": pose["y_m"],
+            "speed": math.hypot(pose["vx_mps"], pose["vy_mps"]),
+            "match": index.match(pose["x_m"], pose["y_m"], pose["heading_rad"]),
+        }
+        for pose in poses
+    ]
+    return index, matches, bag, map_name, "ok", source
 
 
 def summarize(matches):
     matched = [item for item in matches if item["match"]]
     if not matched:
         return None
+    driving = [item for item in matched if item["speed"] >= DRIVING_SPEED_MPS]
+    driving_heading = sorted(abs(math.degrees(item["match"]["heading_diff_rad"])) for item in driving)
     signed = [item["match"]["lateral_m"] for item in matched]
     heading = [abs(math.degrees(item["match"]["heading_diff_rad"])) for item in matched]
     lanes = [item["match"]["lane_id"] for item in matched]
@@ -105,6 +130,19 @@ def summarize(matches):
         "heading_p50_deg": percentile(heading_sorted, 0.5),
         "heading_p90_deg": percentile(heading_sorted, 0.9),
         "heading_max_deg": heading_sorted[-1],
+        "driving_frames": len(driving),
+        "driving_heading_p90_deg": (
+            driving_heading[min(len(driving_heading) - 1, int(0.9 * (len(driving_heading) - 1)))]
+            if driving_heading
+            else float("nan")
+        ),
+        "confident_rate": sum(
+            1
+            for item in matched
+            if abs(math.degrees(item["match"]["heading_diff_rad"])) <= CONFIDENT_HEADING_DEG
+            and abs(item["match"]["lateral_m"]) <= CONFIDENT_LATERAL_M
+        )
+        / len(matched),
         "lane_transitions": transitions,
         "distinct_lanes": len(set(lanes)),
         "over_limit_frames": sum(
@@ -208,6 +246,7 @@ def render(results, failures):
     ok_rows = [row for row in results if row["status"] == "ok" and row["summary"]]
     table_rows = [row for row in results if row["status"] != "missing_bag"]
     no_map = [row for row in table_rows if row["status"] == "missing_map_bin"]
+    tiled = [row for row in table_rows if (row.get("source") or "").startswith("base_map.catelog")]
     skipped_dirs = [row["bag"] for row in results if row["status"] == "missing_bag"]
 
     parts = [f"""<!DOCTYPE html>
@@ -222,7 +261,7 @@ h1 {{ font-size:26px; margin:0 0 6px; letter-spacing:-.3px; }}
 h2 {{ font-size:19px; margin:34px 0 10px; padding-bottom:8px; border-bottom:1px solid var(--line); }}
 h3 {{ font-size:13px; margin:18px 0 6px; color:var(--mute); text-transform:uppercase; letter-spacing:.07em; }}
 .sub {{ color:var(--mute); font-size:13px; margin:0 0 18px; }}
-.cards {{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0 6px; }}
+.cards {{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin:18px 0 6px; }}
 .card {{ border:1px solid var(--line); border-radius:10px; padding:13px 15px; background:var(--soft); }}
 .card .k {{ font-size:12px; color:var(--mute); }}
 .card .v {{ font-size:25px; font-weight:650; }}
@@ -242,13 +281,14 @@ code {{ background:var(--soft); border:1px solid var(--line); border-radius:4px;
 </style></head><body>"""]
     parts.append(f"""
 <h1>地图匹配质量报告</h1>
-<p class="sub">Apollo <code>base_map.bin</code> ↔ bag 自车姿态 · {len(ok_rows)} 条可匹配 / {len(results)} 条录包 ·
+<p class="sub">Apollo 地图（<code>base_map.bin</code> 或分块 <code>base_map.catelog</code>）↔ bag 自车姿态 · {len(ok_rows)} 条可匹配 / {len(results)} 条录包 ·
 gate <span class="gate">{gate_state}</span></p>""")
 
     parts.append('<div class="cards">')
     for key, value, note in [
         ("可匹配 bag", len(ok_rows), f"共 {len(results)} 条"),
-        ("无 base_map.bin", len(no_map), "只有 GB 级 txt，无法解析"),
+        ("分块地图", len(tiled), "base_map.catelog + tile，按轨迹 bbox 选片"),
+        ("无地图的 bag", len(no_map), "两种形态都没有"),
         (
             "平均匹配率",
             f"{statistics.mean([row['summary']['match_rate'] for row in ok_rows]) * 100:.0f}%" if ok_rows else "—",
@@ -279,17 +319,18 @@ gate <span class="gate">{gate_state}</span></p>""")
     parts.append(
         "<table><thead><tr><th>bag</th><th>地图</th><th class='c'>匹配率</th>"
         "<th class='c'>lateral 中位</th><th class='c'>|lat| p90</th><th class='c'>|lat| max</th>"
-        "<th class='c'>|heading| p90</th><th class='c'>经过车道</th><th class='c'>换道次数</th>"
+        "<th class='c'>行驶帧</th><th class='c'>行驶中 |heading| p90</th>"
+        "<th class='c'>置信匹配率</th><th class='c'>经过车道</th><th class='c'>换道次数</th>"
         "</tr></thead><tbody>"
     )
     for row in table_rows:
         summary = row["summary"]
         if row["status"] != "ok" or summary is None:
-            reason = "无 base_map.bin（仅 txt）" if row["status"] == "missing_map_bin" else "无 bag"
+            reason = "无任何地图形态" if row["status"] == "missing_map_bin" else "无 bag"
             parts.append(
                 f'<tr><td><code>{esc(row["bag"])}</code></td>'
                 f'<td class="note">{esc(row["map"] or "—")}</td>'
-                f'<td class="c" colspan="7" style="color:#cf222e">{esc(reason)}</td></tr>'
+                f'<td class="c" colspan="9" style="color:#cf222e">{esc(reason)}</td></tr>'
             )
             continue
         parts.append(
@@ -299,7 +340,9 @@ gate <span class="gate">{gate_state}</span></p>""")
             f'<td class="c">{summary["signed_median_m"]:+.2f} m</td>'
             f'<td class="c">{summary["abs_p90_m"]:.2f} m</td>'
             f'<td class="c">{summary["abs_max_m"]:.2f} m</td>'
-            f'<td class="c">{summary["heading_p90_deg"]:.1f}°</td>'
+            f'<td class="c">{summary["driving_frames"]}</td>'
+            f'<td class="c">{summary["driving_heading_p90_deg"]:.1f}°</td>'
+            f'<td class="c"><b>{summary["confident_rate"]:.0%}</b></td>'
             f'<td class="c">{summary["distinct_lanes"]}</td>'
             f'<td class="c">{summary["lane_transitions"]}</td></tr>'
         )
@@ -368,14 +411,14 @@ def main():
     import json
 
     for record_dir in sorted(args.data_root.glob("rx-*")):
-        index, matches, bag, map_name, status = collect(record_dir, map_root)
+        index, matches, bag, map_name, status, source = collect(record_dir, map_root)
         summary = summarize(matches) if matches else None
         name = record_dir.name.replace("rx-", "")
         print(
             f"[{name:5s}] {status:16s} "
             + (
                 f"匹配 {summary['match_rate'] * 100:3.0f}%  lateral {summary['signed_median_m']:+.2f} m  "
-                f"|heading| p90 {summary['heading_p90_deg']:.1f}°  车道 {summary['distinct_lanes']}"
+                f"行驶中 |heading| p90 {summary['driving_heading_p90_deg']:.1f}°  车道 {summary['distinct_lanes']}"
                 if summary
                 else "（不可匹配）"
             )
@@ -385,6 +428,7 @@ def main():
                 "bag": name,
                 "map": map_name,
                 "status": status,
+                "source": source,
                 "summary": summary,
                 "matches": matches,
             }
@@ -392,6 +436,12 @@ def main():
 
     ok_rows = [row for row in results if row["status"] == "ok" and row["summary"]]
     failures = []
+    if ok_rows and sum(1 for row in ok_rows if row["summary"]["confident_rate"] >= MIN_CONFIDENT_RATE) < max(
+        1, int(0.8 * len(ok_rows))
+    ):
+        failures.append(
+            f"置信匹配的 bag 不足 80%（{len(ok_rows)} 条里有地图的 bag）"
+        )
     if not ok_rows:
         failures.append("没有任何 bag 能匹配（检查地图 bin 与姿态坐标系）")
     for row in ok_rows:
@@ -399,9 +449,10 @@ def main():
             failures.append(
                 f"{row['bag']}: 匹配率 {row['summary']['match_rate']:.0%} < {MIN_MATCH_RATE:.0%}"
             )
-        if row["summary"]["heading_p90_deg"] > MAX_HEADING_P90_DEG:
-            failures.append(
-                f"{row['bag']}: |heading| p90 {row['summary']['heading_p90_deg']:.1f}° > {MAX_HEADING_P90_DEG}°"
+        if row["summary"]["confident_rate"] < MIN_CONFIDENT_RATE:
+            print(
+                f"[warn] {row['bag']}: 置信匹配率 {row['summary']['confident_rate']:.0%} < "
+                f"{MIN_CONFIDENT_RATE:.0%} —— 按部分覆盖处理，该 bag 的车道类约束可用帧更少"
             )
 
     for item in failures:

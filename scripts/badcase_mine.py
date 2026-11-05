@@ -36,7 +36,10 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from data_utils.apollo_lane_index import load_lane_index  # noqa: E402
+from data_utils.apollo_lane_index import (  # noqa: E402
+    load_lane_index,
+    load_tiled_lane_index,
+)
 from data_utils.apollo_record import (  # noqa: E402
     decode_localization_pose,
     decode_perception_obstacles,
@@ -68,15 +71,44 @@ MAX_PLAUSIBLE_LONG_ACCEL_MPS2 = 10.0
 CATEGORY_COLOR = {"violation": "#cf222e", "comfort": "#9a6700", "progress": "#0b6bcb"}
 
 
-def find_lane_index(record_dir, map_root):
-    """bag 旁边的地图软链 → base_map.bin → 车道索引。没有就返回 (None, 原因)。"""
+def peek_pose_bbox(bag_path, max_poses=5000):
+    """只解位置，拿轨迹 bbox —— 分块地图要靠它选中相关 tile。"""
+    min_x = min_y = float("inf")
+    max_x = max_y = float("-inf")
+    for _channel, _timestamp, payload in iter_messages(
+        str(bag_path), channels={"/apollo/localization/pose"}
+    ):
+        pose = decode_localization_pose(payload)
+        min_x = min(min_x, norm(pose["x_m"]))
+        max_x = max(max_x, norm(pose["x_m"]))
+        min_y = min(min_y, norm(pose["y_m"]))
+        max_y = max(max_y, norm(pose["y_m"]))
+        max_poses -= 1
+        if max_poses <= 0:
+            break
+    if min_x > max_x:
+        return None
+    return (min_x, min_y, max_x, max_y)
+
+
+def find_lane_index(record_dir, map_root, bag_path=None):
+    """小图读 base_map.bin；分块大图（上万个 500 m tile）按轨迹 bbox 选 tile。
+
+    没有地图就返回 (None, 原因) —— 车道类约束因此"不出判定"，不猜测。
+    """
+    bbox = peek_pose_bbox(bag_path) if bag_path is not None else None
     for link in Path(record_dir).iterdir():
         if not link.is_symlink():
             continue
-        map_bin = map_root / link.name / "base_map.bin"
-        if map_bin.exists():
-            return load_lane_index(map_bin), link.name
-    return None, "no_base_map_bin"
+        map_dir = map_root / link.name
+        map_bin = map_dir / "base_map.bin"
+        if map_bin.exists() and map_bin.stat().st_size > 0:
+            return load_lane_index(map_bin), f"{link.name}:base_map.bin"
+        if (map_dir / "base_map.catelog").exists():
+            if bbox is None:
+                return None, "tiled_map_without_bbox"
+            return load_tiled_lane_index(map_dir, *bbox), f"{link.name}:tiles"
+    return None, "no_map"
 
 
 def norm(value):
@@ -722,7 +754,7 @@ def main():
     map_root = Path(args.data_root) / "apollo_map" / "data"
     lane_support = {}
     for path, bag in zip(bag_paths, bag_names):
-        lane_index, map_note = find_lane_index(Path(path).parent, map_root)
+        lane_index, map_note = find_lane_index(Path(path).parent, map_root, path)
         lane_support[bag] = map_note
         rows, rejects = scan_bag(path, contract, entries, lane_index)
         rejected_total += sum(rejects.values())
