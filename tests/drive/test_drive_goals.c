@@ -113,6 +113,80 @@ static int test_map_goals_carry_lane_and_track_slot_zero(void) {
     return 0;
 }
 
+static float lane_heading_at_point(const Drive *env, int lane_idx, float x, float y) {
+    const RoadMapElement *lane = &env->road_elements[lane_idx];
+    int best_vertex_idx = 0;
+    float best_dist_sq = 1e30f;
+    for (int vertex_idx = 0; vertex_idx < lane->segment_size; vertex_idx++) {
+        float dx = lane->x[vertex_idx] - x;
+        float dy = lane->y[vertex_idx] - y;
+        float dist_sq = dx * dx + dy * dy;
+        if (dist_sq < best_dist_sq) {
+            best_dist_sq = dist_sq;
+            best_vertex_idx = vertex_idx;
+        }
+    }
+    return lane->headings[best_vertex_idx];
+}
+
+static int count_goal_heading_violations(Drive *env, float max_heading_deg, int regen_count, int *out_pair_count) {
+    env->goal_heading_max_deg = max_heading_deg;
+    float max_heading_rad = 60.0f * (float) M_PI / 180.0f;
+    int violation_count = 0;
+    *out_pair_count = 0;
+    Agent *agent = &env->agents[env->active_agent_indices[0]];
+    for (int regen_idx = 0; regen_idx < regen_count; regen_idx++) {
+        if (!generate_new_goals_from_map(env, agent)) {
+            continue;
+        }
+        for (int slot = 1; slot < agent->goal_count; slot++) {
+            float prev_heading = lane_heading_at_point(
+                env,
+                agent->list_goal_lane[slot - 1],
+                agent->list_goal_x[slot - 1],
+                agent->list_goal_y[slot - 1]);
+            float heading = lane_heading_at_point(
+                env,
+                agent->list_goal_lane[slot],
+                agent->list_goal_x[slot],
+                agent->list_goal_y[slot]);
+            (*out_pair_count)++;
+            if (fabsf(normalize_heading(heading - prev_heading)) > max_heading_rad) {
+                violation_count++;
+            }
+        }
+    }
+    return violation_count;
+}
+
+static int test_map_goal_heading_constraint_reduces_turns(void) {
+    // goal_heading_max_deg re-samples spacings whose landing heading turns more than the limit; with the
+    // constraint on, successive goals should turn >60 deg far less often than with it off (0 = disabled).
+    srand(11);
+    Drive env = drive_test_env_config(drive_carla_map(), SIMULATION_MODE_GIGAFLOW, 32, 0);
+    env.goal_source = GOAL_SOURCE_MAP;
+    env.num_goals = 4;
+    env.min_goal_spacing = 20.0f;
+    env.max_goal_spacing = 200.0f;
+    allocate(&env);
+    c_reset(&env);
+
+    int free_pair_count = 0, constrained_pair_count = 0;
+    int free_violations = count_goal_heading_violations(&env, 0.0f, 2000, &free_pair_count);
+    int constrained_violations = count_goal_heading_violations(&env, 60.0f, 2000, &constrained_pair_count);
+    printf(
+        "  heading>60deg pairs: unconstrained %d/%d, constrained %d/%d\n",
+        free_violations,
+        free_pair_count,
+        constrained_violations,
+        constrained_pair_count);
+    EXPECT_TRUE(free_pair_count > 500 && constrained_pair_count > 500);
+    // Constrained violation rate must be under 60% of the unconstrained rate (Town01 T-junctions leave a residue).
+    EXPECT_TRUE(constrained_violations * free_pair_count * 10 < free_violations * constrained_pair_count * 6);
+    free_allocated(&env);
+    return 0;
+}
+
 // ---------------------------------------------------------------------------
 // Route goal source (walks the agent's own route).
 // ---------------------------------------------------------------------------
@@ -244,16 +318,117 @@ static int test_gt_goals_along_trajectory_are_laneless(void) {
     return 0;
 }
 
+static int test_gt_map_goals_snap_to_lane_centers(void) {
+    // GT_MAP places goals at the GT timesteps but projected onto the nearest co-directional lane: a snapped
+    // goal carries a lane idx and moved at most the snap radius; goals farther from any lane keep the raw
+    // logged point without a lane.
+    srand(17);
+    Drive raw_env = drive_test_env_config(drive_nuplan_map(), SIMULATION_MODE_REPLAY, 1, 0);
+    raw_env.goal_source = GOAL_SOURCE_GT;
+    allocate(&raw_env);
+    c_reset(&raw_env);
+    srand(17);
+    Drive env = drive_test_env_config(drive_nuplan_map(), SIMULATION_MODE_REPLAY, 1, 0);
+    env.goal_source = GOAL_SOURCE_GT_MAP;
+    allocate(&env);
+    c_reset(&env);
+
+    EXPECT_TRUE(env.active_agent_count > 0);
+    EXPECT_EQ_INT(env.active_agent_count, raw_env.active_agent_count);
+    int snapped_count = 0;
+    for (int i = 0; i < env.active_agent_count; i++) {
+        EXPECT_EQ_INT(env.active_agent_indices[i], raw_env.active_agent_indices[i]);
+        Agent *agent = &env.agents[env.active_agent_indices[i]];
+        Agent *raw_agent = &raw_env.agents[raw_env.active_agent_indices[i]];
+        EXPECT_EQ_INT(agent->goal_count, env.num_goals);
+        for (int slot = 0; slot < agent->goal_count; slot++) {
+            float dx = agent->list_goal_x[slot] - raw_agent->list_goal_x[slot];
+            float dy = agent->list_goal_y[slot] - raw_agent->list_goal_y[slot];
+            float moved_m = sqrtf(dx * dx + dy * dy);
+            EXPECT_FINITE(agent->list_goal_x[slot]);
+            EXPECT_FINITE(agent->list_goal_y[slot]);
+            EXPECT_NEAR(agent->list_goal_z[slot], raw_agent->list_goal_z[slot], 0.0f);
+            EXPECT_TRUE(moved_m <= GOAL_LANE_SNAP_MAX_DIST_M + 1e-3f);
+            if (agent->list_goal_lane[slot] == -1) {
+                EXPECT_NEAR(moved_m, 0.0f, 0.0f);
+                continue;
+            }
+            EXPECT_TRUE(is_drivable_road_lane(env.road_elements[agent->list_goal_lane[slot]].type));
+            snapped_count++;
+        }
+    }
+    printf("  gt_map goals snapped to a lane: %d/%d\n", snapped_count, env.active_agent_count * env.num_goals);
+    EXPECT_TRUE(snapped_count > 0);
+    free_allocated(&env);
+    free_allocated(&raw_env);
+    return 0;
+}
+
+static int test_step_observations_follow_goal_updates(void) {
+    const int goal_sources[] = {GOAL_SOURCE_MAP, GOAL_SOURCE_ROUTE, GOAL_SOURCE_ROUTE};
+    const int regen_modes[] = {GOAL_REGEN_FINITE, GOAL_REGEN_FINITE, GOAL_REGEN_ROLLING};
+    const int goal_case_count = sizeof(goal_sources) / sizeof(goal_sources[0]);
+    for (int case_idx = 0; case_idx < goal_case_count; case_idx++) {
+        Drive env = drive_test_env_config(drive_carla_map(), SIMULATION_MODE_GIGAFLOW, 1, 0);
+        env.goal_source = goal_sources[case_idx];
+        env.goal_regen_mode = regen_modes[case_idx];
+        env.obs_goal_lane_distance = 1;
+        env.goal_reach_requires_speed = 1;
+        allocate(&env);
+        c_reset(&env);
+
+        Agent *agent = &env.agents[env.active_agent_indices[0]];
+        int reached_goal_idx = env.goal_regen_mode == GOAL_REGEN_ROLLING ? 0 : agent->goal_count - 1;
+        agent->current_goal_idx = reached_goal_idx;
+        agent->current_goal_x = agent->list_goal_x[reached_goal_idx] = agent->sim_x;
+        agent->current_goal_y = agent->list_goal_y[reached_goal_idx] = agent->sim_y;
+        agent->current_goal_z = agent->list_goal_z[reached_goal_idx] = agent->sim_z;
+        agent->list_goal_lane[reached_goal_idx] = agent->current_lane_idx;
+        drive_set_neutral_actions(&env);
+
+        c_step(&env);
+
+        EXPECT_FALSE(agent->removed);
+        EXPECT_FALSE(env.terminals[0]);
+        EXPECT_FALSE(env.truncations[0]);
+        EXPECT_EQ_INT(agent->current_goal_idx, 0);
+        EXPECT_NEAR(env.logs[0].reward_goal, env.reward_goal, 1e-6f);
+        float goal_dx = agent->current_goal_x - agent->sim_x;
+        float goal_dy = agent->current_goal_y - agent->sim_y;
+        float goal_norm = fmaxf(env.obs_norm_goal_offset_m, sqrtf(goal_dx * goal_dx + goal_dy * goal_dy));
+        EXPECT_NEAR(
+            env.observations[EGO_FEATURES],
+            (goal_dx * agent->cos_heading + goal_dy * agent->sin_heading) / goal_norm,
+            1e-6f);
+        EXPECT_NEAR(
+            env.observations[EGO_FEATURES + 1],
+            (-goal_dx * agent->sin_heading + goal_dy * agent->cos_heading) / goal_norm,
+            1e-6f);
+
+        // Recomputing from the returned state must also preserve the lane-to-goal routing features.
+        int observation_size = compute_observation_size(&env);
+        float step_observations[observation_size];
+        memcpy(step_observations, env.observations, sizeof(step_observations));
+        compute_observations(&env);
+        EXPECT_TRUE(memcmp(step_observations, env.observations, sizeof(step_observations)) == 0);
+        free_allocated(&env);
+    }
+    return 0;
+}
+
 int main(void) {
     int failures = 0;
     RUN_TEST(test_commit_goals_front_align_fills_every_slot);
     RUN_TEST(test_commit_goals_back_align_pads_front_with_lane_minus_one);
     RUN_TEST(test_map_goal_source_no_attrition);
     RUN_TEST(test_map_goals_carry_lane_and_track_slot_zero);
+    RUN_TEST(test_map_goal_heading_constraint_reduces_turns);
     RUN_TEST(test_route_goals_full_set_or_removed);
     RUN_TEST(test_route_goals_front_aligned_with_lanes);
     RUN_TEST(test_roll_goals_slides_window_and_appends);
     RUN_TEST(test_roll_goals_bails_on_replay_pins);
+    RUN_TEST(test_step_observations_follow_goal_updates);
     RUN_TEST(test_gt_goals_along_trajectory_are_laneless);
+    RUN_TEST(test_gt_map_goals_snap_to_lane_centers);
     return test_summary(failures);
 }

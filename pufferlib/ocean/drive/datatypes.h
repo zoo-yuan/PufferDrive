@@ -96,7 +96,9 @@ struct Agent {
     int displacement_sample_count;
     float distance_since_spawn;
     float seconds_stopped;
-    int stop_sign_stopped_timestep_count;
+    float lane_curvature;         // 1/m at the closest segment of current lane, positive = left turn
+    float lane_heading_error_rad; // agent heading minus lane heading, positive = agent points left of lane
+    int comfort_violation_last_window_idx;
 
     // Goal positions
     float list_goal_x[MAX_GOALS];
@@ -112,8 +114,13 @@ struct Agent {
     float gt_goal_y;               // Last valid ground-truth goal position y
     float gt_goal_z;               // Last valid ground-truth goal position z
 
-    int stopped; // 0/1 -> freeze if set
-    int removed; // 0/1 -> remove from sim if set
+    int stopped;                     // 0/1 -> freeze if set
+    int removed;                     // 0/1 -> remove from sim if set
+    int first_collision_partner_idx; // agent index of the first collision partner this episode, -1 if none
+    int stop_sign_target_idx;        // traffic element being approached, -1 if none
+    int stop_sign_stop_completed;    // 0/1 -> stood still inside the target's trigger box
+    int stop_sign_last_failed_idx;   // element run without stopping, not re-targeted until 20 m away
+    int stop_sign_standstill_idx;    // element whose trigger box the agent last stood still in, -1 if none
 
     // Jerk dynamics
     float accel_long;
@@ -126,11 +133,23 @@ struct Agent {
     // Reward conditioning coefficients (per-agent, randomized at spawn)
     float reward_coefs[NUM_REWARD_COEFS];
 
-    int phantom_braking_counter;     // >0 means currently phantom braking
-    int partner_blindness_counter;   // >0 means currently blind to partners
-    unsigned char is_blind_partner;  // episode-level flag: agent sees no other agents
-    unsigned char is_phantom_braker; // episode-level flag: agent may phantom-brake
+    int phantom_braking_counter;          // >0 means currently phantom braking
+    int partner_blindness_counter;        // steps left in the current blind interval, 0 = sees partners normally
+    float partner_blindness_trigger_prob; // per-step chance of starting a blind interval while not blind
+    unsigned char is_blind_partner;       // episode-level flag: agent may restrict partner visibility
+    unsigned char is_phantom_braker;      // episode-level flag: agent may phantom-brake
 };
+
+typedef struct {
+    float mid_x_m;
+    float mid_y_m;
+    float mid_z_m;
+    float half_length_m;
+    float direction_x;
+    float direction_y;
+    float width_m;
+    int observed;
+} RoadObservationSegment;
 
 struct RoadMapElement {
     int type;
@@ -139,7 +158,8 @@ struct RoadMapElement {
     float *x;
     float *y;
     float *z;
-    float *headings; // Pre-computed heading for each segment
+    float *headings;                              // Pre-computed heading for each segment
+    RoadObservationSegment *observation_segments; // Immutable; owned with the shared road geometry.
 
     // Lane specific info
     int num_entries;
@@ -149,6 +169,9 @@ struct RoadMapElement {
     float speed_limit;
     float length;
     float *cum_lengths;
+    float *widths;      // per-point lane width, meters
+    int speed_zone_idx; // lanes sharing one posted limit; -1 = none (junction lane or map without zones)
+    float max_segment_half_length_m;
 };
 
 struct TrafficControlElement {
@@ -160,12 +183,14 @@ struct TrafficControlElement {
     float heading;
     int num_controlled_lanes;
     int *controlled_lanes;
+    int junction_id; // -1: light is not part of a junction signal cycle
+    int phase_idx;   // slot in the junction cycle, compact 0..N-1; -1 with junction_id -1
 };
 
 struct LaneGraph {
     int n_lanes;
     int *lane_ids;
-    float *distances;       // n_lanes * n_lanes row-major (row = from, col = to)
+    float *distances;       // [goal * n_lanes + from]: row = goal lane, so an ego's lane obs read one contiguous row
     int *lane_to_graph_idx; // road-element idx -> graph idx (-1 if lane absent from graph), sized num_road_elements
 };
 
@@ -188,9 +213,11 @@ void free_road_element(struct RoadMapElement *element) {
     free(element->y);
     free(element->z);
     free(element->headings);
+    free(element->observation_segments);
     free(element->entry_lanes);
     free(element->exit_lanes);
     free(element->cum_lengths);
+    free(element->widths);
 }
 
 void free_traffic_element(struct TrafficControlElement *element) {

@@ -24,6 +24,7 @@ FAILURE_RENDER_FILTER_COLUMNS = (
     "at_fault_collision_rate",
     "offroad_rate",
     "red_light_violation_rate",
+    "stop_sign_violation_rate",
 )
 
 
@@ -54,6 +55,12 @@ def _load_yaml_mapping(path, label):
     except yaml.YAMLError as exc:
         raise pufferlib.APIUsageError(f"{label.capitalize()} is invalid YAML: {path}") from exc
     return _require_mapping(value, label)
+
+
+def _positive_int(value, label):
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise pufferlib.APIUsageError(f"{label} must be a positive integer")
+    return value
 
 
 def _resolve_map_indices(map_dir, map_names):
@@ -90,11 +97,13 @@ def validate_training_evaluation_config(args):
     if not isinstance(evaluation_benchmarks, str) or not evaluation_benchmarks.strip():
         raise pufferlib.APIUsageError("train.evaluation_benchmarks must select at least one benchmark")
 
-    load_benchmark_config(eval_config["benchmark_config"], evaluation_benchmarks)
+    load_benchmark_config(
+        eval_config["benchmark_config"], evaluation_benchmarks, eval_config["map_dir"], eval_config["num_scenarios"]
+    )
     return True
 
 
-def load_benchmark_config(config_path, selected_names):
+def load_benchmark_config(config_path, selected_names, map_dir_override=None, num_scenarios_override=None):
     """Load benchmark sources and resolve selection without validating final values."""
     config = _load_yaml_mapping(config_path, "benchmark config")
     environment_config = _require_mapping(config.get("env"), "benchmark config env")
@@ -125,7 +134,20 @@ def load_benchmark_config(config_path, selected_names):
     if missing_names:
         raise pufferlib.APIUsageError(f"Unknown benchmarks: {', '.join(missing_names)}")
 
-    selected_benchmark_configs = [configured_benchmarks[name] for name in selected_names]
+    selected_benchmark_configs = []
+    for name in selected_names:
+        benchmark = configured_benchmarks[name]
+        if benchmark.get("simulation_mode") == "carla_cosim":
+            from pufferlib.ocean.evaluation_utils.cosim_evaluator import parse_cosim_benchmark
+
+            resolved_benchmarks.append(parse_cosim_benchmark(name, benchmark))
+            continue
+        if num_scenarios_override is not None:
+            benchmark = {**benchmark, "num_scenarios": num_scenarios_override}
+        if map_dir_override is not None:
+            benchmark_environment = _require_mapping(benchmark.get("env"), f"Benchmark {name} env")
+            benchmark = {**benchmark, "env": {**benchmark_environment, "map_dir": map_dir_override}}
+        selected_benchmark_configs.append(benchmark)
     resolved_benchmarks = normalize_puffer_drive_benchmarks(
         environment_config,
         selected_benchmark_configs,
@@ -206,6 +228,29 @@ def _build_benchmark_args(base_args, benchmark, environment_config):
     else:
         args["env"].update(copy.deepcopy(environment_config))
         args["env"].update(copy.deepcopy(benchmark_environment_config))
+        for override_key in (
+            "reward_comfort",
+            "reward_lane_center",
+            "goal_radius",
+            "base_max_speed_mps",
+            "goal_speed",
+            "min_goal_spacing",
+            "max_goal_spacing",
+            "goal_regen_mode",
+            "goal_source",
+            "obs_slots_partners_n",
+            "disable_red_light_infractions",
+            "disable_stop_sign_infractions",
+        ):
+            override_value = args["eval"].get(override_key)
+            if override_value is not None:
+                args["env"][override_key] = override_value
+        dt_override = args["eval"].get("dt")
+        if dt_override is not None:
+            # Rescale the step count so the simulated duration of the benchmark is unchanged
+            scenario_length = args["env"]["scenario_length"]
+            args["env"]["scenario_length"] = max(1, int(round(scenario_length * args["env"]["dt"] / dt_override)))
+            args["env"]["dt"] = dt_override
     args["env"]["num_agents"] = eval_agent_count
     args["env"]["resample_frequency"] = args["env"]["scenario_length"]
     args["num_scenarios"] = benchmark["num_scenarios"]
@@ -270,11 +315,13 @@ def build_benchmark_args(base_args, benchmark, environment_config, cli_overrides
     )
 
 
-def _plan_benchmark_eval_workers(args, num_scenarios, num_workers, scenario_length, capture_replay=False):
+def _plan_benchmark_eval_workers(
+    args, num_scenarios, num_workers, scenario_length, capture_replay=False, scenario_offset=0
+):
     """One disjoint contiguous map window per worker; together they cover the set once."""
     scenarios_per_worker, remainder = divmod(num_scenarios, num_workers)
     worker_env_kwargs = []
-    next_map_idx = 0
+    next_map_idx = scenario_offset
     for worker_idx in range(num_workers):
         worker_num_scenarios = scenarios_per_worker + (1 if worker_idx < remainder else 0)
         env_kwargs = copy.deepcopy(args["env"])

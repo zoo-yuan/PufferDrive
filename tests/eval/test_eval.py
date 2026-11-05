@@ -102,6 +102,7 @@ def _write_benchmark_config(
                     "termination_mode": False,
                     "obs_dropout_lane": 0.0,
                     "obs_dropout_boundary": 0.0,
+                    "speed_limit_random_prob": 0.0,
                 },
                 "benchmarks": [
                     {
@@ -381,6 +382,7 @@ def _replay_render_args():
             "goal_source": "gt",
             "num_goals": 3,
             "compute_eval_metrics": True,
+            "speed_limit_random_prob": 0.0,
         }
     )
     _set_small_observation_config(args)
@@ -533,10 +535,12 @@ def _training_args(tmp_path, benchmark_config_path, evaluation_enabled):
             "min_agents_per_env": TRAIN_AGENTS_PER_ENV,
             "max_agents_per_env": TRAIN_AGENTS_PER_ENV,
             "num_maps": 2,
+            "allow_map_subset": True,
             "map_dir": str(CARLA_MAP_DIR),
             "use_map_cache": True,
             "scenario_length": TRAIN_HORIZON,
             "resample_frequency": TRAIN_HORIZON,
+            "stagger_first_episode": False,  # the default 20-step stagger horizon exceeds TRAIN_HORIZON
         }
     )
     _set_small_observation_config(args)
@@ -554,6 +558,7 @@ def _training_args(tmp_path, benchmark_config_path, evaluation_enabled):
             "actor_num_layers": 0,
             "critic_hidden_size": 16,
             "critic_num_layers": 0,
+            "fused_slot_encoder": False,  # tiny CPU encoders fail the fused width check
         }
     )
     args["train"].update(

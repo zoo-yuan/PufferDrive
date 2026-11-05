@@ -155,6 +155,7 @@ class NonVehicleController(Enum):
 class InitMode(Enum):
     create_all_valid = 0
     create_only_controlled = 1
+    create_controllable_types = 2
 
 
 class GoalRegen(Enum):
@@ -166,6 +167,8 @@ class GoalSource(Enum):
     route = 0
     map = 1
     gt = 2
+    external = 3
+    gt_map = 4
 
 
 class PackageName(Enum):
@@ -257,11 +260,24 @@ class DriveEnvConfig:
     reset_accel_on_stop: bool = MISSING
     dt: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     base_max_speed_mps: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    max_speed_mps: float | None = _constrained_field(POSITIVE_NUMBER_CONSTRAINT, default=None)
+    conditioning_speed_scale: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     spawn_initial_speed: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    spawn_lateral_offset_max_frac: float = _constrained_field(PROBABILITY_CONSTRAINT)
+    spawn_heading_max_deg: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    pose_noise_xy_m: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    pose_noise_yaw_deg: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    speed_limit_random_prob: float = _constrained_field(PROBABILITY_CONSTRAINT)
+    speed_limit_random_delta_mps: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    speed_limit_random_min_mps: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    speed_limit_random_max_mps: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     collision_behavior: InfractionBehavior = MISSING
     offroad_behavior: InfractionBehavior = MISSING
     traffic_light_behavior: InfractionBehavior = MISSING
     stop_sign_behavior: InfractionBehavior = MISSING
+    disable_red_light_infractions: bool = MISSING
+    disable_stop_sign_infractions: bool = MISSING
+    traffic_light_junction_phases: bool = MISSING
     traffic_lights_enabled: bool = MISSING
     stop_signs_enabled: bool = MISSING
     yield_signs_enabled: bool = MISSING
@@ -276,10 +292,12 @@ class DriveEnvConfig:
     init_step: int = _constrained_field(NONNEGATIVE_INT_CONSTRAINT)
     init_step_spread: bool = MISSING
     init_step_min_horizon: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
+    stagger_first_episode: bool = MISSING
     control_mode: ControlMode = MISSING
     sdc_controller: Controller = MISSING
     non_sdc_controller: Controller = MISSING
     non_vehicle_controller: NonVehicleController = MISSING
+    replay_expert_agents: int = MISSING
     init_mode: InitMode = MISSING
     compute_eval_metrics: bool = MISSING
     eval_training_render: bool = MISSING
@@ -288,9 +306,12 @@ class DriveEnvConfig:
     obs_goal_lane_distance: bool = MISSING
     goal_radius: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     goal_speed: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    goal_speed_randomization: bool = MISSING
+    goal_reach_requires_speed: bool = MISSING
     num_goals: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
     min_goal_spacing: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     max_goal_spacing: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    goal_heading_max_deg: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     reward_conditioning: bool = MISSING
     reward_randomization: bool = MISSING
     reward_log_sampling: bool = MISSING
@@ -307,17 +328,23 @@ class DriveEnvConfig:
     reward_reverse: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
     reward_timestep: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
     reward_overspeed: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
+    overspeed_tolerance_mps: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     reward_ade: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
     map_dir: str = MISSING
     num_maps: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
+    allow_map_subset: bool = MISSING
     obs_slots_lane_n: int = _constrained_field(NONNEGATIVE_INT_CONSTRAINT)
     obs_slots_boundary_n: int = _constrained_field(NONNEGATIVE_INT_CONSTRAINT)
     obs_slots_partners_n: int = _constrained_field(NONNEGATIVE_INT_CONSTRAINT)
+    obs_partner_relative_velocity: bool = MISSING
+    obs_lane_heading_signed: bool = MISSING
+    obs_lane_speed_limit: bool = MISSING
     obs_slots_traffic_controls_n: int = _constrained_field(NONNEGATIVE_INT_CONSTRAINT)
     obs_dropout_lane: float = _constrained_field(PROBABILITY_CONSTRAINT)
     obs_dropout_boundary: float = _constrained_field(PROBABILITY_CONSTRAINT)
     obs_lane_stride: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
     obs_boundary_stride: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
+    obs_stride_merge_segments: bool = MISSING
     obs_norm_speed_mps: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     obs_norm_goal_offset_m: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     obs_norm_xy_offset_m: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
@@ -327,6 +354,8 @@ class DriveEnvConfig:
     obs_norm_road_seg_width_m: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     obs_norm_z_m: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     eval_perceived_size_margin_m: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    obs_partner_split_length_m: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    eval_standstill_jerk_deadband_mps3: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     obs_range_road_front_m: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     obs_range_road_behind_m: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     obs_range_road_side_m: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
@@ -334,11 +363,15 @@ class DriveEnvConfig:
     obs_range_traffic_control_m: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
     observation_delay_s: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     partner_blindness_prob: float = _constrained_field(PROBABILITY_CONSTRAINT)
+    partner_blindness_prob_min: float = _constrained_field(PROBABILITY_CONSTRAINT)
     partner_blindness_trigger_prob: float = _constrained_field(PROBABILITY_CONSTRAINT)
     partner_blindness_duration_seconds: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    partner_blindness_corridor: bool = MISSING
+    partner_blindness_time_fraction_max: float = _constrained_field(PROBABILITY_CONSTRAINT)
     phantom_braking_prob: float = _constrained_field(PROBABILITY_CONSTRAINT)
     phantom_braking_trigger_prob: float = _constrained_field(PROBABILITY_CONSTRAINT)
     phantom_braking_duration_seconds: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    phantom_braking_freeze_steering: bool = MISSING
 
     # Added by benchmark overlays after the base Hydra config is composed.
     eval_mode: bool | int = 0
@@ -366,6 +399,8 @@ class DrivePolicyConfig:
     critic_hidden_size: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
     critic_num_layers: int = _constrained_field(NONNEGATIVE_INT_CONSTRAINT)
     critic_head_layer_norm: bool = MISSING
+    fp32_heads: bool = MISSING
+    fused_slot_encoder: bool = False
     shared_network: bool = MISSING
     action_type: ActionType = MISSING
 
@@ -384,15 +419,17 @@ class TrainingConfig:
     final_model_name: str = _constrained_field(NONEMPTY_STRING_CONSTRAINT)
     evaluation_interval_epochs: int | None = _constrained_field(POSITIVE_INT_CONSTRAINT)
     evaluation_benchmarks: str | None = MISSING
+    cosim_debug_evals: bool = MISSING
     torch_deterministic: bool = MISSING
     cpu_offload: bool = MISSING
     device: str | int = MISSING
     optimizer: Optimizer = MISSING
     anneal_lr: bool = MISSING
     precision: Precision = MISSING
+    tf32: bool = MISSING
     rollout_dtype: RolloutDtype = MISSING
     total_timesteps: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
-    learning_rate: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    learning_rate: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     gamma: float = _constrained_field(PROBABILITY_CONSTRAINT)
     gae_lambda: float = _constrained_field(PROBABILITY_CONSTRAINT)
     update_epochs: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
@@ -400,8 +437,12 @@ class TrainingConfig:
     vf_coef: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     vf_clip_coef: float | None = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     max_grad_norm: float = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    separate_grad_clip: bool = MISSING
     normalize_rewards: bool = MISSING
     ent_coef: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    ent_coef_anneal: bool = MISSING
+    ent_coef_final: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    ent_coef_anneal_start_frac: float = _constrained_field(PROBABILITY_CONSTRAINT)
     use_value_bootstrapping: bool = MISSING
     adam_beta1: float = _constrained_field(PROBABILITY_CONSTRAINT)
     adam_beta2: float = _constrained_field(PROBABILITY_CONSTRAINT)
@@ -425,6 +466,11 @@ class TrainingConfig:
     adv_filter_enabled: bool = MISSING
     adv_filter_ewma_beta: float = _constrained_field(PROBABILITY_CONSTRAINT)
     adv_filter_threshold_scale: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    adv_filter_leak_fraction: float = _constrained_field(PROBABILITY_CONSTRAINT)
+    render: bool = MISSING
+    render_interval: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
+    render_num_maps: int | None = _constrained_field(POSITIVE_INT_CONSTRAINT)
+    stop_after_epochs: int | None = _constrained_field(POSITIVE_INT_CONSTRAINT)
     # Derived by load_config from rnn_name and intentionally absent from YAML.
     use_rnn: bool = MISSING
 
@@ -435,8 +481,26 @@ class EvaluationConfig:
     max_sdc_replay_workers: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
     benchmark_config: str = _constrained_field(NONEMPTY_STRING_CONSTRAINT)
     benchmarks: Any = MISSING
+    # Per-benchmark env overrides; None keeps the benchmark's own value.
+    map_dir: str | None = MISSING
+    num_scenarios: int | None = _constrained_field(POSITIVE_INT_CONSTRAINT)
+    reward_comfort: float | None = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    reward_lane_center: float | None = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    dt: float | None = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    goal_radius: float | None = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    base_max_speed_mps: float | None = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    goal_regen_mode: GoalRegen | None = MISSING
+    goal_source: GoalSource | None = MISSING
+    goal_speed: float | None = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
+    min_goal_spacing: float | None = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    max_goal_spacing: float | None = _constrained_field(POSITIVE_NUMBER_CONSTRAINT)
+    obs_slots_partners_n: int | None = _constrained_field(POSITIVE_INT_CONSTRAINT)
+    disable_red_light_infractions: bool | None = MISSING
+    disable_stop_sign_infractions: bool | None = MISSING
     output_name: str | None = MISSING
     output_dir_name: str = _constrained_field(NONEMPTY_STRING_CONSTRAINT)
+    scenario_offset: int = _constrained_field(NONNEGATIVE_INT_CONSTRAINT)
+    output_subdir: str | None = MISSING
     render_scenarios: bool = MISSING
     keep_zlib_replays: bool = MISSING
     render_filter: Any = MISSING
@@ -563,6 +627,8 @@ def _validate_cross_field_constraints(config, context):
         _raise_config_error(context, "env.spawn_initial_speed", "must not exceed env.base_max_speed_mps")
     if env["min_goal_spacing"] > env["max_goal_spacing"]:
         _raise_config_error(context, "env.min_goal_spacing", "must not exceed env.max_goal_spacing")
+    if env["partner_blindness_prob_min"] > env["partner_blindness_prob"]:
+        _raise_config_error(context, "env.partner_blindness_prob_min", "must not exceed env.partner_blindness_prob")
     if env["preload_map_cache"] and not env["use_map_cache"]:
         _raise_config_error(context, "env.preload_map_cache", "requires env.use_map_cache to be true")
 
@@ -572,8 +638,14 @@ def _validate_cross_field_constraints(config, context):
         _raise_config_error(context, "env.init_step_spread", "is only supported in replay mode")
     if env["init_step_spread"] and env["init_step_min_horizon"] >= env["scenario_length"]:
         _raise_config_error(context, "env.init_step_min_horizon", "must be smaller than env.scenario_length")
-    if env["goal_source"] == "gt" and env["simulation_mode"] != "replay":
-        _raise_config_error(context, "env.goal_source", "'gt' is only supported in replay mode")
+    if env["goal_source"] in ("gt", "gt_map") and env["simulation_mode"] != "replay":
+        _raise_config_error(context, "env.goal_source", f"'{env['goal_source']}' is only supported in replay mode")
+    if env["stagger_first_episode"] and env["init_step"] + env["init_step_min_horizon"] > env["scenario_length"]:
+        _raise_config_error(
+            context,
+            "env.stagger_first_episode",
+            "requires env.init_step + env.init_step_min_horizon <= env.scenario_length",
+        )
     if env["terminate_on_goal"] and (env["simulation_mode"] != "replay" or env["control_mode"] != "control_sdc_only"):
         _raise_config_error(context, "env.terminate_on_goal", "requires replay mode with control_sdc_only")
     if env.get("eval_mode") is not None and (
@@ -619,6 +691,8 @@ def _validate_cross_field_constraints(config, context):
         not isinstance(evaluation_benchmarks, str) or not evaluation_benchmarks.strip()
     ):
         _raise_config_error(context, "train.evaluation_benchmarks", "must be a non-empty string")
+    if train["render_num_maps"] is not None and train["render_num_maps"] > config["env"]["num_maps"]:
+        _raise_config_error(context, "train.render_num_maps", "must not exceed env.num_maps")
     if not context.startswith("evaluation") and context != "simulation profiling":
         for field_name in ("batch_size", "bptt_horizon"):
             if train[field_name] != "auto":
@@ -693,6 +767,11 @@ def _validate_cross_field_constraints(config, context):
     else:
         _validate_string_selection(eval_config["benchmarks"], context, "eval.benchmarks")
         _validate_string_selection(eval_config["render_filter"], context, "eval.render_filter")
+        for field_name in ("map_dir", "output_subdir"):
+            if eval_config[field_name] is not None:
+                _validate_value_constraint(
+                    eval_config[field_name], NONEMPTY_STRING_CONSTRAINT, context, f"eval.{field_name}"
+                )
         if eval_config["failure_replay_csv"] is not None and eval_config["render_filter"] is None:
             _raise_config_error(context, "eval.failure_replay_csv", "requires eval.render_filter")
         if eval_config["failure_replay_csv"] is not None and (
@@ -744,6 +823,14 @@ def _validate_map_resources(env, context):
     if env["num_maps"] > available_maps:
         _raise_config_error(
             context, "env.num_maps", f"requests {env['num_maps']} maps but only {available_maps} are available"
+        )
+    # Sorted order would silently train on the first files only; benchmark overlays carry no allow_map_subset
+    if not env.get("eval_mode") and env.get("allow_map_subset") is False and env["num_maps"] < available_maps:
+        _raise_config_error(
+            context,
+            "env.num_maps",
+            f"requests {env['num_maps']} of {available_maps} available maps; set env.num_maps={available_maps} "
+            "or env.allow_map_subset=true",
         )
     return available_maps
 

@@ -71,10 +71,14 @@ static inline Drive drive_test_env_config(
     env.traffic_light_behavior = INFRACTION_BEHAVIOR_IGNORE;
     env.stop_sign_behavior = INFRACTION_BEHAVIOR_IGNORE;
     env.use_map_cache = use_map_cache;
+    env.conditioning_speed_scale = 1.5f;
     env.goal_radius = 2.0f;
     env.goal_speed = 3.0f;
+    env.goal_speed_randomization = 1;
+    env.goal_reach_requires_speed = 0;
     env.min_goal_spacing = 20.0f;
     env.max_goal_spacing = 60.0f;
+    env.goal_heading_max_deg = 0.0f;
     env.num_goals = 3;
     env.goal_regen_mode = GOAL_REGEN_FINITE;
     env.goal_source = GOAL_SOURCE_ROUTE;
@@ -84,6 +88,7 @@ static inline Drive drive_test_env_config(
     env.obs_slots_lane_kept = 32;
     env.obs_slots_boundary_kept = 32;
     env.obs_slots_partners_n = 16;
+    env.obs_partner_relative_velocity = 0;
     env.obs_slots_traffic_controls_n = 4;
     env.traffic_lights_enabled = 1;
     env.stop_signs_enabled = 0;
@@ -91,6 +96,8 @@ static inline Drive drive_test_env_config(
     env.dt = 0.1f;
     env.base_max_speed_mps = 20.0f;
     env.spawn_initial_speed = 0.0f;
+    env.spawn_lateral_offset_max_frac = 0.0f;
+    env.spawn_heading_max_deg = 0.0f;
     env.scenario_length = 91;
     env.termination_mode = 0;
     env.inactive_agent_threshold = 0.4f;
@@ -123,7 +130,11 @@ static inline Drive drive_test_env_config(
     env.obs_range_road_behind_m = 20.0f;
     env.obs_range_road_side_m = 30.0f;
     env.partner_blindness_prob = 0.0f;
+    env.partner_blindness_prob_min = 0.0f;
     env.partner_blindness_trigger_prob = 0.1f;
+    env.partner_blindness_duration = 10;
+    env.partner_blindness_corridor = 1;
+    env.partner_blindness_time_fraction_max = 0.0f;
     env.phantom_braking_prob = 0.0f;
     env.phantom_braking_trigger_prob = 0.0f;
     env.phantom_braking_duration = 10;

@@ -43,13 +43,18 @@ static PyObject *map_cache_release_py(PyObject *self __attribute__((unused)), Py
 
 // Seeds are 63-bit non-negative so they survive int64 round-trips (numpy, pandas, CSV).
 static int unpack_seed(PyObject *kwargs, uint64_t *seed_out) {
+    // Unpacks kwargs dict can silently set a Python exception. Further processing it would overwrite the error masking
+    // it. We check here whether this has occured and if so return which reports the original error.
+    if (PyErr_Occurred()) {
+        return -1;
+    }
     PyObject *seed_obj = PyDict_GetItemString(kwargs, "seed");
     if (seed_obj == NULL || !PyLong_Check(seed_obj)) {
         PyErr_SetString(PyExc_TypeError, "Missing or non-integer keyword argument 'seed'");
         return -1;
     }
     long long seed = PyLong_AsLongLong(seed_obj);
-    if (PyErr_Occurred() || seed < 0) {
+    if (seed < 0) {
         PyErr_SetString(PyExc_ValueError, "seed must be a non-negative 63-bit integer");
         return -1;
     }
@@ -878,6 +883,21 @@ static PyObject *my_get(PyObject *dict, Env *env) {
             }
             Py_DECREF(tmp);
 
+            // Snap agents goal to -1 once all goal are consumed. CARLA debug CSV writer treats -1 as "no snapped lane"
+            tmp = PyLong_FromLong((a->current_goal_idx < a->goal_count) ? a->list_goal_lane[a->current_goal_idx] : -1);
+            if (!tmp) {
+                Py_DECREF(agent);
+                Py_DECREF(agents_list);
+                return NULL;
+            }
+            if (PyDict_SetItemString(agent, "goal_lane_idx", tmp) < 0) {
+                Py_DECREF(tmp);
+                Py_DECREF(agent);
+                Py_DECREF(agents_list);
+                return NULL;
+            }
+            Py_DECREF(tmp);
+
             tmp = PyLong_FromLong(a->active_agent);
             if (!tmp) {
                 Py_DECREF(agent);
@@ -1309,7 +1329,7 @@ static PyObject *my_get(PyObject *dict, Env *env) {
             }
             Py_DECREF(tmp);
 
-            PyObject *pf = PyFloat_FromDouble((double) r->speed_limit);
+            PyObject *pf = PyFloat_FromDouble((double) env->lane_speed_limit_mps[i]);
             if (!pf) {
                 Py_DECREF(road);
                 Py_DECREF(road_list);
@@ -1615,6 +1635,7 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
     int sdc_controller = unpack(kwargs, "sdc_controller");
     int non_sdc_controller = unpack(kwargs, "non_sdc_controller");
     int non_vehicle_controller = unpack(kwargs, "non_vehicle_controller");
+    int replay_expert_agents = unpack(kwargs, "replay_expert_agents");
     int simulation_mode = unpack(kwargs, "simulation_mode");
     int init_step = unpack(kwargs, "init_step");
     uint64_t seed;
@@ -1684,10 +1705,11 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
             }
             PyList_SetItem(agent_offsets, env_count, PyLong_FromLong(offset));
 
-            PyObject *tuple = PyTuple_New(3);
+            PyObject *tuple = PyTuple_New(4);
             PyTuple_SetItem(tuple, 0, agent_offsets);
             PyTuple_SetItem(tuple, 1, map_ids_list);
             PyTuple_SetItem(tuple, 2, PyLong_FromLong(env_count));
+            PyTuple_SetItem(tuple, 3, PyLong_FromLong(env_count));
             return tuple;
         }
 
@@ -1754,10 +1776,11 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
 
         free(agent_counts);
 
-        PyObject *tuple = PyTuple_New(3);
+        PyObject *tuple = PyTuple_New(4);
         PyTuple_SetItem(tuple, 0, agent_offsets);
         PyTuple_SetItem(tuple, 1, map_ids_list);
         PyTuple_SetItem(tuple, 2, PyLong_FromLong(env_count));
+        PyTuple_SetItem(tuple, 3, PyLong_FromLong(env_count));
         return tuple;
     }
 
@@ -1775,12 +1798,16 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
 
     PyObject *agent_offsets = PyList_New(max_envs + 1);
     PyObject *map_ids = PyList_New(max_envs);
+    // Maps taken or skipped (no controllable agents); a deferred scene is not consumed
+    int maps_consumed = 0;
+    int eval_map_index_count = use_eval_map_indices ? (int) PyList_Size(eval_map_indices) : 0;
 
     while (total_agent_count < num_agents && env_count < max_envs
-           && (!eval_mode || use_eval_map_indices || s_map_counter < end_map_index)) {
+           && (!eval_mode
+               || (use_eval_map_indices ? maps_consumed < eval_map_index_count : s_map_counter < end_map_index))) {
         if (eval_mode) {
             if (use_eval_map_indices) {
-                map_id = (int) PyLong_AsLong(PyList_GetItem(eval_map_indices, env_count));
+                map_id = (int) PyLong_AsLong(PyList_GetItem(eval_map_indices, maps_consumed));
             } else {
                 map_id = s_map_counter % num_maps;
                 s_map_counter += 1;
@@ -1797,17 +1824,23 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
         env->sdc_controller = sdc_controller;
         env->non_sdc_controller = non_sdc_controller;
         env->non_vehicle_controller = non_vehicle_controller;
+        env->replay_expert_agents = replay_expert_agents;
         env->simulation_mode = simulation_mode;
         env->init_step = init_step;
         env->num_max_agents = max_agents_per_env;
         env->eval_mode = eval_mode;
         env->goal_radius = goal_radius;
         load_map_binary(map_file, env);
+        if (init_grid_map(env) != 0) {
+            PyErr_Format(PyExc_RuntimeError, "Failed to build grid map for map: %s", map_file);
+            return NULL;
+        }
 
         set_active_agents(env);
 
         // Skip map if it doesn't contain any controllable agents
         if (env->active_agent_count == 0) {
+            maps_consumed++;
             for (int j = 0; j < env->num_total_agents; j++) {
                 free_agent(&env->agents[j]);
             }
@@ -1820,6 +1853,7 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
             free(env->agents);
             free(env->road_elements);
             free(env->traffic_elements);
+            free_grid_map(env->grid_map);
             free(env->active_agent_indices);
             free(env->static_agent_indices);
             free(env->expert_static_agent_indices);
@@ -1836,6 +1870,7 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
             PyList_SetItem(agent_offsets, env_count, PyLong_FromLong(total_agent_count));
             total_agent_count += env->active_agent_count;
             env_count++;
+            maps_consumed++;
         }
         for (int j = 0; j < env->num_total_agents; j++) {
             free_agent(&env->agents[j]);
@@ -1849,6 +1884,7 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
         free(env->agents);
         free(env->road_elements);
         free(env->traffic_elements);
+        free_grid_map(env->grid_map);
         free(env->active_agent_indices);
         free(env->static_agent_indices);
         free(env->expert_static_agent_indices);
@@ -1866,10 +1902,11 @@ static PyObject *my_shared(PyObject *self, PyObject *args, PyObject *kwargs) {
     // resize lists
     PyObject *resized_agent_offsets = PyList_GetSlice(agent_offsets, 0, env_count + 1);
     PyObject *resized_map_ids = PyList_GetSlice(map_ids, 0, env_count);
-    PyObject *tuple = PyTuple_New(3);
+    PyObject *tuple = PyTuple_New(4);
     PyTuple_SetItem(tuple, 0, resized_agent_offsets);
     PyTuple_SetItem(tuple, 1, resized_map_ids);
     PyTuple_SetItem(tuple, 2, final_env_count);
+    PyTuple_SetItem(tuple, 3, PyLong_FromLong(maps_consumed));
     return tuple;
 }
 
@@ -1889,6 +1926,7 @@ static int unpack_map_cache_args(PyObject *kwargs, Drive *config, const char ***
     config->use_neighbor_cache = (int) unpack(kwargs, "use_neighbor_cache");
     config->obs_lane_stride = (int) unpack(kwargs, "obs_lane_stride");
     config->obs_boundary_stride = (int) unpack(kwargs, "obs_boundary_stride");
+    config->obs_stride_merge_segments = (int) unpack(kwargs, "obs_stride_merge_segments");
     config->obs_range_road_front_m = (float) unpack(kwargs, "obs_range_road_front_m");
     config->obs_range_road_behind_m = (float) unpack(kwargs, "obs_range_road_behind_m");
     config->obs_range_road_side_m = (float) unpack(kwargs, "obs_range_road_side_m");
@@ -1896,7 +1934,8 @@ static int unpack_map_cache_args(PyObject *kwargs, Drive *config, const char ***
         return -1;
     }
     if (config->use_neighbor_cache < 0 || config->use_neighbor_cache > 1 || config->obs_lane_stride < 1
-        || config->obs_boundary_stride < 1 || !isfinite(config->obs_range_road_front_m)
+        || config->obs_boundary_stride < 1 || config->obs_stride_merge_segments < 0
+        || config->obs_stride_merge_segments > 1 || !isfinite(config->obs_range_road_front_m)
         || !isfinite(config->obs_range_road_behind_m) || !isfinite(config->obs_range_road_side_m)
         || config->obs_range_road_front_m < 0.0f || config->obs_range_road_behind_m < 0.0f
         || config->obs_range_road_side_m < 0.0f) {
@@ -1975,9 +2014,17 @@ static int my_init(Env *env, PyObject *args, PyObject *kwargs) {
     env->reward_stop_line = (float) unpack(kwargs, "reward_stop_line");
     env->reward_timestep = (float) unpack(kwargs, "reward_timestep");
     env->reward_overspeed = (float) unpack(kwargs, "reward_overspeed");
+    env->overspeed_tolerance_mps = (float) unpack(kwargs, "overspeed_tolerance_mps");
+    if (!(env->overspeed_tolerance_mps >= 0.0f) || !isfinite(env->overspeed_tolerance_mps)) {
+        PyErr_SetString(PyExc_ValueError, "overspeed_tolerance_mps must be finite and >= 0");
+        return -1;
+    }
     env->reward_ade = (float) unpack(kwargs, "reward_ade");
     env->collision_behavior = (int) unpack(kwargs, "collision_behavior");
     env->offroad_behavior = (int) unpack(kwargs, "offroad_behavior");
+    env->disable_red_light_infractions = (int) unpack(kwargs, "disable_red_light_infractions");
+    env->disable_stop_sign_infractions = (int) unpack(kwargs, "disable_stop_sign_infractions");
+    env->traffic_light_junction_phases = (int) unpack(kwargs, "traffic_light_junction_phases");
     env->traffic_light_behavior = (int) unpack(kwargs, "traffic_light_behavior");
     env->stop_sign_behavior = (int) unpack(kwargs, "stop_sign_behavior");
     env->use_map_cache = (int) unpack(kwargs, "use_map_cache");
@@ -1992,6 +2039,14 @@ static int my_init(Env *env, PyObject *args, PyObject *kwargs) {
     env->goal_radius = (float) unpack(kwargs, "goal_radius");
     env->min_goal_spacing = (float) unpack(kwargs, "min_goal_spacing");
     env->max_goal_spacing = (float) unpack(kwargs, "max_goal_spacing");
+    env->goal_heading_max_deg = (float) unpack(kwargs, "goal_heading_max_deg");
+    if (env->goal_heading_max_deg < 0.0f || env->goal_heading_max_deg > 180.0f) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "goal_heading_max_deg must be in [0, 180]. Got: %d",
+            (int) env->goal_heading_max_deg);
+        return -1;
+    }
     env->num_goals = (int) unpack(kwargs, "num_goals");
     if (env->num_goals < 1 || env->num_goals > MAX_GOALS) {
         PyErr_Format(PyExc_ValueError, "num_goals must be in [1, %d]. Got: %d", MAX_GOALS, env->num_goals);
@@ -2003,16 +2058,54 @@ static int my_init(Env *env, PyObject *args, PyObject *kwargs) {
     env->obs_slots_boundary_n = (int) unpack(kwargs, "obs_slots_boundary_n");
     env->obs_slots_lane_n = (int) unpack(kwargs, "obs_slots_lane_n");
     env->obs_slots_partners_n = (int) unpack(kwargs, "obs_slots_partners_n");
+    env->obs_partner_relative_velocity = (int) unpack(kwargs, "obs_partner_relative_velocity");
+    env->obs_lane_heading_signed = (int) unpack(kwargs, "obs_lane_heading_signed");
+    env->obs_lane_speed_limit = (int) unpack(kwargs, "obs_lane_speed_limit");
     env->obs_slots_traffic_controls_n = (int) unpack(kwargs, "obs_slots_traffic_controls_n");
     env->traffic_lights_enabled = (bool) unpack(kwargs, "traffic_lights_enabled");
     env->stop_signs_enabled = (bool) unpack(kwargs, "stop_signs_enabled");
     env->yield_signs_enabled = (bool) unpack(kwargs, "yield_signs_enabled");
     env->obs_lane_stride = (int) unpack(kwargs, "obs_lane_stride");
     env->obs_boundary_stride = (int) unpack(kwargs, "obs_boundary_stride");
+    env->obs_stride_merge_segments = (int) unpack(kwargs, "obs_stride_merge_segments");
     env->dt = (float) unpack(kwargs, "dt");
     env->base_max_speed_mps = (float) unpack(kwargs, "base_max_speed_mps");
+    env->max_speed_mps = (float) unpack(kwargs, "max_speed_mps");
+    if (!(env->max_speed_mps > 0.0f) || !isfinite(env->max_speed_mps)) {
+        PyErr_SetString(PyExc_ValueError, "max_speed_mps must be a positive finite float");
+        return -1;
+    }
     env->spawn_initial_speed = (float) unpack(kwargs, "spawn_initial_speed");
+    env->spawn_lateral_offset_max_frac = (float) unpack(kwargs, "spawn_lateral_offset_max_frac");
+    env->spawn_heading_max_deg = (float) unpack(kwargs, "spawn_heading_max_deg");
+    env->pose_noise_xy_m = (float) unpack(kwargs, "pose_noise_xy_m");
+    env->pose_noise_yaw_rad = (float) unpack(kwargs, "pose_noise_yaw_deg") * (float) M_PI / 180.0f;
+    env->speed_limit_random_prob = (float) unpack(kwargs, "speed_limit_random_prob");
+    env->speed_limit_random_delta_mps = (float) unpack(kwargs, "speed_limit_random_delta_mps");
+    env->speed_limit_random_min_mps = (float) unpack(kwargs, "speed_limit_random_min_mps");
+    env->speed_limit_random_max_mps = (float) unpack(kwargs, "speed_limit_random_max_mps");
+    if (!(env->speed_limit_random_prob >= 0.0f && env->speed_limit_random_prob <= 1.0f)) {
+        PyErr_SetString(PyExc_ValueError, "speed_limit_random_prob must be in [0, 1]");
+        return -1;
+    }
+    if (!(env->speed_limit_random_delta_mps >= 0.0f) || !isfinite(env->speed_limit_random_delta_mps)) {
+        PyErr_SetString(PyExc_ValueError, "speed_limit_random_delta_mps must be finite and >= 0");
+        return -1;
+    }
+    if (!(env->speed_limit_random_min_mps > 0.0f && env->speed_limit_random_min_mps <= env->speed_limit_random_max_mps)
+        || !isfinite(env->speed_limit_random_max_mps)) {
+        PyErr_SetString(PyExc_ValueError, "speed limit clip must satisfy 0 < min <= max (finite)");
+        return -1;
+    }
     env->goal_speed = (float) unpack(kwargs, "goal_speed");
+    env->goal_speed_randomization = (int) unpack(kwargs, "goal_speed_randomization");
+    env->conditioning_accel_scale = (float) unpack(kwargs, "conditioning_accel_scale");
+    env->conditioning_speed_scale = (float) unpack(kwargs, "conditioning_speed_scale");
+    if (!(env->conditioning_speed_scale >= 1.0f) || !isfinite(env->conditioning_speed_scale)) {
+        PyErr_SetString(PyExc_ValueError, "conditioning_speed_scale must be finite and >= 1");
+        return -1;
+    }
+    env->goal_reach_requires_speed = (int) unpack(kwargs, "goal_reach_requires_speed");
     env->scenario_length = (int) unpack(kwargs, "scenario_length");
     env->termination_mode = (int) unpack(kwargs, "termination_mode");
     env->inactive_agent_threshold = (float) unpack(kwargs, "inactive_agent_threshold");
@@ -2021,14 +2114,26 @@ static int my_init(Env *env, PyObject *args, PyObject *kwargs) {
     env->map_name = map_file;
     env->num_controllable_agents = (int) unpack(kwargs, "max_agents");
     env->num_max_agents = (int) unpack(kwargs, "max_agents_per_env");
+    env->cosim_partner_slots = (int) unpack(kwargs, "cosim_partner_slots");
+    env->cosim_eval_semantics = (int) unpack(kwargs, "cosim_eval_semantics");
     int init_step = (int) unpack(kwargs, "init_step");
     env->init_step = init_step;
     env->timestep = init_step;
+    env->init_step_min_horizon = (int) unpack(kwargs, "init_step_min_horizon");
+    env->stagger_first_episode = (int) unpack(kwargs, "stagger_first_episode");
+    if (env->stagger_first_episode
+        && (env->init_step_min_horizon < 1 || env->init_step + env->init_step_min_horizon > env->scenario_length)) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "stagger_first_episode needs 1 <= init_step_min_horizon <= scenario_length - init_step");
+        return -1;
+    }
     env->init_mode = (int) unpack(kwargs, "init_mode");
     env->control_mode = (int) unpack(kwargs, "control_mode");
     env->sdc_controller = (int) unpack(kwargs, "sdc_controller");
     env->non_sdc_controller = (int) unpack(kwargs, "non_sdc_controller");
     env->non_vehicle_controller = (int) unpack(kwargs, "non_vehicle_controller");
+    env->replay_expert_agents = (int) unpack(kwargs, "replay_expert_agents");
     env->simulation_mode = (int) unpack(kwargs, "simulation_mode");
     env->reward_conditioning = (bool) unpack(kwargs, "reward_conditioning");
     env->reward_randomization = (bool) unpack(kwargs, "reward_randomization");
@@ -2045,6 +2150,12 @@ static int my_init(Env *env, PyObject *args, PyObject *kwargs) {
     env->obs_norm_road_seg_width_m = (float) unpack(kwargs, "obs_norm_road_seg_width_m");
     env->obs_norm_z_m = (float) unpack(kwargs, "obs_norm_z_m");
     env->eval_perceived_size_margin_m = (float) unpack(kwargs, "eval_perceived_size_margin_m");
+    env->obs_partner_split_length_m = (float) unpack(kwargs, "obs_partner_split_length_m");
+    if (!(env->obs_partner_split_length_m >= 0.0f) || !isfinite(env->obs_partner_split_length_m)) {
+        PyErr_SetString(PyExc_ValueError, "obs_partner_split_length_m must be finite and >= 0");
+        return -1;
+    }
+    env->eval_standstill_jerk_deadband_mps3 = (float) unpack(kwargs, "eval_standstill_jerk_deadband_mps3");
     env->obs_range_traffic_control_m = (float) unpack(kwargs, "obs_range_traffic_control_m");
     env->obs_range_partner_m = (float) unpack(kwargs, "obs_range_partner_m");
     env->obs_range_road_front_m = (float) unpack(kwargs, "obs_range_road_front_m");
@@ -2053,11 +2164,24 @@ static int my_init(Env *env, PyObject *args, PyObject *kwargs) {
     env->obs_slots_lane_kept = (int) unpack(kwargs, "obs_slots_lane_kept");
     env->obs_slots_boundary_kept = (int) unpack(kwargs, "obs_slots_boundary_kept");
     env->partner_blindness_prob = (float) unpack(kwargs, "partner_blindness_prob");
+    env->partner_blindness_prob_min = (float) unpack(kwargs, "partner_blindness_prob_min");
+    if (!(env->partner_blindness_prob_min >= 0.0f && env->partner_blindness_prob_min <= env->partner_blindness_prob)) {
+        PyErr_SetString(PyExc_ValueError, "partner_blindness_prob_min must be within [0, partner_blindness_prob]");
+        return -1;
+    }
     env->partner_blindness_trigger_prob = (float) unpack(kwargs, "partner_blindness_trigger_prob");
-    env->partner_blindness_duration = (int) unpack(kwargs, "partner_blindness_duration_seconds");
+    env->partner_blindness_duration
+        = (int) ceilf((float) unpack(kwargs, "partner_blindness_duration_seconds") / env->dt);
+    env->partner_blindness_corridor = (int) unpack(kwargs, "partner_blindness_corridor");
+    env->partner_blindness_time_fraction_max = (float) unpack(kwargs, "partner_blindness_time_fraction_max");
+    if (!(env->partner_blindness_time_fraction_max >= 0.0f && env->partner_blindness_time_fraction_max <= 1.0f)) {
+        PyErr_SetString(PyExc_ValueError, "partner_blindness_time_fraction_max must be within [0, 1]");
+        return -1;
+    }
     env->phantom_braking_prob = (float) unpack(kwargs, "phantom_braking_prob");
     env->phantom_braking_trigger_prob = (float) unpack(kwargs, "phantom_braking_trigger_prob");
-    env->phantom_braking_duration = (int) unpack(kwargs, "phantom_braking_duration_seconds");
+    env->phantom_braking_duration = (int) ceilf((float) unpack(kwargs, "phantom_braking_duration_seconds") / env->dt);
+    env->phantom_braking_freeze_steering = (int) unpack(kwargs, "phantom_braking_freeze_steering");
 
     init(env);
     // Episodes must always be generated by c_reset's full path so a logged
@@ -2119,10 +2243,18 @@ static int my_episode_to_dict(PyObject *dict, Env *env) {
 
 static int my_log(PyObject *dict, Env *env, Log *log, float n) {
     float total_distance_travelled = log->total_distance_travelled * n;
-    float total_infractions = log->total_infractions * n;
+    float total_infractions = roundf(log->total_infractions * n);
     float avg_distance_per_infraction = total_distance_travelled / fmaxf(1.0f, total_infractions);
 
     assign_to_dict(dict, "n", log->n);
+    assign_to_dict(dict, "spawn_failed", log->spawn_failed);
+    assign_to_dict(dict, "spawn_reject_collision", log->spawn_reject_collision);
+    assign_to_dict(dict, "spawn_reject_offroad", log->spawn_reject_offroad);
+    assign_to_dict(dict, "spawn_reject_stop_line", log->spawn_reject_stop_line);
+    assign_to_dict(dict, "spawn_reject_empty_cell", log->spawn_reject_empty_cell);
+    assign_to_dict(dict, "spawn_failed_goal", log->spawn_failed_goal);
+    assign_to_dict(dict, "stopped_at_reset", log->stopped_at_reset);
+    assign_to_dict(dict, "early_reset_short", log->early_reset_short);
     assign_to_dict(dict, "offroad_rate", log->offroad_rate);
     assign_to_dict(dict, "episode_length", log->episode_length);
     assign_to_dict(dict, "collision_rate", log->collision_rate);

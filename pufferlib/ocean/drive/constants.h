@@ -78,6 +78,7 @@
 // Which agents get initialized at reset
 #define INIT_MODE_CREATE_ALL_VALID 0
 #define INIT_MODE_CREATE_ONLY_CONTROLLED 1
+#define INIT_MODE_CREATE_CONTROLLABLE_TYPES 2
 
 // Which initialized agents the policy controls
 #define CONTROL_MODE_VEHICLES 0
@@ -105,9 +106,11 @@
 #define GOAL_REGEN_ROLLING 1 // slide window: drop reached goal, append one at the frontier
 
 // Where goals are sampled from
-#define GOAL_SOURCE_ROUTE 0 // seed from the agent's own forward route
-#define GOAL_SOURCE_MAP 1   // seed from a uniformly sampled map lane
-#define GOAL_SOURCE_GT 2    // seed directly from the logged ground-truth trajectory
+#define GOAL_SOURCE_ROUTE 0    // seed from the agent's own forward route
+#define GOAL_SOURCE_MAP 1      // seed from a uniformly sampled map lane
+#define GOAL_SOURCE_GT 2       // seed directly from the logged ground-truth trajectory
+#define GOAL_SOURCE_EXTERNAL 3 // co-sim: goal windows pushed by the external sim (c_set_agent_goals)
+#define GOAL_SOURCE_GT_MAP 4   // logged-trajectory goals projected onto the nearest co-directional lane center
 
 // Dynamics model
 #define DYNAMICS_MODEL_CLASSIC 0
@@ -166,20 +169,52 @@ static const float STEERING_VALUES[NUM_STEERING_ACTIONS]
 #define LANE_DISTANCE_NORMALIZATION 4.0f
 #define LANE_SWITCH_THRESHOLD 0.05f // Hysteresis: new lane must be 5% better to switch
 #define LANE_ALIGN_COS_THRESHOLD 0.5f
-#define MAX_CHECKED_LANES 32
-#define LANE_WIDTH 3.7f
+#define LANE_CURVATURE_NORM 0.2f       // 1/m; a 5 m turn radius saturates the obs
+#define LANE_SCAN_GUARD_MARGIN_M 0.01f // float slack so an unlisted segment never ties the cached nearest one
+#define LANE_WIDTH 3.7f                // fallback when the map carries no per-point widths
+#define MAX_LANE_WIDTH_M 50.0f
 #define LANE_MARGIN 0.2f
 
 // Agent-agent collision
 #define COLLISION_SKIP_DISP_M 0.1f
 #define COLLISION_PAIR_MARGIN_M 0.5f // Extra slack on the radius+displacement quick-check before OBB SAT
+#define SPAWN_CLEARANCE_M 1.5f       // Min box-to-box gap between agents at spawn
+#define SPAWN_REJECT_COLLISION 0
+#define SPAWN_REJECT_OFFROAD 1
+#define SPAWN_REJECT_STOP_LINE 2
+#define SPAWN_REJECT_EMPTY_CELL 3
+#define SPAWN_REJECT_REASON_COUNT 4
+#define EARLY_RESET_SHORT_TIMESTEPS 2 // early reset this soon after c_reset means the reset itself failed
+#define SHORT_RESET_MAX_PRINTS 3
+#define COSIM_PARTNER_DEFAULT_LENGTH_M 4.5f // co-sim partner slot box until the external sim sets sizes
+#define COSIM_PARTNER_DEFAULT_WIDTH_M 2.0f
+#define COSIM_PARTNER_DEFAULT_HEIGHT_M 1.5f
+#define SPAWN_OFFROAD_SCALE_FACTOR 1.1f
+#define EVAL_SPAWN_EDGE_CLEARANCE_M 0.5f // Rear swing on a first full-lock turn must not clip the road edge
+// Replay self-play: logged vehicles failing these are created static instead of policy-controlled
+#define REPLAY_SPAWN_EDGE_CLEARANCE_M 0.5f                      // Car box must stay this far from the road edge
+#define REPLAY_SPAWN_LONGITUDINAL_CLEARANCE_M SPAWN_CLEARANCE_M // Gap needed to other cars in front of and behind
+#define REPLAY_MAX_CONTROLLED_LENGTH_M 6.0f                     // Longer vehicles (trucks, buses) are made static
+#define REPLAY_SPAWN_MAX_LANE_DISTANCE_M 2.5f                   // Car must be this close to a lane center line
 
-// Stop line geometry
+// Stop line geometry (spawn overlap check and IDM braking)
 #define STOP_LINE_DIST_SQ (10.0f * 10.0f)
 #define STOP_LINE_EXTENSION_FACTOR 1.5f
 #define STOP_LINE_HEADING_THRESHOLD (M_PI / 4.0f)
-#define STOP_SIGN_HEADING_TOLERANCE_RADIANS 1e-5f
-#define STOP_SIGN_REQUIRED_STOP_DURATION_SECONDS 0.5f
+
+// Red light violation detection
+#define RED_LIGHT_TRIGGER_DIST_SQ (30.0f * 30.0f)
+#define RED_LIGHT_LATERAL_EXTENSION_M 15.0f // Beyond each stop line endpoint, so the line cannot be driven around
+#define RED_LIGHT_ENTER_HEADING_THRESHOLD (M_PI / 2.0f)
+
+// Stop sign violation detection (CaRL RunStopSign2 semantics, trigger box centred on the stop line)
+#define STOP_SIGN_PROXIMITY_DIST_SQ (20.0f * 20.0f)
+#define STOP_SIGN_TRIGGER_HALF_DEPTH_M 1.7f // CARLA traffic.stop trigger volume half extent along the lane
+#define STOP_SIGN_AFFECTED_BOX_SCALE 1.2f
+#define STOP_SIGN_STOP_SPEED_MPS 0.1f
+#define STOP_SIGN_REVERSING_SPEED_MPS 0.17f
+#define STOP_SIGN_APPROACH_HEADING_THRESHOLD (M_PI / 4.0f)
+#define STOP_SIGN_LATERAL_EXTENSION_M 17.5f // Five lane widths beyond each endpoint, cannot be driven around
 
 #define BEHIND_COS_THRESHOLD -0.8660254f // cos(150 degrees)
 
@@ -191,8 +226,12 @@ static const float STEERING_VALUES[NUM_STEERING_ACTIONS]
 #define MAX_GRID_CELL_COUNT 100000000
 // Depends on resolution of data Formula: 3 * (2 + GRID_CELL_SIZE*sqrt(2)/resolution)
 // => For each entity type in gridmap, diagonal poly-lines -> sqrt(2), include diagonal ends -> 2
-#define MAX_ENTITIES_PER_CELL 30
-#define ROAD_QUERY_ENTITY_COUNT (MAX_ENTITIES_PER_CELL * 25) // 5x5 cell neighborhood
+#define MAX_ENTITIES_PER_CELL 64
+#define ROAD_QUERY_CELL_COUNT 25 // 5x5 cell neighborhood
+#define ROAD_QUERY_ENTITY_COUNT (MAX_ENTITIES_PER_CELL * ROAD_QUERY_CELL_COUNT)
+#define OBS_ENTITY_NONE 0 // grid entity not sampled for road observations
+#define OBS_ENTITY_LANE 1
+#define OBS_ENTITY_EDGE 2
 
 // 5x5 cell neighborhood swept by a road query, centered on the agent's cell
 static const int ROAD_OFFSETS[25][2]
@@ -212,7 +251,11 @@ static const int ROAD_OFFSETS[25][2]
 #define MAX_ROUTE_LENGTH 64
 #define ROUTE_TARGET_DISTANCE 1000.0f
 #define ROUTE_EXIT_MAX_CANDIDATES 5
+#define GOAL_HEADING_MAX_ATTEMPTS 8
 #define GT_GOAL_RADIUS_M 6.0f
+// Max snap distance from an externally-set (co-sim) goal waypoint to its lane; route goals are
+// already lane-centered upstream, so anything farther is off the drivable network -> no lane.
+#define GOAL_LANE_SNAP_MAX_DIST_M 6.0f
 #define LANE_GRAPH_DISTANCE_NORM_M 500.0f // normalization for the GPS lane-distance feature
 
 // =====================================================================================
@@ -223,22 +266,30 @@ static const int ROAD_OFFSETS[25][2]
 #define TL_DEFAULT_YELLOW_DURATION 3.0f
 #define TL_DEFAULT_GREEN_DURATION 10.0f
 #define TL_EPISODE_DISABLE_PROB 0.20f
+// Junction lanes inherit the min limit over their entry lanes; passes bound chained connectors
+#define SPEED_LIMIT_JUNCTION_INHERIT_PASSES 4
+#define UNKNOWN_LANE_SPEED_LIMIT_MPS 15.0f // lanes without a map limit (nuPlan Boston/Singapore); CaRL's IDM fallback
 #define TL_INDIVIDUAL_REMOVE_PROB 0.20f
+#define TL_GROUP_REMOVE_PROB 0.20f
 #define TL_ALWAYS_GREEN_PROB 0.05f
 
 // =====================================================================================
 // 8. OBSERVATIONS
 // =====================================================================================
 
-#define EGO_FEATURES 10
+#define EGO_FEATURES 11
 #define LANE_FEATURES 9
+#define LANE_SPEED_LIMIT_FEATURES 1 // appended per lane row when obs_lane_speed_limit is set
 #define BOUNDARY_FEATURES 6
 #define PARTNER_FEATURES 9
+#define PARTNER_RELATIVE_VELOCITY_FEATURES 2 // appended per partner row when obs_partner_relative_velocity is set
 #define TRAFFIC_CONTROL_FEATURES 7
 #define GOAL_FEATURES 3
 #define OBS_VALID_COUNT_FEATURES 4
 // Heading deviation since last kept point that forces a keep when obs stride > 1 (~15 degrees).
 #define OBS_STRIDE_HEADING_THRESHOLD 0.2618f
+// Lateral slack beyond the ego's half width on each side of a blind partner's forward corridor
+#define PARTNER_BLINDNESS_CORRIDOR_MARGIN_M 1.0f
 
 // =====================================================================================
 // 9. REWARDS
@@ -308,6 +359,7 @@ static const int ROAD_OFFSETS[25][2]
 
 // Stopped-agent detection
 #define AGENT_STOPPED_SPEED_THRESHOLD 0.2f
+#define STANDSTILL_SPEED_EPSILON_MPS 1e-4f
 #define MAX_STOPPED_SECONDS 60.0f
 
 #define METRIC_SCORE_WINDOW_SECONDS 10.0f

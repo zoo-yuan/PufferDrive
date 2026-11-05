@@ -1,3 +1,5 @@
+import contextlib
+
 from torch import nn
 import torch
 import torch.nn.functional as F
@@ -5,6 +7,13 @@ import torch.nn.functional as F
 import pufferlib
 import pufferlib.models
 from pufferlib.ocean.drive import binding
+
+try:
+    from pufferlib.ocean.fused_slot_encoder import fused_encode_and_pool, fused_encoder_active, validate_fused_encoder
+except ModuleNotFoundError as import_error:  # triton ships only with CUDA torch wheels
+    if import_error.name != "triton":
+        raise
+    fused_encode_and_pool = fused_encoder_active = validate_fused_encoder = None
 
 from pufferlib.models import Default as Policy  # noqa: F401
 from pufferlib.models import Convolutional as Conv  # noqa: F401
@@ -21,6 +30,8 @@ class DriveBackbone(nn.Module):
       - Split Actor/Critic (configurable)
     """
 
+    fused_slot_encoder = False  # class default: tests build instances without __init__
+
     def _create_encoder(self, in_features, out_size):
         layers = [pufferlib.pytorch.layer_init(nn.Linear(in_features, out_size))]
         if self.encoder_layer_norm:
@@ -29,18 +40,19 @@ class DriveBackbone(nn.Module):
         layers.append(pufferlib.pytorch.layer_init(nn.Linear(out_size, out_size)))
         return nn.Sequential(*layers)
 
-    def _encode_and_pool(self, objects, valid_counts, encoder, out_size):
+    def _encode_and_pool(self, objects, valid_counts, encoder):
         if not self.mask_padded_features:
             return encoder(objects).max(dim=1).values
 
+        if self.fused_slot_encoder and fused_encoder_active(objects):
+            return fused_encode_and_pool(objects, valid_counts, encoder)
+
+        # Dense encode + masked fill keeps shapes static for torch.compile; padded rows are rare.
         valid_mask = torch.arange(objects.shape[1], device=objects.device) < valid_counts.unsqueeze(1)
-        encoded_objects = objects.new_full(
-            (objects.shape[0], objects.shape[1], out_size),
-            torch.finfo(objects.dtype).min,
-        )
-        encoded_objects[valid_mask] = encoder(objects[valid_mask])
-        pooled = encoded_objects.amax(dim=1)
-        return torch.where(valid_counts.unsqueeze(1) == 0, encoded_objects.new_zeros(()), pooled)
+        encoded_objects = encoder(objects)
+        masked_objects = encoded_objects.masked_fill(~valid_mask.unsqueeze(2), torch.finfo(encoded_objects.dtype).min)
+        pooled = masked_objects.max(dim=1).values
+        return torch.where(valid_counts.unsqueeze(1) == 0, pooled.new_zeros(()), pooled)
 
     def __init__(
         self,
@@ -59,6 +71,7 @@ class DriveBackbone(nn.Module):
         backbone_activation,
         backbone_layer_norm,
         mask_padded_features,
+        fused_slot_encoder,
     ):
         super().__init__()
         self.encoder_act_cls = ACTIVATIONS[encoder_activation]
@@ -114,6 +127,16 @@ class DriveBackbone(nn.Module):
         if self.context_dim > 0:
             self.context_encoder = self._create_encoder(self.context_dim, context_input_size)
             encoders_out += context_input_size
+
+        self.fused_slot_encoder = fused_slot_encoder
+        if fused_slot_encoder and validate_fused_encoder is None:
+            raise ImportError("fused_slot_encoder=true requires triton")
+        if fused_slot_encoder and not mask_padded_features:
+            raise ValueError("fused_slot_encoder requires mask_padded_features=true")
+        slot_encoder_names = ("lane_encoder", "boundary_encoder", "partner_encoder", "traffic_control_encoder")
+        for encoder_name in slot_encoder_names:
+            if fused_slot_encoder and hasattr(self, encoder_name):
+                validate_fused_encoder(getattr(self, encoder_name))
 
         # 2. Main Backbone MLP
         backbone_act_cls = ACTIVATIONS[backbone_activation]
@@ -176,29 +199,19 @@ class DriveBackbone(nn.Module):
         # Encode Lanes and Boundaries separately
         if self.obs_slots_lane_kept > 0:
             lane_objects = lane_observations.view(-1, self.obs_slots_lane_kept, self.lane_features_count)
-            lane_features = self._encode_and_pool(lane_objects, lane_counts, self.lane_encoder, self.lane_input_size)
+            lane_features = self._encode_and_pool(lane_objects, lane_counts, self.lane_encoder)
             feature_list.append(lane_features)
         if self.obs_slots_boundary_kept > 0:
             boundary_objects = boundary_observations.view(
                 -1, self.obs_slots_boundary_kept, self.boundary_features_count
             )
-            boundary_features = self._encode_and_pool(
-                boundary_objects,
-                boundary_counts,
-                self.boundary_encoder,
-                self.boundary_input_size,
-            )
+            boundary_features = self._encode_and_pool(boundary_objects, boundary_counts, self.boundary_encoder)
             feature_list.append(boundary_features)
 
         # Encode Partners
         if self.obs_slots_partners_n > 0:
             partner_objects = partner_observations.view(-1, self.obs_slots_partners_n, self.partner_features_count)
-            partner_features = self._encode_and_pool(
-                partner_objects,
-                partner_counts,
-                self.partner_encoder,
-                self.partner_input_size,
-            )
+            partner_features = self._encode_and_pool(partner_objects, partner_counts, self.partner_encoder)
             feature_list.append(partner_features)
 
         # Encode Traffic Controls
@@ -222,10 +235,7 @@ class DriveBackbone(nn.Module):
                 dim=2,
             )
             traffic_control_features = self._encode_and_pool(
-                traffic_control_objects,
-                traffic_control_counts,
-                self.traffic_control_encoder,
-                self.traffic_control_input_size,
+                traffic_control_objects, traffic_control_counts, self.traffic_control_encoder
             )
             feature_list.append(traffic_control_features)
 
@@ -333,6 +343,8 @@ class Drive(nn.Module):
         action_type: str,
         actor_head_layer_norm: bool = False,
         critic_head_layer_norm: bool = False,
+        fp32_heads: bool = False,
+        fused_slot_encoder: bool = False,
     ):
         super().__init__()
 
@@ -390,6 +402,7 @@ class Drive(nn.Module):
             "backbone_activation": backbone_activation,
             "backbone_layer_norm": backbone_layer_norm,
             "mask_padded_features": mask_padded_features,
+            "fused_slot_encoder": fused_slot_encoder,
         }
 
         # Instantiate backbones
@@ -434,6 +447,7 @@ class Drive(nn.Module):
             critic_in = critic_hidden_size
         critic_head_layers.append(pufferlib.pytorch.layer_init(nn.Linear(critic_in, 1), std=1))
         self.critic_head = nn.Sequential(*critic_head_layers)
+        self.fp32_heads = fp32_heads
 
     def forward(self, observations, state=None):
         """
@@ -448,18 +462,23 @@ class Drive(nn.Module):
         else:
             critic_hidden = self.critic_backbone(observations, self.ego_dim)
 
-        # Compute actions
-        if self.is_continuous:
-            params = self.actor_head(actor_hidden)
-            loc, scale = torch.split(params, self.action_dim, dim=1)
-            std = torch.nn.functional.softplus(scale) + 1e-4
-            actions = torch.distributions.Normal(loc, std)
-        else:
-            actions = self.actor_head(actor_hidden)
+        return self._run_heads(actor_hidden, critic_hidden)
 
-        # Compute value
-        value = self.critic_head(critic_hidden)
-
+    def _run_heads(self, actor_hidden, critic_hidden):
+        head_context = contextlib.nullcontext()
+        if self.fp32_heads:
+            head_context = torch.autocast(device_type=actor_hidden.device.type, enabled=False)
+            actor_hidden = actor_hidden.float()
+            critic_hidden = critic_hidden.float()
+        with head_context:
+            if self.is_continuous:
+                params = self.actor_head(actor_hidden)
+                loc, scale = torch.split(params, self.action_dim, dim=1)
+                std = torch.nn.functional.softplus(scale) + 1e-4
+                actions = torch.distributions.Normal(loc, std)
+            else:
+                actions = self.actor_head(actor_hidden)
+            value = self.critic_head(critic_hidden)
         return actions, value
 
     def forward_train(self, x, state=None):
@@ -483,17 +502,7 @@ class Drive(nn.Module):
         Args:
             hidden: The hidden state for the actor (policy).
         """
-        if self.is_continuous:
-            parameters = self.actor_head(hidden)
-            loc, scale = torch.split(parameters, self.action_dim, dim=1)
-            std = torch.nn.functional.softplus(scale) + 1e-4
-            action = torch.distributions.Normal(loc, std)
-        else:
-            action = self.actor_head(hidden)
-
-        value = self.critic_head(hidden)
-
-        return action, value
+        return self._run_heads(hidden, hidden)
 
     def discrete_actions_to_continuous(self, actions):
         return self.action_table[actions.long()]

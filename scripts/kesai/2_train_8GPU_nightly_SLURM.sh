@@ -4,12 +4,14 @@
 #SBATCH --nodes 1
 #SBATCH --time 2-00:00
 #SBATCH --gres gpu:8
-#SBATCH --mem=1007G
-#SBATCH --cpus-per-task 144
-#SBATCH --output /home/bjaeger/nightly_PufferDrive/experiments/logs/log_%a_%A.out
-#SBATCH --error /home/bjaeger/nightly_PufferDrive/experiments/logs/log_%a_%A.err
+#SBATCH --mem=0
+#SBATCH --exclusive                      # whole node on either cluster, --mem=0 = all of its memory
+#SBATCH --output experiments/logs/train_nightly_%a_%A.out
+#SBATCH --error experiments/logs/train_nightly_%a_%A.err
 #SBATCH --partition dev
 #SBATCH --array=0-2
+
+source scripts/kesai/cluster_env.sh || exit 1
 
 # print info about current job
 echo "START TIME: $(date)"
@@ -22,7 +24,7 @@ echo "SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID} -> train.seed=${SEED}"
 export RUN_NAME=k_nightly_"$(date +%Y-%m-%d)"_${SEED}
 echo ${RUN_NAME}
 
-export DATA_DIR=/home/bjaeger/nightly_PufferDrive/experiments/${RUN_NAME}
+export DATA_DIR=$PD/experiments/${RUN_NAME}
 echo ${DATA_DIR}
 
 export FINAL_MODEL_NAME=final_model.pt
@@ -37,12 +39,14 @@ export VECLIB_MAXIMUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=1
 
+REPO_DIR=$PD
+cd ${REPO_DIR} || exit 1
 source .venv/bin/activate
 
 # Only task 0 builds; concurrent in-place builds race on shared NFS build files.
-BUILD_STATUS_FILE=/home/bjaeger/nightly_PufferDrive/experiments/logs/build_status_${SLURM_ARRAY_JOB_ID}
+BUILD_STATUS_FILE=$PD/experiments/logs/build_status_${SLURM_ARRAY_JOB_ID}
 if [ "${SLURM_ARRAY_TASK_ID}" -eq 0 ]; then
-    bash scripts/kesai/build_ext_if_changed.sh /home/bjaeger/nightly_PufferDrive
+    bash scripts/kesai/build_ext_if_changed.sh $PD
     BUILD_STATUS=$?
     echo ${BUILD_STATUS} > ${BUILD_STATUS_FILE}
 else
@@ -69,7 +73,7 @@ torchrun --standalone --nnodes=1 --nproc-per-node=8 --max_restarts=0 --start-met
     wandb_project=nightly-multi-long \
     wandb_group="$(date +%Y-%m-%d)" \
     train.data_dir=${DATA_DIR} \
-    env.map_dir=/home/bjaeger/nightly_PufferDrive/pufferlib/resources/drive/binaries/carla \
+    env.map_dir=$PD/pufferlib/resources/drive/binaries/carla \
     train.name=${RUN_NAME} \
     run_name=${RUN_NAME} \
     train.total_timesteps=100000000000 \
@@ -82,28 +86,20 @@ torchrun --standalone --nnodes=1 --nproc-per-node=8 --max_restarts=0 --start-met
     train.final_model_name=${FINAL_MODEL_NAME} \
     train.seed=${SEED} \
     tb=True
-
-# Only evaluate a run that actually finished, otherwise the eval jobs below would
-# score a stale final_model.pt from an earlier attempt (or fail on a missing one).
-TRAIN_STATUS=$?
-if [ ${TRAIN_STATUS} -ne 0 ]; then
-    echo "Training exited with status ${TRAIN_STATUS}; skipping evaluation."
-    exit ${TRAIN_STATUS}
-fi
 if [ ! -f ${MODEL_PATH} ]; then
-    echo "Training finished but ${MODEL_PATH} is missing; skipping evaluation."
+    echo "Training did not produce ${MODEL_PATH}; skipping evaluation."
     exit 1
 fi
 
 echo "Training done, evaluating ${MODEL_PATH}"
-.venv/bin/puffer eval puffer_drive carla \
+python -m pufferlib.pufferl eval puffer_drive carla \
     vec.num_envs=16 \
     eval.output_name=${RUN_NAME} \
     load_model_path=${MODEL_PATH} \
     wandb=True
 
-.venv/bin/puffer eval puffer_drive nuplan_single \
-    env.map_dir=/home/shared/data/nuPlan/PufferDrive \
+python -m pufferlib.pufferl eval puffer_drive nuplan_single \
+    eval.map_dir=$SHARED_DATA/nuplan/PufferDrive \
     eval.output_name=${RUN_NAME} \
     load_model_path=${MODEL_PATH} \
     wandb=True

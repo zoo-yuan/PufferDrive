@@ -217,6 +217,51 @@ static int test_control_mode_euler_integrates_three_steps(void) {
     return 0;
 }
 
+// Braking to a standstill with reset_accel_on_stop must report the driver's jerk, not the zeroed acceleration
+static int test_jerk_stop_reset_keeps_driver_jerk(void) {
+    srand(29);
+    Drive env = drive_test_make_env(drive_carla_map(), SIMULATION_MODE_GIGAFLOW, 1, 0);
+    env.action_type = 1;
+    env.dynamics_model = DYNAMICS_MODEL_JERK;
+    env.reset_accel_on_stop = 1;
+    env.dt = 0.3f;
+    Agent *agent = &env.agents[env.active_agent_indices[0]];
+    agent->reward_coefs[REWARD_COEF_THROTTLE] = 1.0f;
+    agent->reward_coefs[REWARD_COEF_STEER] = 1.0f;
+    agent->reward_coefs[REWARD_COEF_ACC] = 1.0f;
+    agent->reward_coefs[REWARD_COEF_SPEED] = 1.0f;
+    float (*actions)[2] = (float (*)[2]) env.actions;
+    const float braking_jerk_action = JERK_LONG[1] / -JERK_LONG[0]; // decodes to -4 m/s^3
+    const float stop_speed_mps = 0.3f;
+    const float stop_accel_mps2 = -3.0f;
+    {
+        agent->sim_vx = stop_speed_mps * agent->cos_heading;
+        agent->sim_vy = stop_speed_mps * agent->sin_heading;
+        update_agent_speed(agent);
+        agent->accel_long = stop_accel_mps2;
+        actions[0][0] = 0.0f;
+        actions[0][1] = 0.0f;
+        move_dynamics(&env, 0, env.active_agent_indices[0]);
+        EXPECT_NEAR(agent->sim_speed, 0.0f, 1e-6f);
+        EXPECT_NEAR(agent->accel_long, 0.0f, 1e-6f);
+        EXPECT_NEAR(agent->jerk_long, 0.0f, 1e-6f);
+    }
+    {
+        agent->sim_vx = stop_speed_mps * agent->cos_heading;
+        agent->sim_vy = stop_speed_mps * agent->sin_heading;
+        update_agent_speed(agent);
+        agent->accel_long = stop_accel_mps2;
+        actions[0][0] = braking_jerk_action;
+        actions[0][1] = 0.0f;
+        move_dynamics(&env, 0, env.active_agent_indices[0]);
+        EXPECT_NEAR(agent->sim_speed, 0.0f, 1e-6f);
+        EXPECT_NEAR(agent->accel_long, 0.0f, 1e-6f);
+        EXPECT_NEAR(agent->jerk_long, JERK_LONG[1], 1e-3f);
+    }
+    free_allocated(&env);
+    return 0;
+}
+
 int main(void) {
     int failures = 0;
     RUN_TEST(test_classic_action_clipping);
@@ -228,5 +273,6 @@ int main(void) {
     RUN_TEST(test_control_mode_ignores_reward_coefficients);
     RUN_TEST(test_control_mode_applies_actuator_limits);
     RUN_TEST(test_control_mode_euler_integrates_three_steps);
+    RUN_TEST(test_jerk_stop_reset_keeps_driver_jerk);
     return test_summary(failures);
 }
