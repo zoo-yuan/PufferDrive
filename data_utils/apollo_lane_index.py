@@ -55,6 +55,10 @@ class Lane:
     turn: int                   # Apollo LaneTurn 枚举
     lane_type: int
     length_m: float
+    # Apollo proto：predecessor_id(8) / successor_id(9)，各是 repeated Id{id(1)}。
+    # 场景化时 route 就靠这两个链走出来，所以必须留在 Lane 上。
+    predecessor_ids: Tuple[str, ...] = ()
+    successor_ids: Tuple[str, ...] = ()
 
 
 @dataclass
@@ -64,6 +68,7 @@ class LaneIndex:
     cell_lane_index: Dict[Tuple[int, int], np.ndarray] = field(default_factory=dict)
     cell_point_index: Dict[Tuple[int, int], np.ndarray] = field(default_factory=dict)
     match_radius_m: float = MATCH_RADIUS_M
+    by_id: Dict[str, Lane] = field(default_factory=dict)
 
     @property
     def lane_count(self) -> int:
@@ -243,6 +248,13 @@ def parse_map_catalog(catalog_path: Path) -> List[dict]:
         tiles.append(
             {
                 "path": path,
+                "element_ids": [
+                    ref
+                    for number, wire, inner in iter_fields(value)
+                    if number == 7 and wire == WIRE_LEN and isinstance(inner, bytes)
+                    for ref in [_find_text_field(inner, 1)]
+                    if ref
+                ],
                 "min_x": scalars[3],
                 "min_y": scalars[4],
                 "max_x": scalars[5],
@@ -288,6 +300,55 @@ def select_tiles(tiles: List[dict], min_x: float, min_y: float, max_x: float, ma
     return selected
 
 
+class TileLoader:
+    """按需加载 tile —— route 走到底再补 tile，而不是一开始就把 bbox 猜得很大。
+
+    catalog 的每个 tile 都带元素 id 列表，所以 ``lane_id → tile`` 是查表；某个
+    successor 不在已加载索引里时，就把它所在的 tile 补进来（每片只读一次）。
+    """
+
+    def __init__(self, map_dir: Path):
+        self.map_dir = Path(map_dir)
+        self._tiles = load_catalog_tiles(self.map_dir)
+        self._lane_to_path: Dict[str, str] = {}
+        for tile in self._tiles:
+            for lane_id in tile.get("element_ids", ()):
+                self._lane_to_path.setdefault(lane_id, tile["path"])
+        self._loaded_paths = set()
+
+    def load(self, lane_ids) -> List[Lane]:
+        paths = []
+        for lane_id in lane_ids:
+            path = self._lane_to_path.get(lane_id)
+            if path is None or path in self._loaded_paths:
+                continue
+            self._loaded_paths.add(path)
+            paths.append(path)
+        lanes: List[Lane] = []
+        for path in paths:
+            tile_path = self.map_dir / path
+            if tile_path.exists():
+                lanes.extend(_parse_lanes(tile_path.read_bytes()))
+        return lanes
+
+
+def extend_index(index: "LaneIndex", loader: TileLoader, lane_ids) -> int:
+    """把缺失 lane 所在的 tile 补进索引，返回新增车道数。"""
+    missing = [lane_id for lane_id in lane_ids if lane_id not in index.by_id]
+    if not missing:
+        return 0
+    new_lanes = [lane for lane in loader.load(missing) if lane.lane_id not in index.by_id]
+    if not new_lanes:
+        return 0
+    index.lanes.extend(new_lanes)
+    rebuilt = _build_index(index.lanes)
+    index.by_id = rebuilt.by_id
+    index.cell_points = rebuilt.cell_points
+    index.cell_lane_index = rebuilt.cell_lane_index
+    index.cell_point_index = rebuilt.cell_point_index
+    return len(new_lanes)
+
+
 def load_tiled_lane_index(map_dir: Path, min_x: float, min_y: float, max_x: float, max_y: float) -> LaneIndex:
     """按轨迹 bbox 只加载相关 tile，合并成一个索引。"""
     map_dir = Path(map_dir)
@@ -327,6 +388,18 @@ def load_lane_index(map_bin: Path) -> LaneIndex:
     return _build_index(lanes)
 
 
+def _parse_id_refs(lane_bytes: bytes, field_number: int) -> Tuple[str, ...]:
+    """反复出现的 Id 引用（predecessor / successor / overlap），取每个 Id 的 id(1) 字段。"""
+    refs = []
+    for number, wire, value in iter_fields(lane_bytes):
+        if number != field_number or wire != WIRE_LEN or not isinstance(value, bytes):
+            continue
+        ref = _find_text_field(value, 1)
+        if ref:
+            refs.append(ref)
+    return tuple(refs)
+
+
 def _parse_lanes(raw: bytes) -> List[Lane]:
     lanes: List[Lane] = []
     for field_number, wire, value in iter_fields(raw):
@@ -342,6 +415,8 @@ def _parse_lanes(raw: bytes) -> List[Lane]:
                 turn=int(fields.get(13) or 0),
                 lane_type=int(fields.get(12) or 0),
                 length_m=float(fields.get(5) or 0.0),
+                predecessor_ids=_parse_id_refs(value, 8),
+                successor_ids=_parse_id_refs(value, 9),
             )
         )
     return lanes
@@ -361,6 +436,7 @@ def _build_index(lanes: List[Lane]) -> LaneIndex:
 
     return LaneIndex(
         lanes=lanes,
+        by_id={lane.lane_id: lane for lane in lanes},
         cell_points={key: np.array(value) for key, value in cell_points.items()},
         cell_lane_index={key: np.array(value) for key, value in cell_lane_index.items()},
         cell_point_index={key: np.array(value) for key, value in cell_point_index.items()},

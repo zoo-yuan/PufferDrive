@@ -1,0 +1,196 @@
+{
+  "scenario_id": "3183#17887346308",
+  "template": "lane_departure",
+  "bag": "3183",
+  "map_name": "8997_shunfengsuyunjiningshi537Wyanzhouzhuanyunzhongxin-1906",
+  "map_source": "base_map.bin",
+  "unmatched_frames": 0,
+  "matched_lane_ids": [
+    "15790859"
+  ],
+  "steps": [
+    {
+      "lane_id": "15790859",
+      "length_m": 91.0,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "start"
+    },
+    {
+      "lane_id": "15935280",
+      "length_m": 13.5,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "branch(2 candidates)"
+    },
+    {
+      "lane_id": "15935201",
+      "length_m": 37.6,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15789796",
+      "length_m": 5.1,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15789850",
+      "length_m": 18.4,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15789873",
+      "length_m": 18.3,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15790248",
+      "length_m": 56.6,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "branch(2 candidates)"
+    },
+    {
+      "lane_id": "15789441",
+      "length_m": 6.3,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15790399",
+      "length_m": 68.9,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15789479",
+      "length_m": 9.9,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15789366",
+      "length_m": 219.2,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15788643",
+      "length_m": 51.9,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15788693",
+      "length_m": 43.0,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15787400",
+      "length_m": 26.1,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15787429",
+      "length_m": 54.7,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15788780",
+      "length_m": 6.3,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15786877",
+      "length_m": 57.9,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15787171",
+      "length_m": 23.7,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15786922",
+      "length_m": 29.7,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15786213",
+      "length_m": 6.3,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15787189",
+      "length_m": 53.2,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15786478",
+      "length_m": 40.1,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15786427",
+      "length_m": 10.8,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15786436",
+      "length_m": 8.5,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    },
+    {
+      "lane_id": "15786460",
+      "length_m": 46.6,
+      "turn": "NO_TURN",
+      "speed_limit_mps": 11.1,
+      "why": "single"
+    }
+  ],
+  "route_distance_m": 1003.4977693068514,
+  "stop_reason": "target_reached",
+  "branch_count": 2,
+  "turn_count": 0,
+  "goal": {
+    "x": 480980.83984375,
+    "y": 3937108.3984375
+  }
+}

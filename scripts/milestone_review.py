@@ -101,6 +101,8 @@ ARTIFACT_NAV = (
     ("badcase_mining_v0.html", "M5 bad case 挖掘", "12 条可挖约束 × 6 条录包"),
     ("bridge_washin_report.html", "M6 桥接 wash-in", "洗 vs 不洗的 Δxy 曲线"),
     ("map_match_report.html", "M6 地图匹配", "bag ↔ 车道 匹配质量"),
+    ("route_preview.html", "M7 route 推导", "单切片: 车道链 + goal"),
+    ("route_coverage.html", "M7 route 覆盖率", "779 切片 → 可跑场景"),
 )
 SCRIPT_ARTIFACTS = (
     "scripts/spec_report.py",
@@ -876,6 +878,8 @@ a { color:#0b6bcb; }
                 ("M5 挖掘契约", "python scripts/badcase_mine.py --check", "PASS", "12 条可挖模板指回 constraints_v0、20 条全覆盖、所有 bag 被扫、门禁有计数"),
                 ("M6 桥接 wash-in", "python scripts/bridge_washin_report.py --check", "PASS", "洗过 max |Δxy| < 1e-4 m 且不洗 > 0.1 m（保持分辨力）"),
                 ("M6 地图匹配", "python scripts/map_match_report.py --check", "PASS", "可匹配 bag 的匹配率 ≥95%、|heading| p90 <10°"),
+                ("M7 route 推导", "python scripts/route_preview.py --check", "PASS", "单切片 route ≥1000 m 且未匹配帧 ≤10%"),
+                ("M7 route 覆盖率", "python scripts/route_coverage.py --check", "PASS", "≥80% 切片能串出 ≥300 m 连续 route、未匹配帧 ≤10%"),
             ]
         )
     )

@@ -1,0 +1,44 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>route 覆盖率 · M7-1</title>
+<style>
+body{font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC",sans-serif;
+max-width:1000px;margin:0 auto;padding:32px 24px 64px;color:#1f2328;line-height:1.6}
+h1{font-size:24px;margin:0 0 4px} h2{font-size:17px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid #e3e3e8}
+.sub{color:#57606a;font-size:13px;margin:0 0 18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.card{border:1px solid #e3e3e8;border-radius:8px;padding:12px 14px;background:#fbfbfd}
+.card .k{font-size:12px;color:#57606a} .card .v{font-size:22px;font-weight:600;margin-top:2px}
+.card .n{font-size:11px;color:#8c959f;margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:12px;color:#57606a;border-bottom:1px solid #d0d7de;padding:6px 8px;font-weight:600}
+td{border-bottom:1px solid #eaeef2;padding:5px 8px}
+.c{text-align:center} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.banner{border-left:3px solid #1a7f37;background:#f0fbf2;padding:9px 13px;border-radius:0 6px 6px 0;font-size:13px;margin:16px 0}
+</style></head><body>
+<h1>route 覆盖率（M7-1）</h1>
+<p class="sub">779 个 bad case 切片 · 判定"能跑" = route 连续 ≥300 m
+ （引擎 <code>ROUTE_TARGET_DISTANCE</code> 是 1000 m，够不到时 goal 放 route 末端）
+ · 未匹配帧 ≤10%</p>
+<div class="cards">
+<div class="card"><div class="k">可跑切片</div><div class="v">779</div>
+<div class="n">共 779 条 · 100%</div></div>
+<div class="card"><div class="k">route 长度中位</div><div class="v">1001 m</div>
+<div class="n">p10 425 m / p90 1016 m</div></div>
+<div class="card"><div class="k">分支遭遇</div><div class="v">779</div>
+<div class="n">切片 route 里遇到过分叉</div></div>
+<div class="card"><div class="k">未匹配帧</div><div class="v">0.0%</div>
+<div class="n">超半径或航向不符 → 不出判定</div></div>
+</div>
+<div class="banner">结论：这批复用 route 口径能覆盖绝大多数切片。
+ 失败原因分布见第 3 节 —— 每类都对应一个具体处置动作，不是笼统的"数据不够"。</div>
+<h2>1. 按模板</h2>
+<table><thead><tr><th>模板</th><th class="c">切片</th><th class="c">可跑</th><th class="c">覆盖率</th><th class="c">失败</th></tr></thead>
+<tbody><tr><td class='mono'>jerk_over</td><td class='c'>231</td><td class='c'>231</td><td class='c'>100%</td><td class='c'>0</td></tr><tr><td class='mono'>cut_in_conflict</td><td class='c'>156</td><td class='c'>156</td><td class='c'>100%</td><td class='c'>0</td></tr><tr><td class='mono'>lane_departure</td><td class='c'>156</td><td class='c'>156</td><td class='c'>100%</td><td class='c'>0</td></tr><tr><td class='mono'>long_accel_over</td><td class='c'>104</td><td class='c'>104</td><td class='c'>100%</td><td class='c'>0</td></tr><tr><td class='mono'>ttc_shortfall</td><td class='c'>60</td><td class='c'>60</td><td class='c'>100%</td><td class='c'>0</td></tr><tr><td class='mono'>multi_lane_wander</td><td class='c'>27</td><td class='c'>27</td><td class='c'>100%</td><td class='c'>0</td></tr><tr><td class='mono'>braking_distance_short</td><td class='c'>27</td><td class='c'>27</td><td class='c'>100%</td><td class='c'>0</td></tr><tr><td class='mono'>collision_any</td><td class='c'>14</td><td class='c'>14</td><td class='c'>100%</td><td class='c'>0</td></tr><tr><td class='mono'>stall_crawl</td><td class='c'>4</td><td class='c'>4</td><td class='c'>100%</td><td class='c'>0</td></tr></tbody></table>
+<h2>2. 按 bag</h2>
+<table><thead><tr><th>bag</th><th class="c">切片</th><th class="c">可跑</th><th class="c">覆盖率</th><th class="c">route 中位 m</th></tr></thead>
+<tbody><tr><td class='mono'>2292</td><td class='c'>17</td><td class='c'>17</td><td class='c'>100%</td><td class='c'>1013</td></tr><tr><td class='mono'>2688</td><td class='c'>71</td><td class='c'>71</td><td class='c'>100%</td><td class='c'>307</td></tr><tr><td class='mono'>2714</td><td class='c'>80</td><td class='c'>80</td><td class='c'>100%</td><td class='c'>1016</td></tr><tr><td class='mono'>3123</td><td class='c'>247</td><td class='c'>247</td><td class='c'>100%</td><td class='c'>1001</td></tr><tr><td class='mono'>3139</td><td class='c'>211</td><td class='c'>211</td><td class='c'>100%</td><td class='c'>425</td></tr><tr><td class='mono'>3183</td><td class='c'>153</td><td class='c'>153</td><td class='c'>100%</td><td class='c'>1004</td></tr></tbody></table>
+<h2>3. route 停止原因（含通过项）</h2>
+<p class="sub">`ok_ok` = 走满 1000 m；`ok_usable_short` = 连续但短于目标（引擎 64 段上限或地图环道），
+ 场景把 goal 放在 route 末端即可；其余为失败。</p>
+<table><thead><tr><th>原因</th><th class="c">切片</th></tr></thead><tbody><tr><td class='mono'>ok_ok</td><td class='c'>497</td></tr><tr><td class='mono'>ok_usable_short</td><td class='c'>282</td></tr></tbody></table>
+</body></html>
