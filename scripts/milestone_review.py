@@ -104,6 +104,7 @@ ARTIFACT_NAV = (
     ("route_preview.html", "M7 route 推导", "单切片: 车道链 + goal"),
     ("route_coverage.html", "M7 route 覆盖率", "779 切片 → 可跑场景"),
     ("scene_build_v0.html", "M7 场景构建", "779 切片 → map bin + 回放对拍"),
+    ("scene_feasibility_v0.html", "M7 场景裁判", "3 控制器 × 场景级复现判定"),
 )
 SCRIPT_ARTIFACTS = (
     "scripts/spec_report.py",
@@ -882,6 +883,7 @@ a { color:#0b6bcb; }
                 ("M7 route 推导", "python scripts/route_preview.py --check", "PASS", "单切片 route ≥1000 m 且未匹配帧 ≤10%"),
                 ("M7 route 覆盖率", "python scripts/route_coverage.py --check", "PASS", "≥80% 切片能串出 ≥300 m 连续 route、未匹配帧 ≤10%"),
                 ("M7 场景构建", "python scripts/scene_build_report.py --check", "PASS", "779/779 写成 bin、结构问题 0、回放偏差 ≤0.05 m"),
+                ("M7 场景裁判", "python scripts/scene_feasibility.py --check", "PASS", "可测切片复现率 ≥80%、违规/体感型不被 STATIC 触发"),
             ]
         )
     )

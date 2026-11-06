@@ -1,0 +1,3237 @@
+{
+  "summary": {
+    "bag": "3183",
+    "template": "混合 5 种模板",
+    "total": 153,
+    "reproduced": 71,
+    "idm_fires": 0,
+    "static_fires": 1,
+    "static_fires_motion": 0,
+    "median_peak": 1.9639872312545776,
+    "threshold": 5.0,
+    "testable": 76,
+    "errors": {}
+  },
+  "verdicts": {
+    "metric_absent_in_replay": 46,
+    "needs_partners": 31,
+    "reproduced_avoidable": 70,
+    "not_reproduced": 5,
+    "static_fires": 1
+  },
+  "rows": [
+    {
+      "scenario_id": "3183#17887346294",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346304",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346308",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.27130362391471863
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.2733035981655121
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346309",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.30637896060943604
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3083789646625519
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346310",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639872312545776
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.32956454157829285
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3315645158290863
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346311",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346311",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639875888824463
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3585563600063324
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.36055633425712585
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346311",
+      "template": "cut_in_conflict",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 5.0
+      },
+      "verdict": "needs_partners",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346311",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346311",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639875888824463
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3585563600063324
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.36055633425712585
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346312",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639877080917358
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38639533519744873
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3883953094482422
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346313",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.38771021366119385
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.3897101879119873
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346314",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.9639880657196045
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4114070236682892
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.41340699791908264
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346315",
+      "template": "lane_departure",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 1.963988184928894
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.43494221568107605
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.4369422495365143
+      },
+      "verdict": "reproduced_avoidable",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "lane_departure",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 2.042544364929199
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.9631958603858948
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.965195894241333
+      },
+      "verdict": "not_reproduced",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "lane_departure",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 2.042544364929199
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.9631958603858948
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.965195894241333
+      },
+      "verdict": "not_reproduced",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "multi_lane_wander",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "not_reproduced",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "lane_departure",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 2.042544364929199
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.9631958603858948
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.965195894241333
+      },
+      "verdict": "not_reproduced",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "multi_lane_wander",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "not_reproduced",
+      "category": "violation"
+    },
+    {
+      "scenario_id": "3183#17887346324",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    },
+    {
+      "scenario_id": "3183#17887346357",
+      "template": "stall_crawl",
+      "replay": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "static": {
+        "fired": true,
+        "fired_step": 16,
+        "peak": 0.0
+      },
+      "verdict": "static_fires",
+      "category": "progress"
+    },
+    {
+      "scenario_id": "3183#17887346403",
+      "template": "jerk_over",
+      "replay": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "idm": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 10.0
+      },
+      "static": {
+        "fired": false,
+        "fired_step": null,
+        "peak": 0.0
+      },
+      "verdict": "metric_absent_in_replay",
+      "category": "comfort"
+    }
+  ]
+}

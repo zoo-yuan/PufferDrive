@@ -456,7 +456,39 @@ gate：洗过 < 1e-4 m（float32 地板），不洗 > 0.1 m（否则测试失去
 
 ---
 
-## 13. 评审仪式（每个 milestone 收口必须交的四件东西）
+## 13. M7-3 —— 场景级可行性裁判（已落地）
+
+对 3183 的 153 个场景，逐个用 3 个 controller 真跑（replay / idm / static，各 80 步），
+用 `spec/constraints_v0.yaml` 的谓词（与 M4 同一套实现）判定它代表的 bad case 是否复现。
+
+| 判定 | 场景 | 含义 |
+|---|---|---|
+| 复现且可避 | **70** | REPLAY 判得出违规，IDM 不违规 → 违规来自驾驶员选择，场景可解 |
+| replay 下指标恒为 0 | 46 | comfort（accel/jerk）需动力学积分，replay 贴位姿不积分 |
+| 场景缺背景交通 | 31 | ttc / 碰撞类需要对手，M7-2 场景只有自车 |
+| 引擎判不出 | 5 | 探测器与引擎口径不一致，需逐条看 |
+| STATIC 也触发 | 1 | `stall_crawl`（进度型，原地不动天然成立，非谓词缺陷） |
+
+**可测切片复现率 71/76 = 93%**，IDM 全部不违规（0 条"场景逼人违规"）。
+验收物：`docs/html/scene_feasibility_v0.html`。
+
+### 13.1 这一步抓到的三个真问题
+
+1. **`lane_departure` 缺运动 guard**。STATIC 控制器（原地不动）就能触发车离道 —— M5 挖掘侧早已按
+   0.5 m/s 加门限（219→73），约束库里漏了。已补 `guard: sim_speed > 0.5 m/s`，M4 两个 gate 重跑仍 PASS。
+2. **replay 模式下 `sim_speed` / `accel_long` / `jerk_long` 全是 0**。replay 直接贴 log 位姿、不积分
+   动力学，所以：① 带速度门限的谓词在 replay 下永远不成立（补 guard 后 lane_departure 一度掉到 1/76）；
+   ② comfort 违规无法用 replay 验证。处置：replay 下速度由相邻位姿反推（`|Δp|/dt`），comfort 判成
+   "replay 不可测"而不是"未复现"。
+3. **分母不能是全部切片**。153 条里 46 + 31 条在当前场景形态下根本测不出（没有动力学、没有对手），
+   把它们算进失败率会把 93% 说成 46%。KPI 改按"可测切片"计，并把不可测的原因单列。
+
+另外自造了一个静默失败：`metric_index` 用大写建表、按小写查 → KeyError 被 except 吞掉，
+整批判成"未复现"。现在 controller 抛异常会计数并让 gate 失败。
+
+---
+
+## 14. 评审仪式（每个 milestone 收口必须交的四件东西）
 
 收口不是"写完了"，而是"可被 review 了"。每个 milestone 必须同时产出：
 
@@ -476,6 +508,7 @@ gate：洗过 < 1e-4 m（float32 地板），不洗 > 0.1 m（否则测试失去
 | `docs/html/spec_v0_obs_envelope.html` | M3 观测包络 | `python scripts/spec_envelope_report.py` |
 | `docs/html/route_preview.html` / `route_coverage.html` | M7-1 route 推导 | `python scripts/route_preview.py` / `route_coverage.py` |
 | `docs/html/scene_build_v0.html` | M7-2 场景构建 | `python scripts/scene_build_report.py` |
+| `docs/html/scene_feasibility_v0.html` | M7-3 场景裁判 | `python scripts/scene_feasibility.py` |
 | `docs/html/constraints_v0_library.html` | M4 约束库 | `python scripts/constraint_judge.py` |
 | `docs/html/constraints_v0_feasibility.html` | M4 可行性裁判 | `python scripts/constraint_feasibility.py` |
 | `docs/html/badcase_mining_v0.html` | M5 bad case 挖掘 | `python scripts/badcase_mine.py` |

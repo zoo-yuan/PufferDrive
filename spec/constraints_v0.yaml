@@ -133,13 +133,17 @@ templates:
   - id: lane_departure
     label: 越车道中心线过远
     category: violation
+    # guard 不可省：停车时 lane_dist 只说明"停在车道边上"，不是偏离。M5 挖掘侧早已按
+    # 0.5 m/s 加过这道门限，库里漏了 —— M7-3 的场景裁判用 STATIC 控制器把它抓了出来。
+    guard: {metric: sim_speed, op: gt, threshold_param: moving_speed_mps}
     predicate: {metric: lane_dist, op: abs_gt, threshold_param: lane_dist_max_m}
     params:
       lane_dist_max_m: {value: 0.9, unit: m}
+      moving_speed_mps: {value: 0.5, unit: m/s}
     source: 弯道/窄路刮蹭
     reference_solver: idm
     status: draft
-    note: 引擎 LANE_DISTANCE_NORMALIZATION = 4.0 m；0.9 m ≈ 半个车宽
+    note: 引擎 LANE_DISTANCE_NORMALIZATION = 4.0 m；0.9 m ≈ 半个车宽；移动门限 0.5 m/s
 
   - id: heading_mismatch
     label: 车头与车道方向不一致
