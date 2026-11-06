@@ -14,7 +14,10 @@ from torch.utils.cpp_extension import CppExtension, CUDAExtension, CUDA_HOME, RO
 
 # build cuda extension if torch can find CUDA or HIP/ROCM in the system
 # may require `uv pip install --no-build-isolation` or `python setup.py build_ext --inplace`
-BUILD_CUDA_EXT = bool(CUDA_HOME or ROCM_HOME)
+# PUFFER_BUILD_CPU_ONLY=1 builds the same kernels as a plain C++ extension: torch picks up
+# /usr/local/cuda automatically, so a toolkit/driver mismatch (CUDA 12.6 toolkit vs a torch
+# built against 13.2) would otherwise make the advantage kernel unbuildable on this machine.
+BUILD_CUDA_EXT = bool(CUDA_HOME or ROCM_HOME) and os.getenv("PUFFER_BUILD_CPU_ONLY", "0") != "1"
 
 # Build with DEBUG=1 to enable debug symbols
 DEBUG = os.getenv("DEBUG", "0") == "1"
