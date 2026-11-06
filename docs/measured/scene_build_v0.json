@@ -1,0 +1,77 @@
+{
+  "summary": {
+    "total": 779,
+    "built": 779,
+    "structural_problems": 0,
+    "median_route_lanes": 56,
+    "median_scene_lanes": 68,
+    "median_route_m": 1001.1,
+    "replay_samples": 12,
+    "replay_max_error_m": 0.0
+  },
+  "per_bag": {
+    "2292": {
+      "built": 17,
+      "failed": 0,
+      "median_route_lanes": 59,
+      "median_scene_lanes": 135,
+      "median_route_m": 1018.3,
+      "replay_max_error_m": 0.0
+    },
+    "2688": {
+      "built": 71,
+      "failed": 0,
+      "median_route_lanes": 11,
+      "median_scene_lanes": 32,
+      "median_route_m": 307.3,
+      "replay_max_error_m": 0.0
+    },
+    "2714": {
+      "built": 80,
+      "failed": 0,
+      "median_route_lanes": 28.0,
+      "median_scene_lanes": 49.0,
+      "median_route_m": 1015.5,
+      "replay_max_error_m": 0.0
+    },
+    "3123": {
+      "built": 247,
+      "failed": 0,
+      "median_route_lanes": 56,
+      "median_scene_lanes": 68,
+      "median_route_m": 1001.1,
+      "replay_max_error_m": 0.0
+    },
+    "3139": {
+      "built": 211,
+      "failed": 0,
+      "median_route_lanes": 64,
+      "median_scene_lanes": 73,
+      "median_route_m": 431.6,
+      "replay_max_error_m": 0.0
+    },
+    "3183": {
+      "built": 153,
+      "failed": 0,
+      "median_route_lanes": 25,
+      "median_scene_lanes": 30,
+      "median_route_m": 1003.5,
+      "replay_max_error_m": 0.0
+    }
+  },
+  "failures": {},
+  "replay_errors_m": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ]
+}

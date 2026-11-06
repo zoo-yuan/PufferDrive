@@ -418,7 +418,45 @@ gate：洗过 < 1e-4 m（float32 地板），不洗 > 0.1 m（否则测试失去
 
 ---
 
-## 12. 评审仪式（每个 milestone 收口必须交的四件东西）
+## 12. M7-2 —— 场景构建（已落地）
+
+779 个切片写成 `load_map_binary` 能直接吃的 map bin：agents(log 轨迹) + roads(车道几何/邻接)
++ lane_graph + 元数据。脚本 `scripts/scene_from_slice.py`（单条）/ `scripts/scene_build_report.py`（批量）。
+
+| 量 | 结果 |
+|---|---|
+| 写成 bin | **779 / 779** |
+| 结构校验问题 | **0**（route ≤64、邻接不越界、cum_lengths 与 length 一致、lane_graph 尺寸对） |
+| 场景车道（中位） | 68 条（route + 20 m 内邻道，按引擎网格密度裁剪） |
+| route 段数（中位） | 56 段（上限 64） |
+| 回放偏差 | **0.000 m**（每 bag 抽 2 条 × 40 步，replay 模式逐步对拍 log 位姿） |
+
+验收物：`docs/html/scene_build_v0.html`。场景文件在 `.scratch/scenes/`（不入库）。
+
+### 12.1 写场景时踩到的四个坑（都会静默出错）
+
+1. **坐标必须先平移**。Apollo 的 UTM 量级 ~3.4e6 m，float32 在该量级最小分辨率是 **0.25 m** ——
+   不平移等于把车宽磨掉一个数量级，而引擎不会报错。
+2. **route / lane_graph 的下标是 road 数组下标**，不是 Apollo 的 `lane_id`。写错不会崩，只会让
+   lane-graph 距离观测读到别的车道。
+3. **尾部三段可选段顺序固定**（相位 → 车道宽 → 限速区）。要写车道宽就必须带相位标签，否则
+   读取器把 `LANEWID1` 当相位标签报格式错。
+4. **引擎网格是 5 m 一格、每格最多 64 个实体**。2292 有个路口 5 m 格里挤了 67 条车道，引擎直接
+   拒绝建图。所以邻道要按格占用裁剪（软上限 48，留余量），route 车道一条都不能删。
+
+另外两个"看起来是 bug、其实是比错了"：
+- 回放偏 0.68 m → 实际是我拿第 k 步对 log 第 k 帧，而 replay 模式第 k 步输出的是 log[k+1]，对齐后 **0.000 m**；
+- `agent.get("x")` 静默返回 0（state 里叫 `sim_x`），量出来全是 23.8 m 的假偏差。
+
+### 12.2 已知边界（M7-3 之后补）
+
+- 场景只有自车，**没有背景交通**（partner 车道已写入，但没生成对手）。
+- 不含交通控制（红绿灯/停止线）—— 车道类型统一写 `LANE_SURFACE_STREET`。
+- 回放对拍只证明"场景编码正确"，不证明"bad case 在仿真里仍会发生"——后者是 M7-3 场景级可行性裁判要做的事。
+
+---
+
+## 13. 评审仪式（每个 milestone 收口必须交的四件东西）
 
 收口不是"写完了"，而是"可被 review 了"。每个 milestone 必须同时产出：
 
@@ -436,6 +474,8 @@ gate：洗过 < 1e-4 m（float32 地板），不洗 > 0.1 m（否则测试失去
 | `docs/html/spec_v0_coverage.html` | M1 字段覆盖率 | `python scripts/spec_report.py` |
 | `docs/html/spec_v0_data_audit.html` | M2 三源审计 | `python scripts/spec_audit.py` |
 | `docs/html/spec_v0_obs_envelope.html` | M3 观测包络 | `python scripts/spec_envelope_report.py` |
+| `docs/html/route_preview.html` / `route_coverage.html` | M7-1 route 推导 | `python scripts/route_preview.py` / `route_coverage.py` |
+| `docs/html/scene_build_v0.html` | M7-2 场景构建 | `python scripts/scene_build_report.py` |
 | `docs/html/constraints_v0_library.html` | M4 约束库 | `python scripts/constraint_judge.py` |
 | `docs/html/constraints_v0_feasibility.html` | M4 可行性裁判 | `python scripts/constraint_feasibility.py` |
 | `docs/html/badcase_mining_v0.html` | M5 bad case 挖掘 | `python scripts/badcase_mine.py` |
