@@ -1,9 +1,10 @@
 # STATE
 
-As-of: d9efa3c9
+As-of: d9efa3c9（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，见 ADR-0011）
 （2026-11-05 会话：回归上游 3.0 → M1 spec 冻结 → M2 三源审计 → M3 观测包络 → M4 约束库+可行性 → M5 挖掘 v0 → M6 桥接 wash-in + 地图匹配。全部 gate PASS。
 2026-11-06 会话①：撤销冻结基线（harness bug）→ 修复 harness（ADR-0010：mean 动作选择 + 训练 dt 契约）→ roundC 诚实数字 150/154，重训成为必经路。
-2026-11-06 会话②：事件级越道奖励落地（`reward_lane_departure`，每集一次性、谓词与 judge 同源）→ 重训 event_reward_v1（900k/20min）→ **负结果**：154/154 违规，策略画圈刷速度奖励（velocity farming），一次性罚金扛不住逐步奖励流 → 下一步进入奖励搜索迭代）
+2026-11-06 会话②：事件级越道奖励落地（`reward_lane_departure`，每集一次性、谓词与 judge 同源）→ 重训 event_reward_v1（900k/20min）→ **负结果**：154/154 违规。
+2026-11-06 会话③：奖励尺度审计推翻会话②的归因 → 诊断出两个结构性阻塞：**①训练快照 `reward_randomization: true` 让配置里的奖励系数全部失效**（旧计划"减 reward_velocity"本是空操作）；**②dt=0.3 下横向动作退化成 bang-bang**（IDM 对照：max lane_dist 4.0 vs 0.1 s 的 1.2）。落地 `scripts/reward_scale_report.py` 四道尺度门 + 三轮实验（v2a/v3/v4），见 ADR-0011。）
 约定：本仓库自有 `AGENTS.md` 仍是放置规则权威；strata 分层（STATE / adr / lessons）自 2026-10-09 启用。
 
 ## Where（现状，均已对照代码核实）
@@ -24,7 +25,7 @@ As-of: d9efa3c9
 - `docs/baselines.md` — **冻结基线清单**（checkpoint / sha256 / 数字 / 复现命令 / 失效条件）；`docs/partner-agents-explained.md` — 补对手机制科普；`docs/vtrace-explained.md` 与 `docs/ppo-training-walkthrough.md` — 训练实现参考。
 - `docs/vehicle_profile.md` — **车辆参数单一真值源**（3799 / P04-161X 原始字段 + 派生量 + 限幅映射 + 新车型模板），新增车型按 §6 复制，不另起文件。
 - `docs/integration/CONTEXT.md` — 集成术语表（PufferDrive Core / 语义外挂 / Scene / M1-M2 / E1a-E1b / Nova 部署契约 / ego-centric RFU）。
-- `docs/adr/0001-0009` — 架构裁决（状态见 Open rulings）。**外部锚点**：Nova 部署契约 19 输入/4 输出以 nova 仓 `数据规范V1.1.3_0911修正版.md` + nova ADR-0003/0004 为准（2026-10-30 生效）。
+- `docs/adr/0001-0011` — 架构裁决（状态见 Open rulings）。**外部锚点**：Nova 部署契约 19 输入/4 输出以 nova 仓 `数据规范V1.1.3_0911修正版.md` + nova ADR-0003/0004 为准（2026-10-30 生效）。
 
 **参考（有代际注记，不当现行事实）**
 - `docs/2026-09-03-self-play-*-survey.md`（owner 现行至 2026-09-28）/ `2026-09-04-*架构分析` / `2026-09-09-GigaFlow-vs-GigaPixel-*` / `2026-09-11-*加速Nova*方案`：PufferDrive 能力描述基于 **2.0**，均已加状态注记；09-11 方案**部分被取代**。
@@ -35,13 +36,33 @@ As-of: d9efa3c9
 ## 冻结基线（2026-11-06：**当前无冻结基线**）
 
 - **roundC 已撤销且经修复后 harness 实测否定**：`checkpoints/lane_departure_roundC.pt` 在能动的评测里违规 **150/154**、中位车速 1.37 m/s——旧 97.4% 修复率全部是趴窝假象（argmax 自锁，ADR-0010）。重训前不得引用任何 roundC 数字。
-- 判据侧仍有效：录制司机 154/154 违规、IDM 0/168（口径未动）。
+- **2026-11-06 会话③同样没有达标 checkpoint**，但阈值口径已定（ADR-0011），三臂诚实数字（154 场景 `crossbag_scenes`，各在自己快照下评测）：
+
+| 臂 | 配置 | 违规 | 中位车速 | 中位 lane_dist 峰值 | clamp(≥3.99) |
+|---|---|---|---|---|---|
+| roundC | dt 0.3（自己的快照） | 150/154 | 1.37 | 1.007 | 19 |
+| event_reward_v1 | dt 0.3 + 一次性越道罚 5.0 | 154/154 | 1.85 | 4.0 | 154 |
+| v2a | dt 0.3 · 关 randomization · 删一次性罚 · lane_center 0.04 | 154/154 | 4.54 | 4.0 | 154 |
+| v3 | dt 0.1 · lane_center 0.08 · **只跑 300k** | 141/154 | 1.15（爬行） | 1.953 | 70 |
+| v4 | dt 0.1 · lane_center 0.08 · velocity 0.05 · 900k | 153/154 | 2.34 | **1.445** | 70 |
+
+  记录件：`docs/measured/regression_retention_v4.json`（v4）+ `.scratch/experiments_v{2a,3,4}/regression_retention.json`；负结果与推理链在 `.scratch/experiments_v4/RATIONALE.md`。
+- 判据侧仍有效：录制司机 154/154 违规（**但峰值中位只有 1.13 m，离 0.9 m 门限仅 ~0.3 m 余量，可行性口径待重标**）、IDM 0/168（口径未动）。
 - 教训：`num_reward_coefs` 是观测向量的一部分（`context_dim = num_reward_coefs + goal_dim`），
   往系数表里加项等于改观测契约、让所有旧权重失效 —— 新 shaping 系数必须绕开这个数组。
+  **同一条也适用于改系数的"值"**：同一份权重换一份快照评测，中位车速 1.85 → 4.56 m/s、
+  clamp 场景 19 → 131（会话③实测）。多轮实验必须 `--run-config <data_dir>/config.yaml`。
 
 ## Next（下一步）
 
-- **P0（当前焦点）：奖励搜索迭代（事件罚已证不充分）**：引擎已具备 `reward_lane_departure`（独立 env 字段，默认 0 关）；event_reward_v1（罚 5.0、900k 步、约 20 min/轮——**迭代成本已从小时级降为分钟级**）给出负结果：策略画圈刷速度奖励（单集总转向 36 rad、纵向只加速、~20 步冲出路网），训练 offroad_rate 恒 1.0。候选选代按优先级：① 罚金 5→20/50 + `reward_velocity` 0.0025→0.0005（直击 velocity farming）；② clean-episode 奖励（必须带行驶距离门限，防趴窝回潮——趴窝假修复的前科见 ADR-0010）；③ goal 放置审计（是否 off-road beaming）；④ 课程学习（先直道）。验收门不变（ADR-0010 harness + 中位车速 gate + 参考 154/154），达标才重冻基线；勿引用 event_reward_v1 数字作基线。训练配置注意：base `puffer_drive.yaml` 默认 `simulation_mode: gigaflow`，场景 bin 训练必须 override `=replay`（gigaflow 模式在场景 bin 上 spawn 全败）；override 生成从 `.scratch/config_roundC_reconstructed.yaml` diff，`train.data_dir` 每轮独立防覆写。
+- **P0（当前焦点）：把策略从「median peak 1.445 m」推进到「全程 < 0.9 m」**。会话③把奖励与 dt 两个结构性阻塞清掉了（ADR-0011），剩下的问题很具体：v4（dt 0.1、lane_center 0.08、velocity 0.05、900k）中位 `lane_dist` 峰值 **1.445 m**、中位车速 2.34 m/s，但 153/154 仍越道；v3 只跑 300k 时违规 141/154 却在爬行（1.15 m/s）。`episode_length` 从 16/60 升到 43–56/60 但**物理时长没变**（≈4.4–4.8 s）——说明瓶颈已不是"活多久"而是**横向精度**。下一步候选（按性价比）：
+  ① 训练量：v4 只 900k 步（dt 0.1 下等于 1/3 的仿真秒），先跑到 2.7M 步看 `num_goals_reached` 能否跳出 0（它一直是 0，意味着正向通道只有 velocity 一项在起作用）；
+  ② 横向动作粒度：离散 3 档 jerk {-4,0,+4} 在 dt 0.1 下仍是 ±0.4 m/s²/步，做 <0.9 m 的保持未必够——候选是加细横向档（如 {-4,-1.5,0,1.5,4}）或换连续动作头；改档位等于改动作表，旧权重全废，须新开一轮；
+  ③ 判据可行性重标：`lane_departure` 的 0.9 m 门限 vs 录制司机峰值中位 1.13 m，余量只有 ~0.3 m；"avoidable"口径要按实测余量重新定义，否则"全修好"可能本来不可达；
+  ④ 课程学习（先直道后弯道）仅在 ①②③ 都不动时再上。
+  开训前必须先过四道尺度门：`python scripts/reward_scale_report.py --config <data_dir>/config.yaml --check` + `pytest tests/unit_tests/test_reward_scale_contract.py`（`live_coefs` / `lane_signal` / `event_dominance` / `positive_channel`）。验收门不变（ADR-0010 + 中位车速 gate + 参考 154/154），达标才重冻基线。
+- **训练/评测的三个坑（会话③新踩）**：① `reward_randomization: true` 时配置里的奖励系数**全部不生效**（被 `REWARD_BOUNDS` 抽样覆盖），调参轮必须关；② 奖励系数的**值**也是观测上下文，换快照评测会造出 2.5 倍的行为差异（用 `--run-config`）；③ `num_reward_coefs` 数组不许加项（旧权重全废），新 shaping 走独立 env 字段。
+- 训练配置注意：base `puffer_drive.yaml` 默认 `simulation_mode: gigaflow`，场景 bin 训练必须 override `=replay`（gigaflow 模式在场景 bin 上 spawn 全败）；override 从 `.scratch/config_roundC_reconstructed.yaml` diff 生成，`train.data_dir` 每轮独立防覆写；迭代成本 13 min/900k 步（dt 0.3）或 ~17 min/900k（dt 0.1）。
 - 【effort】TerraZero 复刻路线 wayfinder 图：`../Slipstream/.wayfinder/map.md`。基底已裁决（2026-11-03）：**Slipstream 为主仓**，基线 = 上游 `3.0`（**2c1ca3e4**，拉最新后比 80a681b4 新 6 提交：Longest6v1/Alpasim eval、self-play eval 改进、overspeed reward 调整）保留历史导入；**已执行**：Slipstream master = 3.0 全历史 + tag `baseline/pufferdrive-3.0-2c1ca3e4` + 资产/strata 提交（a920284、0ebd01d）。本仓定位 = 只读跟随上游 + Nova bridge 线（`ACTION_TYPE_CONTROL` WIP 归此线收尾）；`9_bernhard_dev` 为挖矿源（噪声/权重按需 cherry-pick，P0 不变）。- P0：从 `origin/9_bernhard_dev` 移植 pose/brownian 噪声 → 扩展为 track 级时间相关、CIPV 加权、进 16 帧历史的注入（ADR-0004；`docs/integration/2026-10-09-perception-jitter-as-the-real-axis3.md` §3）。
 - P0：**桥接层 acc wash-in**（ADR-0007 §6.1）——**2026-11-05 已落地**：`pufferlib/ocean/drive/control_bridge.py`（复刻 nova 前 4 样本插值）；洗过 6 s 内 max |Δxy| 3.0e-5 m，不洗 0.39–0.92 m（`docs/html/bridge_washin_report.html`，5 例单测钉住）。
 - P1：**地图匹配层**——**2026-11-05 已落地**：`data_utils/apollo_lane_index.py`（车道点列 + 网格索引 → 有符号横向偏移/航向差/限速/turn）。**两种地图形态都要支持**：单 `base_map.bin`（wuhan/chongqing/8997）与**分块地图**（6501/7235：`base_map.catelog` + 6,249/10,874 个 500 m tile，按 bag 轨迹 bbox 选片）。6/6 条 bag 匹配率 100%，置信匹配率 5 条 100% / 2292 72%（场站挪车区无车道线）。匹配器硬门限：航向差 ≤60°、横向 ≤3 m，否则不出判定。解锁 4 条车道类约束（挖掘契约 8→12，切片 487→779）。
@@ -71,6 +92,8 @@ As-of: d9efa3c9
 - ADR-0007 bad case=场景种子 / A-only 约束反馈 / canonical spec 模型无关 / occ 为物理实体 / 两个合法性域 / 舒适硬约束 / KPI=约束覆盖率+回归保留率：**accepted** 2026-11-04（owner 本会话裁决）。ADR-0002「仅在 Nova 契约内训练」由此**降级**为「基线模型在契约内」。
 - ADR-0008 地图拓扑编码（邻接留 Core / turn 走 map 侧表 / overlap 只在语义外挂）：**accepted** 2026-11-05（owner 裁决，依据 3 张真地图 100% 拓扑覆盖 + Core `entry_lanes/exit_lanes` 已存在）。
 - ADR-0009 地图匹配接受判据（航向 ≤60° / 横向 ≤3 m 否则无判定 / 置信率是数据质量 / 分块地图按 bbox 选片）：**accepted** 2026-11-05（owner 指出误判后实测修正）。
+- ADR-0010 评测 harness = 训练契约镜像（mean 动作选择 + 训练 dt）：**accepted** 2026-11-06（会话①）。
+- ADR-0011 训练/评测的 dt 与奖励尺度是契约（场景 bin 线 dt=0.1；调参轮关 `reward_randomization`；训练与评测同一快照；四道尺度门是开训前置）：**accepted** 2026-11-06（会话③，owner 授权奖励搜索）。
 - 新增未决（2026-11-04）：canonical spec 字段清单与版本策略；走廊域 vs 漫游域的合法性判据归属；约束模板库 owner 与入库流程（体感型 20% 的转写人）；plan→pose 误差标定口径；**AD 系统能力上限 12.5 m/s 的观测层成因**（感知最远距离 / perception→planning 延迟 / planning→control 延迟）待从 bag 实测，它决定仿真的 obs 范围与延迟参数。
 - 未决（阻塞项，见 `.scratch/handoff/`）：抖动过滤归属层（感知平滑 / planner 自滤波 / 独立估计层）；观测契约全量 vs 子集；Σ 用固定 fraction 还是 policy pool/league；基线是否钉死 `dev/zoo_v3.0`。
 - 新增未决（2026-10-31）：PufferDrive world 系（heading 0 = +x，`Agent.cos_heading/sin_heading`）→ Nova ego-centric RFU（直行 = π/2）的偏置换算未实测；`static_polygon` cap 32 的 PufferDrive 侧丢弃数上报口径未定。

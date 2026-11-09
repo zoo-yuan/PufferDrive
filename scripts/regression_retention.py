@@ -86,7 +86,12 @@ def scene_ids():
 
 
 def training_env_config():
-    """复用训练那次实验的 env 段（观测特征、奖励开关必须一致，否则网络输入维度对不上）。"""
+    """复用训练那次实验的 env 段（观测特征、奖励开关必须一致，否则网络输入维度对不上）。
+
+    `RUN_CONFIG` 指向**这次训练**的配置快照。奖励系数是观测上下文向量的一部分
+    （`context_dim = num_reward_coefs + goal_dim`），拿错一轮的快照 = 给策略喂错上下文，
+    评测会静默变形。多轮实验用 `--run-config <data_dir>/config.yaml` 指定。
+    """
     import inspect
 
     from pufferlib.ocean.drive.drive import Drive
@@ -333,17 +338,38 @@ def main() -> int:
                         help="基线也载入某个 checkpoint（对比两次训练才有回归语义；默认随机初始化）")
     parser.add_argument("--baseline-only", action="store_true")
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--run-config", default=None,
+                        help="该 checkpoint 所属训练轮的配置快照（.scratch/experiments_*/config.yaml）；"
+                             "默认 experiments/config.yaml")
+    parser.add_argument("--output-json", default=None)
+    parser.add_argument("--output-html", default=None)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
+
+    global RUN_CONFIG, OUTPUT_JSON, OUTPUT_HTML
+    if args.run_config:
+        RUN_CONFIG = Path(args.run_config).resolve()
+        if not RUN_CONFIG.exists():
+            print(f"ERROR: 找不到 run-config {RUN_CONFIG}", file=sys.stderr)
+            return 1
+        # 默认把产物写到训练轮自己的目录，避免覆盖上一轮的 measured 记录
+        run_dir = RUN_CONFIG.parent
+        OUTPUT_JSON = Path(args.output_json) if args.output_json else run_dir / "regression_retention.json"
+        OUTPUT_HTML = Path(args.output_html) if args.output_html else run_dir / "regression_retention.html"
+    if args.output_json:
+        OUTPUT_JSON = Path(args.output_json)
+    if args.output_html:
+        OUTPUT_HTML = Path(args.output_html)
+    print(f"[contract] env 快照 = {RUN_CONFIG}", flush=True)
 
     scene_dir = Path(args.scene_dir)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     metric_names, metric_index = get_metric_names()
     scenes = scene_ids()
-    if args.limit:
-        scenes = scenes[: args.limit]
     scenes = [scene for scene in scenes
               if (scene_dir / f"{scene['scenario_id'].replace('#', '_')}.bin").exists()]
+    if args.limit:
+        scenes = scenes[: args.limit]
     if not scenes:
         print("ERROR: 没有可评测场景（先跑 scripts/scene_feasibility.py）", file=sys.stderr)
         return 1
