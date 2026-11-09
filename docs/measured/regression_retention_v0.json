@@ -1,22 +1,2263 @@
 {
   "summary": {
-    "scenes": 71,
-    "reference_violated": 71,
-    "violated_before": 30,
-    "clean_before": 41,
-    "fixed": 1,
-    "still_failing": 29,
-    "regressed": 38,
-    "baseline_moved": 71,
-    "retention": 0.07317073170731703,
-    "fix_rate": 0.03333333333333333,
-    "fixed_vs_reference": 4,
-    "fix_rate_vs_reference": 0.056338028169014086,
-    "median_peak_after": 1.589,
-    "median_speed_after": 1.095,
-    "moving_scenes_after": 39
+    "scenes": 154,
+    "reference_violated": 154,
+    "violated_before": 95,
+    "clean_before": 59,
+    "fixed": 0,
+    "still_failing": 95,
+    "regressed": 59,
+    "baseline_moved": 154,
+    "retention": 0.0,
+    "fix_rate": 0.0,
+    "fixed_vs_reference": 0,
+    "fix_rate_vs_reference": 0.0,
+    "median_peak_after": 4.0,
+    "median_speed_after": 1.8465,
+    "moving_scenes_after": 150
   },
   "rows": [
+    {
+      "scenario_id": "3123#1790500870141#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.357
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.136,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.956
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870171#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.419
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.095,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.927
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870181#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.988,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.426
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.083,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.933
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870191#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.99,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.459
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.075,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.943
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870201#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.433
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.067,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.956
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870211#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.987,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.368
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.059,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.842
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870221#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.315
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.05,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.026,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.753
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870231#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.295
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.045,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.017,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.753
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870241#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.308
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.04,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.736
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870251#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.286
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.036,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.723
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870261#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.389
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.168,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.741
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870271#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.374
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.15,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.72
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870281#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.988,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.368
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.134,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.723
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870291#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.99,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.388
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.125,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.737
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870311#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.987,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.323
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.102,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.745
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870331#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.284
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.07,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.892
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870341#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.246
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.059,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.874
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870371#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.291
+      },
+      "before": {
+        "fired": true,
+        "peak": 4.013,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.029,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.621
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870381#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.988,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.284
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.994,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.726
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870391#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.99,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.277
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.979,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.627
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870401#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.291
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.962,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.565
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870411#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.987,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.316
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.952,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.628
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870421#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.279
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.932,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.065,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.624
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870431#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.254
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.917,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.845
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870451#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.176
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.898,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.826
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870461#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.185
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.888,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.866
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870471#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.211
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.879,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.847
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870481#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.988,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.207
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.863,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.846
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870491#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.99,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.196
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.852,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.838
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870501#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.219
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.841,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.818
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870511#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.987,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.275
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.831,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.79
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870521#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.275
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.822,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.818
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870541#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.198
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.807,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.787
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870561#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.182
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.799,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.784
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870571#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.199
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.794,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.794
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870821#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.165
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.623,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.142,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.742
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870831#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.161
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.621,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.703
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870841#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.157
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.618,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.717
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870851#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.14
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.559
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870861#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.149
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.563
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870871#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.146
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.562,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.638
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870881#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.988,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.144
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.554,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.648
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870891#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.99,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.144
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.547,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.64
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870901#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.144
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.54,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.631
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870911#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.987,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.144
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.534,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.627
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870921#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.145
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.529,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.626
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870931#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.148
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.526,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.652
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500870991#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.99,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.14
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.482,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.673
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500871011#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.987,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.14
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.476,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.637
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3123#1790500871021#lane_departure",
+      "template": "lane_departure",
+      "bag": "3123",
+      "reference": {
+        "fired": true,
+        "peak": 0.984,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 0.14
+      },
+      "before": {
+        "fired": true,
+        "peak": 3.475,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 1.652
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748301598#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.087,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.581
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.702,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 9.663
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748301718#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.129,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.493
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.754,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 10.351
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748301788#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.046,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.559
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.574,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.143,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 10.396
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748301958#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.577
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.73,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.025,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 10.396
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748301968#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.981,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.6
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.694,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.025,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 10.396
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748301978#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.013,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.554
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.659,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.033,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 10.396
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302058#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.588
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.712,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.069,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302068#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.981,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.6
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.735,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.014,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302118#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.129,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.581
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.818,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.138,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302128#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.171,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.532
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.838,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302138#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.568
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.854,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302148#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.978,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.564
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.874,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302158#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.588
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.889,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302168#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.981,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.6
+      },
+      "before": {
+        "fired": true,
+        "peak": 0.918,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302178#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.013,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.552
+      },
+      "before": {
+        "fired": true,
+        "peak": 0.927,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302188#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.046,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.579
+      },
+      "before": {
+        "fired": true,
+        "peak": 0.966,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.063,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302198#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.087,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.588
+      },
+      "before": {
+        "fired": true,
+        "peak": 0.961,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.078,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302208#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.04,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.584
+      },
+      "before": {
+        "fired": true,
+        "peak": 0.968,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.065,
+        "offroad_steps": 1,
+        "offroad_dominant": false,
+        "median_speed": 15.106
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302218#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.129,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.584
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.721,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.002,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.158
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302228#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.171,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.56
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.729,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.035,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.158
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302238#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.568
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.728,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.039,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.158
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302248#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.978,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.569
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.728,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.048,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.158
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302258#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.581
+      },
+      "before": {
+        "fired": true,
+        "peak": 0.958,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.078,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.158
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302268#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.981,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.613
+      },
+      "before": {
+        "fired": true,
+        "peak": 0.929,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.113,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.158
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302278#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.013,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.554
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.888,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.056,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.159
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302288#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.046,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.58
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.859,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.121,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.159
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302298#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.087,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.626
+      },
+      "before": {
+        "fired": false,
+        "peak": 0.838,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.122,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.159
+      },
+      "outcome": "regressed"
+    },
+    {
+      "scenario_id": "3139#1790748302308#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.04,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.671
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.062,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.104,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 9.996
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302318#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.129,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.672
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.077,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.128,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 9.996
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302328#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 1.171,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.673
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.093,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.165,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 9.996
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302338#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.632
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.099,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.157,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 9.996
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302358#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.69
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.11,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 9.997
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3139#1790748302368#lane_departure",
+      "template": "lane_departure",
+      "bag": "3139",
+      "reference": {
+        "fired": true,
+        "peak": 0.981,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 5.686
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.126,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 2.0
+      },
+      "after": {
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 0,
+        "offroad_dominant": false,
+        "median_speed": 9.997
+      },
+      "outcome": "still_failing"
+    },
     {
       "scenario_id": "3183#1788734630754#lane_departure",
       "template": "lane_departure",
@@ -37,10 +2278,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.78,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 2.791
+        "median_speed": 1.191
       },
       "outcome": "still_failing"
     },
@@ -64,10 +2305,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.549,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 2.408
+        "median_speed": 1.191
       },
       "outcome": "still_failing"
     },
@@ -91,10 +2332,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.675,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.922
+        "median_speed": 1.948
       },
       "outcome": "still_failing"
     },
@@ -118,10 +2359,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.523,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.55
+        "median_speed": 1.941
       },
       "outcome": "still_failing"
     },
@@ -145,10 +2386,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.775,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.003
+        "median_speed": 1.931
       },
       "outcome": "still_failing"
     },
@@ -172,10 +2413,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.712,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.13
+        "median_speed": 1.927
       },
       "outcome": "still_failing"
     },
@@ -199,10 +2440,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.518,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.124
+        "median_speed": 1.924
       },
       "outcome": "still_failing"
     },
@@ -226,10 +2467,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.529,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.095
+        "median_speed": 1.92
       },
       "outcome": "still_failing"
     },
@@ -253,10 +2494,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.553,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.584
+        "median_speed": 1.919
       },
       "outcome": "still_failing"
     },
@@ -280,10 +2521,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.532,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.353
+        "median_speed": 1.909
       },
       "outcome": "still_failing"
     },
@@ -307,10 +2548,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.569,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.947
+        "median_speed": 1.887
       },
       "outcome": "still_failing"
     },
@@ -334,10 +2575,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.458,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.444
+        "median_speed": 1.885
       },
       "outcome": "still_failing"
     },
@@ -361,10 +2602,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.415,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.422
+        "median_speed": 1.861
       },
       "outcome": "still_failing"
     },
@@ -388,10 +2629,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.768,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.345
+        "median_speed": 1.968
       },
       "outcome": "still_failing"
     },
@@ -415,10 +2656,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.453,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.75
+        "median_speed": 1.532
       },
       "outcome": "still_failing"
     },
@@ -442,10 +2683,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.235,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.495
+        "median_speed": 1.534
       },
       "outcome": "still_failing"
     },
@@ -468,13 +2709,13 @@
         "median_speed": 2.0
       },
       "after": {
-        "fired": false,
-        "peak": 0.838,
-        "offroad_steps": 0,
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.39
+        "median_speed": 1.534
       },
-      "outcome": "fixed"
+      "outcome": "still_failing"
     },
     {
       "scenario_id": "3183#1788734630934#lane_departure",
@@ -496,10 +2737,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.794,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.34
+        "median_speed": 1.536
       },
       "outcome": "still_failing"
     },
@@ -523,10 +2764,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.169,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.416
+        "median_speed": 1.537
       },
       "outcome": "still_failing"
     },
@@ -550,10 +2791,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.666,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.32
+        "median_speed": 1.538
       },
       "outcome": "still_failing"
     },
@@ -577,10 +2818,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.667,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.2
+        "median_speed": 3.791
       },
       "outcome": "still_failing"
     },
@@ -604,10 +2845,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.53,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.44
+        "median_speed": 4.366
       },
       "outcome": "still_failing"
     },
@@ -631,10 +2872,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.408,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.407
+        "median_speed": 5.733
       },
       "outcome": "still_failing"
     },
@@ -658,10 +2899,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.396,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.399
+        "median_speed": 6.13
       },
       "outcome": "still_failing"
     },
@@ -685,10 +2926,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.475,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.41
+        "median_speed": 5.777
       },
       "outcome": "still_failing"
     },
@@ -712,10 +2953,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.456,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.405
+        "median_speed": 6.5
       },
       "outcome": "still_failing"
     },
@@ -739,10 +2980,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.589,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.203
+        "median_speed": 6.291
       },
       "outcome": "still_failing"
     },
@@ -766,10 +3007,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.532,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.154
+        "median_speed": 6.646
       },
       "outcome": "still_failing"
     },
@@ -793,10 +3034,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.198,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.378
+        "median_speed": 6.306
       },
       "outcome": "still_failing"
     },
@@ -820,10 +3061,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.523,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.842
+        "median_speed": 1.582
       },
       "outcome": "regressed"
     },
@@ -847,10 +3088,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.597,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.385
+        "median_speed": 1.584
       },
       "outcome": "regressed"
     },
@@ -873,13 +3114,13 @@
         "median_speed": 2.0
       },
       "after": {
-        "fired": false,
-        "peak": 0.629,
-        "offroad_steps": 0,
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.39
+        "median_speed": 1.586
       },
-      "outcome": "clean"
+      "outcome": "regressed"
     },
     {
       "scenario_id": "3183#1788734631164#lane_departure",
@@ -900,13 +3141,13 @@
         "median_speed": 2.0
       },
       "after": {
-        "fired": false,
-        "peak": 0.66,
-        "offroad_steps": 0,
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.447
+        "median_speed": 1.587
       },
-      "outcome": "clean"
+      "outcome": "regressed"
     },
     {
       "scenario_id": "3183#1788734631174#lane_departure",
@@ -928,10 +3169,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.12,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.864
+        "median_speed": 1.587
       },
       "outcome": "regressed"
     },
@@ -955,10 +3196,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.558,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.427
+        "median_speed": 1.588
       },
       "outcome": "regressed"
     },
@@ -982,10 +3223,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.141,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.885
+        "median_speed": 1.59
       },
       "outcome": "regressed"
     },
@@ -1008,13 +3249,13 @@
         "median_speed": 2.0
       },
       "after": {
-        "fired": false,
-        "peak": 0.496,
-        "offroad_steps": 0,
+        "fired": true,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.373
+        "median_speed": 1.591
       },
-      "outcome": "clean"
+      "outcome": "regressed"
     },
     {
       "scenario_id": "3183#1788734631214#lane_departure",
@@ -1036,10 +3277,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.034,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.469
+        "median_speed": 2.026
       },
       "outcome": "regressed"
     },
@@ -1063,10 +3304,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.483,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.718
+        "median_speed": 1.963
       },
       "outcome": "regressed"
     },
@@ -1090,10 +3331,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.616,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.287
+        "median_speed": 1.966
       },
       "outcome": "regressed"
     },
@@ -1117,10 +3358,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.675,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.598
+        "median_speed": 1.97
       },
       "outcome": "regressed"
     },
@@ -1144,10 +3385,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.522,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.444
+        "median_speed": 1.959
       },
       "outcome": "regressed"
     },
@@ -1171,10 +3412,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.71,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.457
+        "median_speed": 1.961
       },
       "outcome": "regressed"
     },
@@ -1198,10 +3439,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.604,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.45
+        "median_speed": 1.956
       },
       "outcome": "regressed"
     },
@@ -1225,10 +3466,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.768,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.901
+        "median_speed": 1.962
       },
       "outcome": "regressed"
     },
@@ -1252,10 +3493,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.67,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.919
+        "median_speed": 1.988
       },
       "outcome": "regressed"
     },
@@ -1279,10 +3520,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.66,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.072
+        "median_speed": 1.995
       },
       "outcome": "regressed"
     },
@@ -1306,10 +3547,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.606,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.086
+        "median_speed": 1.999
       },
       "outcome": "regressed"
     },
@@ -1333,10 +3574,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.6,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.519
+        "median_speed": 1.234
       },
       "outcome": "regressed"
     },
@@ -1360,10 +3601,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.475,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.54
+        "median_speed": 1.234
       },
       "outcome": "regressed"
     },
@@ -1387,10 +3628,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.522,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.531
+        "median_speed": 1.238
       },
       "outcome": "regressed"
     },
@@ -1414,10 +3655,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.484,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 0.546
+        "median_speed": 1.238
       },
       "outcome": "regressed"
     },
@@ -1441,10 +3682,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.829,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 2.778
+        "median_speed": 1.238
       },
       "outcome": "regressed"
     },
@@ -1468,10 +3709,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 4.043,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 6.487
+        "median_speed": 1.238
       },
       "outcome": "regressed"
     },
@@ -1495,10 +3736,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 4.002,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.188
+        "median_speed": 1.24
       },
       "outcome": "regressed"
     },
@@ -1525,7 +3766,7 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.909
+        "median_speed": 1.242
       },
       "outcome": "regressed"
     },
@@ -1552,7 +3793,7 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.789
+        "median_speed": 1.242
       },
       "outcome": "regressed"
     },
@@ -1579,7 +3820,7 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.733
+        "median_speed": 1.242
       },
       "outcome": "regressed"
     },
@@ -1606,7 +3847,7 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 6.028
+        "median_speed": 1.242
       },
       "outcome": "regressed"
     },
@@ -1630,10 +3871,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 4.01,
+        "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.922
+        "median_speed": 1.242
       },
       "outcome": "regressed"
     },
@@ -1660,7 +3901,7 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 6.4
+        "median_speed": 1.528
       },
       "outcome": "regressed"
     },
@@ -1684,10 +3925,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.557,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.804
+        "median_speed": 1.185
       },
       "outcome": "regressed"
     },
@@ -1711,10 +3952,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.563,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.779
+        "median_speed": 1.191
       },
       "outcome": "regressed"
     },
@@ -1738,10 +3979,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 1.794,
-        "offroad_steps": 0,
+        "peak": 4.0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 1.341
+        "median_speed": 1.19
       },
       "outcome": "regressed"
     },
@@ -1766,9 +4007,9 @@
       "after": {
         "fired": true,
         "peak": 4.0,
-        "offroad_steps": 0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 3.651
+        "median_speed": 0.617
       },
       "outcome": "regressed"
     },
@@ -1793,9 +4034,9 @@
       "after": {
         "fired": true,
         "peak": 4.0,
-        "offroad_steps": 0,
+        "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 4.743
+        "median_speed": 0.86
       },
       "outcome": "regressed"
     },
@@ -1819,10 +4060,10 @@
       },
       "after": {
         "fired": true,
-        "peak": 4.0,
+        "peak": 4.124,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.994
+        "median_speed": 0.859
       },
       "outcome": "regressed"
     },
@@ -1849,7 +4090,7 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.328
+        "median_speed": 2.522
       },
       "outcome": "regressed"
     },
@@ -1876,7 +4117,7 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.274
+        "median_speed": 3.434
       },
       "outcome": "regressed"
     },
@@ -1903,7 +4144,7 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.26
+        "median_speed": 4.082
       },
       "outcome": "regressed"
     },
@@ -1930,10 +4171,10 @@
         "peak": 4.0,
         "offroad_steps": 1,
         "offroad_dominant": false,
-        "median_speed": 5.377
+        "median_speed": 0.948
       },
       "outcome": "still_failing"
     }
   ],
-  "checkpoint": "checkpoints/lane_departure_roundC.pt"
+  "checkpoint": ".scratch/experiments_event_v1/final_model.pt"
 }
