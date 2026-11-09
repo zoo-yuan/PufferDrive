@@ -43,6 +43,7 @@ from regression_retention import (  # noqa: E402
     build_policy,
     evaluate_replay,
     load_weights,
+    select_eval_action,
 )
 from scene_feasibility import (  # noqa: E402
     DT_S,
@@ -131,10 +132,8 @@ def run_policy_trace(policy, scene_path: Path, template, metric_names, metric_in
         obs_tensor = torch.as_tensor(np.asarray(obs), dtype=torch.float32, device=device)
         with torch.no_grad():
             logits, _value = policy.forward_eval(obs_tensor, {})
-            if isinstance(logits, torch.Tensor):
-                action = policy.discrete_actions_to_continuous(logits.argmax(dim=-1))
-            else:
-                action = logits.loc
+            # 与训练 eval 同契约（mean，非 argmax）：见 regression_retention.select_eval_action
+            action = select_eval_action(policy, logits)
             action = action.view(env.num_agents, -1).cpu().numpy().astype(np.float32)
         obs, _reward, terminal, truncation, _info = env.step(action)
         state = env.get_state()

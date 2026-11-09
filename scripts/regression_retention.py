@@ -120,6 +120,11 @@ def build_replay_env(scene_path: Path, env_config=None):
 
 
 def build_env(scene_path: Path, env_config=None):
+    """策略评测 env：除场景/种子/控制者外，其余全部继承训练快照
+    （experiments/config.yaml 的 env 段）。
+
+    **dt 不许覆盖**：训练在 dt=0.3 上积分，错用 0.1 会把同一权重的车速
+    低估约 8 倍（实测中位 2.44 → 0.38 m/s）。"""
     from pufferlib.ocean.drive.drive import Drive
 
     kwargs = dict(training_env_config() if env_config is None else env_config)
@@ -132,7 +137,6 @@ def build_env(scene_path: Path, env_config=None):
         max_agents_per_env=agent_count,
         sdc_controller="policy",
         replay_expert_agents=0,
-        dt=DT_S,
         scenario_length=SCENE_LENGTH,
         seed=EVAL_SEED,
     )
@@ -202,6 +206,20 @@ def evaluate_replay(scene_path: Path, template, metric_names, metric_index):
     }
 
 
+def select_eval_action(policy, logits):
+    """训练 eval 契约（experiments/config.yaml `eval.action_selection: mean`）：
+    离散策略在连续 env 上取**物理动作表的概率加权期望**。
+
+    不能用 argmax：驻车起步时策略分布的众数压在 no-op 格（实测 ~63%），
+    argmax 自锁（停着→选 no-op→还停着），同一权重训练里 6+ m/s、
+    手搓 harness 里 0.00 m/s（2026-11-06 §15 事故根因）。
+    """
+    if isinstance(logits, torch.Tensor):
+        probs = torch.softmax(logits.float(), dim=-1)
+        return policy.discrete_probs_to_continuous_mean(probs)
+    return logits.loc  # 连续策略：分布均值
+
+
 def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_index, device):
     """跑一条场景，返回该场景代表的模板是否触发（与 M7-3 同一谓词）。"""
     env = build_env(scene_path)
@@ -218,12 +236,9 @@ def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_inde
         obs_tensor = torch.as_tensor(np.asarray(obs), dtype=torch.float32, device=device)
         with torch.no_grad():
             logits, _value = policy.forward_eval(obs_tensor, {})
-            # 策略是 90 模态 categorical、环境是 2 维连续动作：必须走 action_table 映射，
-            # 直接喂 logits 会得到 12 维（=2 维 × 6 档）而环境只收 2 维。
-            if isinstance(logits, torch.Tensor):
-                action = policy.discrete_actions_to_continuous(logits.argmax(dim=-1))
-            else:
-                action = logits.loc  # 连续策略：取分布均值
+            # 策略是 jerk 表上的离散 categorical（12 模态）、环境收 2 维连续动作；
+            # 动作选择必须走训练 eval 契约（mean），见 select_eval_action。
+            action = select_eval_action(policy, logits)
             action = action.view(env.num_agents, -1).cpu().numpy().astype(np.float32)
         obs, _reward, terminal, truncation, _info = env.step(action)
         state = env.get_state()
