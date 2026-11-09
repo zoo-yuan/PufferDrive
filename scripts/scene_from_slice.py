@@ -37,8 +37,13 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from data_utils.apollo_lane_index import TileLoader, load_lane_index_for_map_dir  # noqa: E402
+from data_utils.apollo_record import (  # noqa: E402
+    decode_perception_obstacles,
+    iter_messages,
+)
 from data_utils.mirror_map_bin import read_bin, write_bin  # noqa: E402
 from route_preview import (  # noqa: E402
+    DATA_ROOT,
     ROUTE_TARGET_DISTANCE_M,
     lane_length,
     map_dir_for_bag,
@@ -155,6 +160,133 @@ def cell_keys(lane, origin_x: float, origin_y: float):
     return {f"{int(cell[0])}:{int(cell[1])}" for cell in cells}
 
 
+# Apollo PerceptionObstacle.Type：5=VEHICLE, 4=BICYCLE, 3=PEDESTRIAN，其余按车辆处理
+OBSTACLE_TYPE_TO_AGENT = {5: AGENT_TYPE_VEHICLE, 4: 3, 3: 2}
+PARTNER_VEHICLE_LENGTH_M = 4.6
+PARTNER_VEHICLE_WIDTH_M = 1.9
+PARTNER_VEHICLE_HEIGHT_M = 1.6
+# 只收"稳定可见"的对手：出现率够高、且在自车附近（远处的车对 ttc/cut_in 没意义）
+PARTNER_MIN_PRESENCE_RATIO = 0.6
+PARTNER_MAX_DISTANCE_M = 80.0
+MAX_PARTNER_AGENTS = 24
+OBSTACLE_MATCH_TOLERANCE_S = 0.12
+
+
+def load_obstacle_tracks(bag: str):
+    """读整条 bag 的感知障碍物，按 track id 归并成轨迹。
+
+    这是 ``needs_partners`` 类场景（ttc / 碰撞 / cut_in）的必需品：没有对手，
+    这些谓词的峰值恒等于默认值，复现率永远是 0。
+    """
+    record_dir = DATA_ROOT / f"rx-{bag}"
+    bag_path = next(record_dir.glob("*.bag"))
+    tracks = {}
+    for _channel, timestamp_ns, payload in iter_messages(
+        str(bag_path), channels={"/apollo/perception/obstacles"}
+    ):
+        timestamp_s = timestamp_ns * 1e-9
+        for obstacle in decode_perception_obstacles(payload)["obstacles"]:
+            track = tracks.setdefault(obstacle["id"], {"times": [], "samples": []})
+            track["times"].append(timestamp_s)
+            track["samples"].append(obstacle)
+    return tracks
+
+
+def partner_agents(tracks, window, origin_x: float, origin_y: float):
+    """把障碍物轨迹转成 agent：只留稳定可见、且离自车轨迹够近的。"""
+    agent_track_points = np.array([[pose["x"] for pose in window], [pose["y"] for pose in window]]).T
+    frame_times = [pose["t"] for pose in window]
+    candidates = []
+    for track_id, track in tracks.items():
+        stamps = np.array(track["times"])
+        xs = np.array([sample["x_m"] for sample in track["samples"]])
+        ys = np.array([sample["y_m"] for sample in track["samples"]])
+        headings = np.unwrap(np.array([sample["theta"] for sample in track["samples"]]))
+        vxs = np.array([sample["vx_mps"] for sample in track["samples"]])
+        vys = np.array([sample["vy_mps"] for sample in track["samples"]])
+
+        rows = []
+        present = 0
+        for stamp in frame_times:
+            index = int(np.searchsorted(stamps, stamp))
+            best = None
+            for candidate in (index - 1, index):
+                if 0 <= candidate < len(stamps) and abs(stamps[candidate] - stamp) <= OBSTACLE_MATCH_TOLERANCE_S:
+                    if best is None or abs(stamps[candidate] - stamp) < abs(stamps[best] - stamp):
+                        best = candidate
+            if best is None:
+                rows.append({"valid": 0})
+                continue
+            present += 1
+            rows.append(
+                {
+                    "valid": 1,
+                    "x": float(xs[best]),
+                    "y": float(ys[best]),
+                    "heading": float(headings[best]),
+                    "vx": float(vxs[best]),
+                    "vy": float(vys[best]),
+                    "length": float(track["samples"][best].get("length") or PARTNER_VEHICLE_LENGTH_M),
+                    "width": float(track["samples"][best].get("width") or PARTNER_VEHICLE_WIDTH_M),
+                    "height": float(track["samples"][best].get("height") or PARTNER_VEHICLE_HEIGHT_M),
+                    "type": int(track["samples"][best].get("type") or 5),
+                }
+            )
+        presence = present / max(1, len(frame_times))
+        if presence < PARTNER_MIN_PRESENCE_RATIO:
+            continue
+        valid_rows = [row for row in rows if row["valid"]]
+        if not valid_rows:
+            continue
+        positions = np.array([[row["x"] for row in valid_rows], [row["y"] for row in valid_rows]]).T
+        distances = np.hypot(
+            positions[:, 0][:, None] - agent_track_points[:, 0][None, :],
+            positions[:, 1][:, None] - agent_track_points[:, 1][None, :],
+        )
+        closest = float(np.min(distances))
+        if closest > PARTNER_MAX_DISTANCE_M:
+            continue
+        candidates.append((closest, track_id, rows, valid_rows))
+
+    candidates.sort(key=lambda item: item[0])
+    agents = []
+    for agent_id, (_closest, _track_id, rows, valid_rows) in enumerate(
+        candidates[:MAX_PARTNER_AGENTS], start=1
+    ):
+        length = float(np.median([row["length"] for row in valid_rows])) or PARTNER_VEHICLE_LENGTH_M
+        width = float(np.median([row["width"] for row in valid_rows])) or PARTNER_VEHICLE_WIDTH_M
+        height = float(np.median([row["height"] for row in valid_rows])) or PARTNER_VEHICLE_HEIGHT_M
+        agents.append(
+            {
+                "id": agent_id,
+                "type": OBSTACLE_TYPE_TO_AGENT.get(int(valid_rows[0]["type"]), AGENT_TYPE_VEHICLE),
+                "T": len(rows),
+                "cols": {
+                    "x": [(row["x"] - origin_x) if row["valid"] else 0.0 for row in rows],
+                    "y": [(row["y"] - origin_y) if row["valid"] else 0.0 for row in rows],
+                    "z": [0.0] * len(rows),
+                    "h": [row["heading"] if row["valid"] else 0.0 for row in rows],
+                    "vx": [row["vx"] if row["valid"] else 0.0 for row in rows],
+                    "vy": [row["vy"] if row["valid"] else 0.0 for row in rows],
+                    "len": [length] * len(rows),
+                    "wid": [width] * len(rows),
+                    "hgt": [height] * len(rows),
+                    "valid": [row["valid"] for row in rows],
+                },
+                "route": [],
+                "route_gt_len": 0,
+                "goal": (
+                    float(valid_rows[-1]["x"] - origin_x),
+                    float(valid_rows[-1]["y"] - origin_y),
+                    0.0,
+                ),
+                # 对手按 log 回放，不参与策略控制
+                "mark_as_expert": 1,
+            }
+        )
+    return agents
+
+
 def load_bag_context(bag: str):
     """一条 bag 的 pose + 地图索引（批量建场景时复用，避免 779 次重读）。"""
     _bag_path, poses = read_all_poses(bag)
@@ -170,7 +302,7 @@ def load_bag_context(bag: str):
     return {"poses": poses, "map_dir": map_dir, "index": index_, "source": source, "loader": loader}
 
 
-def build_scene(slice_info, context):
+def build_scene(slice_info, context, include_partners=False):
     """把一个切片写成场景 dict。slice_info 直接来自挖掘结果（带 warmup/horizon/时间窗）。"""
     gate, step_s = load_mining_contract()
     bag = slice_info["bag"] if "bag" in slice_info else slice_info["scenario_id"].split("#")[0]
@@ -306,8 +438,16 @@ def build_scene(slice_info, context):
         for j in range(n):
             distances[i * n + j] = max(0.0, cum[j] - cum[i]) if j >= i else UNREACHABLE_DISTANCE_M
 
+    if include_partners:
+        if "obstacle_tracks" not in context:
+            context["obstacle_tracks"] = load_obstacle_tracks(bag)
+        agent["mark_as_expert"] = 0   # 自车必须由策略控制
+        agents = [agent] + partner_agents(context["obstacle_tracks"], window, origin_x, origin_y)
+    else:
+        agents = [agent]
+
     scene = {
-        "agents": [agent],
+        "agents": agents,
         "roads": roads,
         "traffic": [],
         "objects": [],

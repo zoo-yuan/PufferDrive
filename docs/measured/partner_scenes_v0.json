@@ -1,0 +1,2324 @@
+{
+  "summary": {
+    "total": 257,
+    "reproduced": 174,
+    "not_reproduced": 83,
+    "median_agents": 25,
+    "median_peak": 5.0
+  },
+  "rows": [
+    {
+      "scenario_id": "2292#1790061079638#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2292",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174619331#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621701#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621901#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621901#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621911#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621911#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621921#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621921#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621931#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621931#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621941#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621941#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621951#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621951#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621961#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621961#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621971#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621971#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621981#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621981#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174621991#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174621991#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622001#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622001#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622011#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622011#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622021#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622021#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622031#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622031#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622041#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622041#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622051#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622051#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622061#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622061#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622071#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622071#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622081#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622081#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622091#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622091#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622101#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622101#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622111#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622111#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622121#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622121#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622131#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622131#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622141#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622141#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622151#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622151#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622161#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622161#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622171#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622171#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622181#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622181#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622191#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622191#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622201#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622201#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2688#1775174622211#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "2688#1775174622211#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "2688",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "2714#1778662610998#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "2714",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3123#1790500866421#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867911#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867921#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867931#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867941#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867951#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867961#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867971#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867981#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500867991#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868001#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868011#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868021#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868031#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868041#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868051#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868061#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868091#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868101#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868111#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868131#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868141#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868151#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868161#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868171#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500868181#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869681#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869691#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869701#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869721#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869731#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869741#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869751#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869761#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869771#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869781#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869791#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869801#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3123#1790500869811#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3123",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748299998#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748300168#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748301658#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748301768#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748301958#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748301968#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748301978#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748302058#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748302068#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748302178#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748302698#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748303467#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303477#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303487#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303497#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303507#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303517#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303527#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303537#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303548#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303557#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303567#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748303577#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310157#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310577#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310577#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310577#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310597#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310597#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310597#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310607#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310607#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310607#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310617#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310617#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310617#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310627#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310627#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310627#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310637#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310637#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310637#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310647#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310647#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310647#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310657#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310657#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310657#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310667#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310667#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310667#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310677#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310677#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310677#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310687#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310687#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310687#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310697#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310697#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310697#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310707#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310707#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310707#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310717#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310717#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310717#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310717#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310727#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310727#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310727#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310727#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310737#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310737#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310737#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310737#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310747#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310747#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310747#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310747#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310757#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310757#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310757#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310757#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310767#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310767#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310767#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310767#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310777#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310777#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310777#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310777#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310787#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310787#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310787#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310787#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310797#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310797#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310797#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310797#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310807#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310807#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310807#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310807#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310817#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310817#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310817#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310817#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310837#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310837#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310837#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310837#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310857#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310857#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310857#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310857#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310867#braking_distance_short",
+      "template": "braking_distance_short",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 50.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3139#1790748310867#collision_any",
+      "template": "collision_any",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 1.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310867#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": false,
+      "note": "对手存在但未触发"
+    },
+    {
+      "scenario_id": "3139#1790748310867#ttc_shortfall",
+      "template": "ttc_shortfall",
+      "bag": "3139",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630384#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630764#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630774#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630784#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630794#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630804#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630814#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630824#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630844#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630854#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630864#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630874#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630884#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630894#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630904#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630914#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630924#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630934#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630944#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630954#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630964#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630974#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630984#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734630994#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734631004#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734631014#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734631024#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734631034#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734631044#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734631134#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    },
+    {
+      "scenario_id": "3183#1788734631144#cut_in_conflict",
+      "template": "cut_in_conflict",
+      "bag": "3183",
+      "agents": 25,
+      "peak": 5.0,
+      "fired": true,
+      "note": "能判出"
+    }
+  ]
+}

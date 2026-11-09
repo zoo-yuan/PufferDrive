@@ -163,7 +163,9 @@ templates:
     guard: {metric: lane_dist, op: abs_gt, threshold_param: adjacent_lane_m}
     params:
       ttc_min_s: {value: 2.0, unit: s}
-      adjacent_lane_m: {value: 1.0, unit: m}
+      # 1.0 → 0.9：bag 侧算的横向偏移与引擎 lane_dist 有系统性差值（实测 3123 峰值 0.97 m，
+      # 差 0.03 就被 guard 挡掉，39 条 cut_in 全判不出）。0.9 与 lane_departure 阈值同源。
+      adjacent_lane_m: {value: 0.9, unit: m}
     source: 高架/匝道加塞
     reference_solver: idm
     status: draft
