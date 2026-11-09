@@ -1,6 +1,6 @@
 # STATE
 
-As-of: d9efa3c9（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，见 ADR-0011）
+As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，见 ADR-0011）
 （2026-11-05 会话：回归上游 3.0 → M1 spec 冻结 → M2 三源审计 → M3 观测包络 → M4 约束库+可行性 → M5 挖掘 v0 → M6 桥接 wash-in + 地图匹配。全部 gate PASS。
 2026-11-06 会话①：撤销冻结基线（harness bug）→ 修复 harness（ADR-0010：mean 动作选择 + 训练 dt 契约）→ roundC 诚实数字 150/154，重训成为必经路。
 2026-11-06 会话②：事件级越道奖励落地（`reward_lane_departure`，每集一次性、谓词与 judge 同源）→ 重训 event_reward_v1（900k/20min）→ **负结果**：154/154 违规。
