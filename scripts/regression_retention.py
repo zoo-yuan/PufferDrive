@@ -33,6 +33,7 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from constraint_judge import as_predicate_list, evaluate, guard_holds  # noqa: E402
+from data_utils.mirror_map_bin import read_bin  # noqa: E402
 from scene_feasibility import (  # noqa: E402
     DT_S,
     WARMUP_STEPS,
@@ -70,6 +71,13 @@ def scene_ids():
             if row.get("verdict") == "reproduced_avoidable":
                 rows.append({"scenario_id": row["scenario_id"], "template": row["template"],
                              "bag": path.stem})
+    partner_path = REPO_ROOT / "docs" / "measured" / "partner_scenes_v0.json"
+    if partner_path.exists():
+        partner_data = json.loads(partner_path.read_text(encoding="utf-8"))
+        for row in partner_data.get("rows", []):
+            if row.get("fired"):
+                rows.append({"scenario_id": row["scenario_id"], "template": row["template"],
+                             "bag": row.get("bag", "partner"), "source": "partner"})
     if rows:
         return rows
     data = json.loads(FEASIBILITY_JSON.read_text(encoding="utf-8"))["rows"]
@@ -115,12 +123,13 @@ def build_env(scene_path: Path, env_config=None):
     from pufferlib.ocean.drive.drive import Drive
 
     kwargs = dict(training_env_config() if env_config is None else env_config)
+    agent_count = max(1, len(read_bin(scene_path)["agents"]))
     kwargs.update(
         map_dir=str(scene_path),
         num_maps=1,
-        num_agents=1,
+        num_agents=agent_count,
         min_agents_per_env=1,
-        max_agents_per_env=1,
+        max_agents_per_env=agent_count,
         sdc_controller="policy",
         replay_expert_agents=0,
         dt=DT_S,
