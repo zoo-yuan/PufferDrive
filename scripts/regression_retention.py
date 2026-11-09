@@ -58,12 +58,23 @@ EVAL_SEED = 0
 
 
 def scene_ids():
-    rows = json.loads(FEASIBILITY_JSON.read_text(encoding="utf-8"))["rows"]
-    return [
-        {"scenario_id": row["scenario_id"], "template": row["template"]}
-        for row in rows
-        if row["verdict"] == "reproduced_avoidable"
-    ]
+    """跨 bag 读取：本会话为 6 条 bag 各存了一份 feasibility 结果（.scratch/feas/*.json）。
+    单 bag 的旧文件仍然作为兜底。"""
+    per_bag = sorted((REPO_ROOT / ".scratch" / "feas").glob("*.json"))
+    rows = []
+    for path in per_bag:
+        if path.name == "avoidable_by_bag.json":
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for row in data.get("rows", []):
+            if row.get("verdict") == "reproduced_avoidable":
+                rows.append({"scenario_id": row["scenario_id"], "template": row["template"],
+                             "bag": path.stem})
+    if rows:
+        return rows
+    data = json.loads(FEASIBILITY_JSON.read_text(encoding="utf-8"))["rows"]
+    return [{"scenario_id": row["scenario_id"], "template": row["template"], "bag": "single"}
+            for row in data if row["verdict"] == "reproduced_avoidable"]
 
 
 def training_env_config():
@@ -276,7 +287,7 @@ td{{border-bottom:1px solid #eaeef2;padding:5px 8px}}
 <div class="banner">判定与 M7-3 完全同口径（同一批 bin、同一条谓词、同一步数），只有权重变了。
  低修复率不是失败信号 —— 短训练预算下更重要的是**没有把老 case 改坏**。</div>
 <h2>1. 逐场景</h2>
-<table><thead><tr><th>scenario</th><th class="c">模板</th><th class="c">训练前</th>
+<table><thead><tr><th>scenario</th><th class="c">bag</th><th class="c">模板</th><th class="c">训练前</th>
 <th class="c">训练后</th><th class="c">训练后峰值</th><th>结果</th></tr></thead>
 <tbody>{rows}</tbody></table>
 </body></html>"""
@@ -284,6 +295,7 @@ td{{border-bottom:1px solid #eaeef2;padding:5px 8px}}
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--scene-dir", default=str(SCENE_DIR))
     parser.add_argument("--checkpoint", default="experiments/final_model.pt")
     parser.add_argument("--baseline-checkpoint", default=None,
                         help="基线也载入某个 checkpoint（对比两次训练才有回归语义；默认随机初始化）")
@@ -292,18 +304,22 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
 
+    scene_dir = Path(args.scene_dir)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     metric_names, metric_index = get_metric_names()
     scenes = scene_ids()
     if args.limit:
         scenes = scenes[: args.limit]
     scenes = [scene for scene in scenes
-              if (SCENE_DIR / f"{scene['scenario_id'].replace('#', '_')}.bin").exists()]
+              if (scene_dir / f"{scene['scenario_id'].replace('#', '_')}.bin").exists()]
     if not scenes:
         print("ERROR: 没有可评测场景（先跑 scripts/scene_feasibility.py）", file=sys.stderr)
         return 1
 
-    first_path = SCENE_DIR / f"{scenes[0]['scenario_id'].replace('#', '_')}.bin"
+    def scene_path(scene):
+        return scene_dir / f"{scene['scenario_id'].replace('#', '_')}.bin"
+
+    first_path = scene_path(scenes[0])
     first_template = load_template(scenes[0]["template"])
     env = build_env(first_path)
     policy = build_policy(env, device)
@@ -312,7 +328,7 @@ def main() -> int:
     reference = []
     for scene in scenes:
         template = load_template(scene["template"])
-        path = SCENE_DIR / f"{scene['scenario_id'].replace('#', '_')}.bin"
+        path = scene_path(scene)
         reference.append(evaluate_replay(path, template, metric_names, metric_index))
 
     if args.baseline_checkpoint:
@@ -324,7 +340,7 @@ def main() -> int:
     before = []
     for scene in scenes:
         template = load_template(scene["template"])
-        path = SCENE_DIR / f"{scene['scenario_id'].replace('#', '_')}.bin"
+        path = scene_path(scene)
         before.append(evaluate_scene(policy, path, template, metric_names, metric_index, device))
 
     after = before
@@ -338,7 +354,7 @@ def main() -> int:
         after = []
         for scene in scenes:
             template = load_template(scene["template"])
-            path = SCENE_DIR / f"{scene['scenario_id'].replace('#', '_')}.bin"
+            path = scene_path(scene)
             after.append(evaluate_scene(policy, path, template, metric_names, metric_index, device))
 
     rows = []
