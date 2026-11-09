@@ -6,12 +6,13 @@
 # build-only 环境里，只有跑这个脚本时它才出现在 PATH 上。
 #
 # 用法：
-#   scripts/build_cpu_ext.sh              # 编 C++ 版（默认）
+#   scripts/build_cpu_ext.sh                 # 有可用 CUDA 时编 CUDA 版（默认）
+#   scripts/build_cpu_ext.sh --cpu-only      # 强制只编 C++ 版
 #   CONDA_ENV_NAME=other scripts/build_cpu_ext.sh
 #
 # 两个必须记住的点：
-#   1. PUFFER_BUILD_CPU_ONLY=1 —— 本机 CUDA toolkit 12.6，而 torch 是 13.2 编的，
-#      CUDA 内核编不了（版本不匹配）。CPU 版内核是同一份源码，只是不走 GPU。
+#   1. PUFFER_BUILD_CPU_ONLY —— 只有 CUDA 版本不匹配（torch 的 CUDA != 本机 toolkit）时才需要。
+#      2026-11-06 起 .venv 换成 torch 2.14.1+cu126，与本机 toolkit 12.6 一致，默认走 CUDA。
 #   2. 链接静态 libstdc++ —— conda 的 gcc 13 依赖 GLIBCXX_3.4.3x，运行时系统里只有
 #      3.4.28（Ubuntu 20.04），不静态链接会在 import 时报 version not found。
 
@@ -41,15 +42,31 @@ fi
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
-export PUFFER_BUILD_CPU_ONLY=1
+if [[ "${1:-}" == "--cpu-only" ]]; then
+  export PUFFER_BUILD_CPU_ONLY=1
+else
+  export PUFFER_BUILD_CPU_ONLY=0
+fi
 echo "[build] CPU_ONLY= ${PUFFER_BUILD_CPU_ONLY}"
 python setup.py build_ext --inplace --force
 
-echo "[verify] import pufferlib._C"
+echo "[verify] torch.ops.pufferlib (CPU + CUDA when available)"
 python - <<'PY'
 # 必须先 import torch：扩展链接的是 torch 的 libc10/libtorch，torch 没加载时
 # import _C 会报 "libc10.so: cannot open shared object file"（不是构建失败）。
-import torch  # noqa: F401
-from pufferlib import _C
-print("[verify] OK ->", _C.__file__)
+import torch
+import pufferlib._C  # noqa: F401  注册 torch.ops.pufferlib
+
+print(f"[verify] torch {torch.__version__} cuda {torch.version.cuda} "
+      f"available {torch.cuda.is_available()}")
+for device in (["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]):
+    values = torch.randn(8, 16, device=device)
+    rewards = torch.randn(8, 16, device=device)
+    dones = (torch.rand(8, 16, device=device) > 0.9).float()
+    importance = torch.ones(8, 16, device=device)
+    advantages = torch.zeros(8, 16, device=device)
+    torch.ops.pufferlib.compute_puff_advantage(
+        values, rewards, dones, importance, advantages, 0.99, 0.95, 1.0, 1.0
+    )
+    print(f"[verify] VTrace {device}: ok ({float(advantages.mean()):.4f})")
 PY

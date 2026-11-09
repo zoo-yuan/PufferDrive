@@ -13,7 +13,8 @@ Activate venv before `python`/`puffer`: `source .venv/bin/activate`
 - **Training / `pufferlib._C`:** system g++ 9.4 cannot build it (torch forces `-std=c++20`). Use
   `scripts/build_cpu_ext.sh` (one-off) and `source scripts/puffer_env.sh` before `python -m pufferlib.pufferl train`
   — both only touch the current shell, via a conda-forge gcc 13 env named `pufdrive-gcc13`.
-  GPU kernels stay unbuildable here (toolkit 12.6 vs torch 13.2); `PUFFER_BUILD_CPU_ONLY=1` is why.
+  GPU kernels build now (venv torch is 2.14.1+cu126, matching the local 12.6 toolkit). Pass
+  `--cpu-only` to force a CPU-only build if the venv torch changes again.
 - **Train:** `puffer train puffer_drive [train.learning_rate=0.001 env.num_agents=512]`
 
 ## Coding Standards
