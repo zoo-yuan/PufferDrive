@@ -182,6 +182,9 @@ env:
   reward_overspeed: 0.005
   # 与最近冲突对象的距离余量不足时的惩罚系数（0 = 关闭）。约束库的 cut_in/ttc 模板靠它才有学习信号。
   reward_safety_gap: 0.05
+  # 事件级越道惩罚（0 = 关闭）：每 episode 首次触发 lane_departure 谓词（|lane_dist|>0.9 m 且
+  # sim_speed>0.5 m/s）时一次性扣减。独立于 reward_coefs 观测契约（ADR-0007 / lessons）。
+  reward_lane_departure: 0.0
   # m/s above the lane limit before the overspeed penalty fires
   overspeed_tolerance_mps: 0.0
   reward_ade: 0.0

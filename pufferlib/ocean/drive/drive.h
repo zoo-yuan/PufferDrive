@@ -87,6 +87,7 @@ struct Log {
     float reward_reverse;
     float reward_overspeed;
     float reward_safety_gap;
+    float reward_lane_departure_event;
     float reward_ade;
     float spawn_failed;
     float spawn_reject_collision;
@@ -273,6 +274,7 @@ struct Drive {
     float reward_timestep;
     float reward_overspeed;
     float reward_safety_gap;
+    float reward_lane_departure;
     float overspeed_tolerance_mps;
     float reward_ade;
     int reward_conditioning;
@@ -553,6 +555,7 @@ static void reset_agent_state(Agent *agent) {
     agent->lane_curvature = 0.0f;
     agent->lane_heading_error_rad = 0.0f;
     agent->comfort_violation_last_window_idx = -1;
+    agent->lane_departure_event_fired = 0;
     agent->phantom_braking_counter = 0;
     agent->partner_blindness_counter = 0;
     agent->is_blind_partner = 0;
@@ -2509,6 +2512,7 @@ static void add_log(Drive *env) {
         episode_log.reward_reverse += env->logs[i].reward_reverse;
         episode_log.reward_overspeed += env->logs[i].reward_overspeed;
         episode_log.reward_safety_gap += env->logs[i].reward_safety_gap;
+        episode_log.reward_lane_departure_event += env->logs[i].reward_lane_departure_event;
         episode_log.reward_ade += env->logs[i].reward_ade;
         // Comfort and velocity metrics (normalized per timestep)
         episode_log.comfort_violation_count += env->logs[i].comfort_violation_count / safe_timestep;
@@ -4743,6 +4747,18 @@ static void compute_rewards(Drive *env, int i) {
         float safety_penalty = -env->reward_safety_gap * env->dt * shortfall;
         env->rewards[i] += safety_penalty;
         agent_log->reward_safety_gap += safety_penalty;
+    }
+
+    // 事件级越道奖励：每 episode 只罚一次，落在越道那一步上（信用归因到机动本身，
+    // 而不是逐帧几何量 —— 逐帧形态已被实测否定，见 canonical-spec §14.6）。
+    // 谓词与 constraints_v0 lane_departure 同源（abs_gt 0.9 m + 速度 guard 0.5 m/s）。
+    if (env->reward_lane_departure != 0.0f && !agent->lane_departure_event_fired
+        && agent->sim_speed > LANE_DEPARTURE_EVENT_MIN_SPEED_MPS
+        && fabsf(agent->metrics_array[LANE_DIST_IDX]) > LANE_DEPARTURE_EVENT_THRESHOLD_M) {
+        agent->lane_departure_event_fired = 1;
+        float departure_penalty = -env->reward_lane_departure;
+        env->rewards[i] += departure_penalty;
+        agent_log->reward_lane_departure_event += departure_penalty;
     }
 
     // ADE reward

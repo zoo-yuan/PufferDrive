@@ -324,6 +324,12 @@ static const int ROAD_OFFSETS[25][2]
 #define SAFETY_GAP_MARGIN_M 4.0f
 #define NUM_REWARD_COEFS 18
 
+// 事件级越道奖励的谓词门限，与 spec/constraints_v0.yaml lane_departure 同源
+// （abs_gt(lane_dist, 0.9) + guard sim_speed > 0.5）；改一侧必须同步另一侧。
+// 同样**不进** reward_coefs 数组（独立 env 字段，见上）。
+#define LANE_DEPARTURE_EVENT_THRESHOLD_M 0.9f
+#define LANE_DEPARTURE_EVENT_MIN_SPEED_MPS 0.5f
+
 // =====================================================================================
 // 10. METRICS & SCORING
 // =====================================================================================

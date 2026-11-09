@@ -35,6 +35,7 @@ class Drive(pufferlib.PufferEnv):
         reward_timestep=0.000025,
         reward_overspeed=0.005,
         reward_safety_gap=0.05,
+        reward_lane_departure=0.0,
         overspeed_tolerance_mps=0.0,
         reward_ade=0.0,
         min_goal_spacing=20.0,
@@ -225,6 +226,9 @@ class Drive(pufferlib.PufferEnv):
         self.reward_timestep = reward_timestep
         self.reward_overspeed = reward_overspeed
         self.reward_safety_gap = reward_safety_gap
+        self.reward_lane_departure = float(reward_lane_departure)
+        if not (self.reward_lane_departure >= 0.0) or not np.isfinite(self.reward_lane_departure):
+            raise ValueError(f"reward_lane_departure must be finite and >= 0, got {reward_lane_departure}")
         self.overspeed_tolerance_mps = float(overspeed_tolerance_mps)
         if not (self.overspeed_tolerance_mps >= 0.0) or not np.isfinite(self.overspeed_tolerance_mps):
             raise ValueError(f"overspeed_tolerance_mps must be finite and >= 0, got {overspeed_tolerance_mps}")
@@ -602,6 +606,7 @@ class Drive(pufferlib.PufferEnv):
             "reward_timestep": self.reward_timestep,
             "reward_overspeed": self.reward_overspeed,
             "reward_safety_gap": self.reward_safety_gap,
+            "reward_lane_departure": self.reward_lane_departure,
             "overspeed_tolerance_mps": self.overspeed_tolerance_mps,
             "reward_ade": self.reward_ade,
             "collision_behavior": self.collision_behavior,

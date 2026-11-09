@@ -88,6 +88,7 @@ struct Agent {
     int previous_lane_idx;
     int current_lane_geometry_idx;
     int reached_goal_this_episode;
+    int lane_departure_event_fired;
     int num_goals_reached;
     int active_agent;
     int mark_as_expert;
