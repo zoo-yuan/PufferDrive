@@ -642,7 +642,60 @@ python scripts/regression_retention.py --scene-dir .scratch/crossbag_scenes \
 一次性 ±奖励（与 constraints_v0 的谓词同源），这正是 ADR-0007 的 A-only 约束反馈；
 而不是逐帧的几何惩罚。
 
-## 15. 评审仪式（每个 milestone 收口必须交的四件东西）
+## 15. 修正记录：M7-4 的策略侧数字全部作废（harness 观测不一致）
+
+冻结基线之后做零样本评测，发现一件比数字更重的事：
+
+**同一个 checkpoint，在训练里 `avg_speed_per_agent = 6.4 m/s`，在手搓评测 harness 里中位速度 0.00 m/s。**
+
+### 15.1 怎么发现的
+
+`scripts/zeroshot_eval.py` 里给一批 held-out 场景画行车轨迹时，发现策略轨迹是一个点
+（车没动）。于是回头测了 8 个**训练过**的场景：全部 0.0 m/s。再用当前代码现训一个
+150k agent-steps 的新模型，同样 0.0 m/s —— 说明问题不在 checkpoint，在 harness。
+
+### 15.2 根因
+
+评测脚本自己拼 env、自己调 `policy.forward_eval(obs, {})`，而训练时观测是 `pufferl` 的 vecenv
+打包出来的（含 `compress_observations` / dtype / mask / `zero_copy` 等处理）。
+两条路径的观测内容不一致 → 策略看到的输入是错位的 → 网络输出退化成常数动作。
+
+### 15.3 影响面（诚实清单）
+
+**作废**（全部建立在手搓 harness 上）：
+
+- M7-4 的修复率 97.4% / 回归保留率 100%
+- §14.5 的 328 场景对比、§14.6 的 safety-gap 惩罚结论
+- 冻结基线 `lane_departure_roundC`（已在 `docs/baselines.md` 标记 WITHDRAWN，
+  `baseline_check.py` 现在会因"中位车速 0.00"而失败）
+
+**仍然有效**（不依赖策略推理）：
+
+- 判据侧：录制司机 154/154 违规、IDM 0/154 违规 → 场景确实含违规且几何上可合规通过
+- M7-1/2/3：route 推导、场景构建、回放对拍（0.000 m）、补对手（174/257）
+- 训练管线本身的数字（PPO 日志里的 avg_speed、dnf_rate 等）
+
+### 15.4 修法（下一步）
+
+评测策略必须走 `pufferl` 自己的推理路径，二选一：
+
+1. 用 `pufferl` 的 eval 模式（`train(eval_mode=True)` / `puffer eval`）跑同一批 map_dir，
+   从 env info 里取逐场景指标；
+2. 或者让 harness 复用 `vecenv.recv()` 的观测打包逻辑（`compress_observations`、
+   rollout dtype、mask 处理），而不是自己 `np.asarray(obs)`。
+
+验收标准只有一条：**同一个 checkpoint 在 harness 里的中位车速必须与训练日志同量级（±20%）**，
+否则评测无效。这条已经作为 `baseline_check` 的硬判据。
+
+### 15.5 仍然可以看的可视化
+
+`docs/html/zeroshot_eval.html`：held-out 三袋 168 个场景，橙虚=录制司机、蓝红=IDM（颜色=速度）、
+灰=地图车道。录制司机违规 9 条、IDM 违规 0 条 —— 违规来自驾驶行为，不是地图不可能。
+**图里的轨迹是引擎控制器跑出来的，不依赖那条有问题的推理路径。**
+
+---
+
+## 16. 评审仪式（每个 milestone 收口必须交的四件东西）
 
 收口不是"写完了"，而是"可被 review 了"。每个 milestone 必须同时产出：
 

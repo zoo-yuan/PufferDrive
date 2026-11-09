@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "scenes": 168,
+    "reference_violations": 9,
+    "random_violations": 0,
+    "baseline_violations": 0,
+    "median_speed": 3.0468009047019526
+  },
+  "per_bag": {
+    "2292": {
+      "scenes": 17,
+      "reference_violations": 9,
+      "random_violations": 0,
+      "baseline_violations": 0,
+      "offroad_scenes": 0,
+      "median_speed": 3.0468004833292084
+    },
+    "2688": {
+      "scenes": 71,
+      "reference_violations": 0,
+      "random_violations": 0,
+      "baseline_violations": 0,
+      "offroad_scenes": 0,
+      "median_speed": 3.046800097862641
+    },
+    "2714": {
+      "scenes": 80,
+      "reference_violations": 0,
+      "random_violations": 0,
+      "baseline_violations": 0,
+      "offroad_scenes": 0,
+      "median_speed": 3.0468011076394594
+    }
+  }
+}

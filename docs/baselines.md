@@ -1,5 +1,21 @@
 # 冻结基线清单（Baseline manifest）
 
+> ## ⛔ 状态：**已撤销（WITHDRAWN，2026-11-06）**
+>
+> 冻结后复核发现：`checkpoints/lane_departure_roundC.pt` 在当前代码下**中位速度 0.00 m/s**
+> （154 个场景里 150 个不动）。带速度门限的 `lane_departure` 对静止车永远不成立，
+> 所以"4/154 违规、修复率 97.4%"是**车没动**造成的假象，不是策略学会了。
+>
+> `python scripts/baseline_check.py --check` 现在会因"基线中位车速 0.00 m/s < 下限 1.0"而失败，
+> 这是故意的 —— 防止任何人再引用这组数字。
+>
+> **根因**：评测 harness 手搓的推理路径与训练时 vecenv 的观测打包不一致（同一权重在训练里
+> 6.4 m/s，在手搓 harness 里 0.00 m/s）。证据与修法见
+> `docs/2026-11-05-canonical-spec-v0.md` §15。**M7-4 的全部策略侧数字在修复前不可引用。**
+>
+> 仍然有效的是**判据侧**的结论：录制司机 154/154 违规、IDM 0/154 违规 —— 场景确实含违规，
+> 且几何上可合规通过（`docs/html/zeroshot_eval.html`）。
+
 > 冻结 = 有一条命令能证明这些数字还能复现。**任何人不许再把"97.4%"当传说引用**，
 > 要么跑 `python scripts/baseline_check.py --check`，要么不用这个数。
 

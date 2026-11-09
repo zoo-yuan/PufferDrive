@@ -171,6 +171,7 @@ def evaluate_replay(scene_path: Path, template, metric_names, metric_index):
     fired = False
     peak = 0.0
     offroad_steps = 0
+    speeds = []
     previous = None
     for _ in range(STEPS):
         env.step(np.zeros((env.num_agents, 2), dtype=np.float32))
@@ -186,6 +187,7 @@ def evaluate_replay(scene_path: Path, template, metric_names, metric_index):
                     row["sim_speed"] = moved / DT_S
                 previous = (agent["sim_x"], agent["sim_y"])
                 peak = max(peak, abs(row.get(metric_name, 0.0)))
+                speeds.append(row.get("sim_speed", 0.0))
                 if row.get("offroad", 0.0) > 0.5:
                     offroad_steps += 1
                 if (guard is None or guard_holds(guard, params, row)) and evaluate(predicates, params, row):
@@ -195,6 +197,8 @@ def evaluate_replay(scene_path: Path, template, metric_names, metric_index):
         "peak": round(peak, 3),
         "offroad_steps": offroad_steps,
         "offroad_dominant": offroad_steps > STEPS // 2,
+        # 一个不动车的策略永远不会触发带速度门限的谓词 —— 这个数用来抓那种假"修复"
+        "median_speed": round(statistics.median(speeds), 3) if speeds else 0.0,
     }
 
 
@@ -209,6 +213,7 @@ def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_inde
     fired = False
     peak = 0.0
     offroad_steps = 0
+    speeds = []
     for step_index in range(STEPS):
         obs_tensor = torch.as_tensor(np.asarray(obs), dtype=torch.float32, device=device)
         with torch.no_grad():
@@ -229,6 +234,7 @@ def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_inde
                 peak = max(peak, abs(row.get(metric_name, 0.0)))
                 if row.get("offroad", 0.0) > 0.5:
                     offroad_steps += 1
+                speeds.append(row.get("sim_speed", 0.0))
                 # 不从 warmup 之后才开始判定：切片把 ego 放在违规时刻前 1.6 s，
                 # 从第 0 步就判，策略才有机会"提前避开"；从违规帧才开始判，任何策略都必失败。
                 if step_index < RETENTION_EVAL_START_STEP:
@@ -244,6 +250,8 @@ def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_inde
         "peak": round(peak, 3),
         "offroad_steps": offroad_steps,
         "offroad_dominant": offroad_steps > STEPS // 2,
+        # 一个不动车的策略永远不会触发带速度门限的谓词 —— 这个数用来抓那种假"修复"
+        "median_speed": round(statistics.median(speeds), 3) if speeds else 0.0,
     }
 
 
@@ -405,6 +413,8 @@ def main() -> int:
             / max(1, sum(1 for row in rows if row["reference"]["fired"]))
         ),
         "median_peak_after": statistics.median([row["after"]["peak"] for row in rows]),
+        "median_speed_after": statistics.median([row["after"].get("median_speed", 0.0) for row in rows]),
+        "moving_scenes_after": sum(1 for row in rows if row["after"].get("median_speed", 0.0) > 1.0),
     }
     report = {"summary": summary, "rows": rows, "checkpoint": str(args.checkpoint)}
 
@@ -417,6 +427,11 @@ def main() -> int:
     print(f"[report]  {OUTPUT_HTML}")
 
     failures = []
+    if summary["moving_scenes_after"] < 0.5 * summary["scenes"]:
+        failures.append(
+            f"训练后的策略在 {summary['scenes'] - summary['moving_scenes_after']}/{summary['scenes']} "
+            f"个场景里中位速度 ≤1 m/s（不动车 → 违规数无意义，中位 {summary['median_speed_after']:.2f} m/s）"
+        )
     if regressed and args.baseline_checkpoint:
         failures.append(f"{regressed} 个原本正常的场景训练后违规（必须拒绝该 checkpoint）")
     elif regressed:

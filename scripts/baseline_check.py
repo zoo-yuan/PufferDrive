@@ -94,12 +94,14 @@ def main() -> int:
 
     reference_fired = 0
     policy_fired = 0
+    policy_speeds = []
     for scene in scenes:
         template = load_template(scene["template"])
         if evaluate_replay(path_of(scene), template, metric_names, metric_index)["fired"]:
             reference_fired += 1
-        if evaluate_scene(policy, path_of(scene), template, metric_names, metric_index, device)["fired"]:
-            policy_fired += 1
+        result = evaluate_scene(policy, path_of(scene), template, metric_names, metric_index, device)
+        policy_fired += int(result["fired"])
+        policy_speeds.append(result.get("median_speed", 0.0))
 
     fix_rate = 1.0 - policy_fired / max(1, reference_fired)
     print(f"reference 违规 : {reference_fired}/{len(scenes)}（清单 {manifest['reference_violations']}）")
@@ -110,6 +112,14 @@ def main() -> int:
         problems.append(f"参考零点漂移：{reference_fired} ≠ {manifest['reference_violations']}")
     if policy_fired > manifest["baseline_violations_max"]:
         problems.append(f"基线违规 {policy_fired} > 上限 {manifest['baseline_violations_max']}")
+    import statistics as _statistics
+
+    median_speed = _statistics.median(policy_speeds) if policy_speeds else 0.0
+    print(f"基线中位车速   : {median_speed:.2f} m/s（下限 {manifest.get('median_speed_min', 1.0)}）")
+    if median_speed < manifest.get("median_speed_min", 1.0):
+        problems.append(
+            f"基线中位车速 {median_speed:.2f} m/s < 下限 —— 车不动，违规数无意义"
+        )
     if fix_rate < manifest["fix_rate_min"]:
         problems.append(f"修复率 {fix_rate:.3f} < 下限 {manifest['fix_rate_min']}")
 

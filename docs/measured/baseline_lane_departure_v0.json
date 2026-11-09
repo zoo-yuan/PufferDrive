@@ -9,5 +9,8 @@
   "fix_rate": 0.974,
   "fix_rate_min": 0.95,
   "recorded_at": "2026-11-06",
-  "provenance": "300k+300k+300k agent-steps on .scratch/crossbag_scenes, seed from puffer_drive defaults, train.compile=false"
+  "provenance": "300k+300k+300k agent-steps on .scratch/crossbag_scenes, seed from puffer_drive defaults, train.compile=false",
+  "status": "withdrawn",
+  "withdrawn_reason": "policy median speed 0.00 m/s under the current harness; fix rate measured on a stationary car",
+  "median_speed_min": 1.0
 }
