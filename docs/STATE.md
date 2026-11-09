@@ -1,8 +1,9 @@
 # STATE
 
-As-of: 88933a70
+As-of: d9efa3c9
 （2026-11-05 会话：回归上游 3.0 → M1 spec 冻结 → M2 三源审计 → M3 观测包络 → M4 约束库+可行性 → M5 挖掘 v0 → M6 桥接 wash-in + 地图匹配。全部 gate PASS。
-2026-11-06 会话①：撤销冻结基线（harness bug）→ 修复 harness（ADR-0010：mean 动作选择 + 训练 dt 契约）→ roundC 诚实数字 150/154，重训成为必经路）
+2026-11-06 会话①：撤销冻结基线（harness bug）→ 修复 harness（ADR-0010：mean 动作选择 + 训练 dt 契约）→ roundC 诚实数字 150/154，重训成为必经路。
+2026-11-06 会话②：事件级越道奖励落地（`reward_lane_departure`，每集一次性、谓词与 judge 同源）→ 重训 event_reward_v1（900k/20min）→ **负结果**：154/154 违规，策略画圈刷速度奖励（velocity farming），一次性罚金扛不住逐步奖励流 → 下一步进入奖励搜索迭代）
 约定：本仓库自有 `AGENTS.md` 仍是放置规则权威；strata 分层（STATE / adr / lessons）自 2026-10-09 启用。
 
 ## Where（现状，均已对照代码核实）
@@ -40,7 +41,7 @@ As-of: 88933a70
 
 ## Next（下一步）
 
-- **P0（当前焦点）：事件级约束奖励 + 重训 + 重冻基线**（TODO-3+4 合并）：① 在引擎/训练层实现"场景结束按谓词给一次 ±奖励"（§14.6；独立 env 字段，绕开 `reward_coefs` 观测契约），先以 lane_departure 为唯一事件模板；② 在 154 crossbag 场景上重训；③ 用修好的 harness（ADR-0010）验收：违规显著下降 + 中位车速 gate + 判据侧 154/154 不变，达标才重冻。
+- **P0（当前焦点）：奖励搜索迭代（事件罚已证不充分）**：引擎已具备 `reward_lane_departure`（独立 env 字段，默认 0 关）；event_reward_v1（罚 5.0、900k 步、约 20 min/轮——**迭代成本已从小时级降为分钟级**）给出负结果：策略画圈刷速度奖励（单集总转向 36 rad、纵向只加速、~20 步冲出路网），训练 offroad_rate 恒 1.0。候选选代按优先级：① 罚金 5→20/50 + `reward_velocity` 0.0025→0.0005（直击 velocity farming）；② clean-episode 奖励（必须带行驶距离门限，防趴窝回潮——趴窝假修复的前科见 ADR-0010）；③ goal 放置审计（是否 off-road beaming）；④ 课程学习（先直道）。验收门不变（ADR-0010 harness + 中位车速 gate + 参考 154/154），达标才重冻基线；勿引用 event_reward_v1 数字作基线。训练配置注意：base `puffer_drive.yaml` 默认 `simulation_mode: gigaflow`，场景 bin 训练必须 override `=replay`（gigaflow 模式在场景 bin 上 spawn 全败）；override 生成从 `.scratch/config_roundC_reconstructed.yaml` diff，`train.data_dir` 每轮独立防覆写。
 - 【effort】TerraZero 复刻路线 wayfinder 图：`../Slipstream/.wayfinder/map.md`。基底已裁决（2026-11-03）：**Slipstream 为主仓**，基线 = 上游 `3.0`（**2c1ca3e4**，拉最新后比 80a681b4 新 6 提交：Longest6v1/Alpasim eval、self-play eval 改进、overspeed reward 调整）保留历史导入；**已执行**：Slipstream master = 3.0 全历史 + tag `baseline/pufferdrive-3.0-2c1ca3e4` + 资产/strata 提交（a920284、0ebd01d）。本仓定位 = 只读跟随上游 + Nova bridge 线（`ACTION_TYPE_CONTROL` WIP 归此线收尾）；`9_bernhard_dev` 为挖矿源（噪声/权重按需 cherry-pick，P0 不变）。- P0：从 `origin/9_bernhard_dev` 移植 pose/brownian 噪声 → 扩展为 track 级时间相关、CIPV 加权、进 16 帧历史的注入（ADR-0004；`docs/integration/2026-10-09-perception-jitter-as-the-real-axis3.md` §3）。
 - P0：**桥接层 acc wash-in**（ADR-0007 §6.1）——**2026-11-05 已落地**：`pufferlib/ocean/drive/control_bridge.py`（复刻 nova 前 4 样本插值）；洗过 6 s 内 max |Δxy| 3.0e-5 m，不洗 0.39–0.92 m（`docs/html/bridge_washin_report.html`，5 例单测钉住）。
 - P1：**地图匹配层**——**2026-11-05 已落地**：`data_utils/apollo_lane_index.py`（车道点列 + 网格索引 → 有符号横向偏移/航向差/限速/turn）。**两种地图形态都要支持**：单 `base_map.bin`（wuhan/chongqing/8997）与**分块地图**（6501/7235：`base_map.catelog` + 6,249/10,874 个 500 m tile，按 bag 轨迹 bbox 选片）。6/6 条 bag 匹配率 100%，置信匹配率 5 条 100% / 2292 72%（场站挪车区无车道线）。匹配器硬门限：航向差 ≤60°、横向 ≤3 m，否则不出判定。解锁 4 条车道类约束（挖掘契约 8→12，切片 487→779）。
