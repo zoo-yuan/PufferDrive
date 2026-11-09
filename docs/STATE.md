@@ -1,7 +1,8 @@
 # STATE
 
-As-of: 2c823832
-（2026-11-05 会话：回归上游 3.0 → M1 spec 冻结 → M2 三源审计 → M3 观测包络 → M4 约束库+可行性 → M5 挖掘 v0 → M6 桥接 wash-in + 地图匹配。全部 gate PASS）
+As-of: 88933a70
+（2026-11-05 会话：回归上游 3.0 → M1 spec 冻结 → M2 三源审计 → M3 观测包络 → M4 约束库+可行性 → M5 挖掘 v0 → M6 桥接 wash-in + 地图匹配。全部 gate PASS。
+2026-11-06 会话①：撤销冻结基线（harness bug）→ 修复 harness（ADR-0010：mean 动作选择 + 训练 dt 契约）→ roundC 诚实数字 150/154，重训成为必经路）
 约定：本仓库自有 `AGENTS.md` 仍是放置规则权威；strata 分层（STATE / adr / lessons）自 2026-10-09 启用。
 
 ## Where（现状，均已对照代码核实）
@@ -30,26 +31,24 @@ As-of: 2c823832
 - `docs/2026-11-04-session-causal-chain.md`（+HTML）：上一轮因果链复盘，**给人看**，不作事实源。
 - `docs/html/*.html`：全部由 `scripts/*.py` 生成的验收物，数字一律从 `docs/measured/*.json` 重算 —— 不手抄。
 
-## 冻结基线（2026-11-06）
+## 冻结基线（2026-11-06：**当前无冻结基线**）
 
-- **`lane_departure_roundC`**：`checkpoints/lane_departure_roundC.pt`（sha256 `7339d816…`，不进 git），
-  154 个 lane_departure 场景，**违规 4/154、修复率 97.4%、回归保留率 100%**。
-  校验命令 `python scripts/baseline_check.py --check`（约 45 s，漂移即非 0 退出）。
-  详细清单与"什么会让冻结失效"见 `docs/baselines.md`。
-- 被拒绝的 checkpoint（328 场景 / safety-gap 逐帧惩罚导致 7 条变坏）记录在 §14.5–§14.6，**不进入基线**。
+- **roundC 已撤销且经修复后 harness 实测否定**：`checkpoints/lane_departure_roundC.pt` 在能动的评测里违规 **150/154**、中位车速 1.37 m/s——旧 97.4% 修复率全部是趴窝假象（argmax 自锁，ADR-0010）。重训前不得引用任何 roundC 数字。
+- 判据侧仍有效：录制司机 154/154 违规、IDM 0/168（口径未动）。
 - 教训：`num_reward_coefs` 是观测向量的一部分（`context_dim = num_reward_coefs + goal_dim`），
   往系数表里加项等于改观测契约、让所有旧权重失效 —— 新 shaping 系数必须绕开这个数组。
 
 ## Next（下一步）
 
-- 【effort】TerraZero 复刻路线 wayfinder 图：`../Slipstream/.wayfinder/map.md`。基底已裁决（2026-11-03）：**Slipstream 为主仓**，基线 = 上游 `3.0`（**2c1ca3e4**，拉最新后比 80a681b4 新 6 提交：Longest6v1/Alpasim eval、self-play eval 改进、overspeed reward 调整）保留历史导入；**已执行**：Slipstream master = 3.0 全历史 + tag `baseline/pufferdrive-3.0-2c1ca3e4` + 资产/strata 提交（a920284、0ebd01d）。本仓定位 = 只读跟随上游 + Nova bridge 线（`ACTION_TYPE_CONTROL` WIP 归此线收尾）；`9_bernhard_dev` 为挖矿源（噪声/权重按需 cherry-pick，P0 不变）。
-- P0：从 `origin/9_bernhard_dev` 移植 pose/brownian 噪声 → 扩展为 track 级时间相关、CIPV 加权、进 16 帧历史的注入（ADR-0004；`docs/integration/2026-10-09-perception-jitter-as-the-real-axis3.md` §3）。
+- **P0（当前焦点）：事件级约束奖励 + 重训 + 重冻基线**（TODO-3+4 合并）：① 在引擎/训练层实现"场景结束按谓词给一次 ±奖励"（§14.6；独立 env 字段，绕开 `reward_coefs` 观测契约），先以 lane_departure 为唯一事件模板；② 在 154 crossbag 场景上重训；③ 用修好的 harness（ADR-0010）验收：违规显著下降 + 中位车速 gate + 判据侧 154/154 不变，达标才重冻。
+- 【effort】TerraZero 复刻路线 wayfinder 图：`../Slipstream/.wayfinder/map.md`。基底已裁决（2026-11-03）：**Slipstream 为主仓**，基线 = 上游 `3.0`（**2c1ca3e4**，拉最新后比 80a681b4 新 6 提交：Longest6v1/Alpasim eval、self-play eval 改进、overspeed reward 调整）保留历史导入；**已执行**：Slipstream master = 3.0 全历史 + tag `baseline/pufferdrive-3.0-2c1ca3e4` + 资产/strata 提交（a920284、0ebd01d）。本仓定位 = 只读跟随上游 + Nova bridge 线（`ACTION_TYPE_CONTROL` WIP 归此线收尾）；`9_bernhard_dev` 为挖矿源（噪声/权重按需 cherry-pick，P0 不变）。- P0：从 `origin/9_bernhard_dev` 移植 pose/brownian 噪声 → 扩展为 track 级时间相关、CIPV 加权、进 16 帧历史的注入（ADR-0004；`docs/integration/2026-10-09-perception-jitter-as-the-real-axis3.md` §3）。
 - P0：**桥接层 acc wash-in**（ADR-0007 §6.1）——**2026-11-05 已落地**：`pufferlib/ocean/drive/control_bridge.py`（复刻 nova 前 4 样本插值）；洗过 6 s 内 max |Δxy| 3.0e-5 m，不洗 0.39–0.92 m（`docs/html/bridge_washin_report.html`，5 例单测钉住）。
 - P1：**地图匹配层**——**2026-11-05 已落地**：`data_utils/apollo_lane_index.py`（车道点列 + 网格索引 → 有符号横向偏移/航向差/限速/turn）。**两种地图形态都要支持**：单 `base_map.bin`（wuhan/chongqing/8997）与**分块地图**（6501/7235：`base_map.catelog` + 6,249/10,874 个 500 m tile，按 bag 轨迹 bbox 选片）。6/6 条 bag 匹配率 100%，置信匹配率 5 条 100% / 2292 72%（场站挪车区无车道线）。匹配器硬门限：航向差 ≤60°、横向 ≤3 m，否则不出判定。解锁 4 条车道类约束（挖掘契约 8→12，切片 487→779）。
 - P0：**M7 场景化**（§11）——① route/goal 推导**已落地**：`scripts/route_preview.py`（单切片几何+车道链）+ `scripts/route_coverage.py`（批量）；**779/779 切片能串出连续 route**，其中走满 1000 m 的 497 条，短 route 282 条（3139 受引擎 64 段上限限制 425 m，2688 是小区环道 307 m）。② 切片转 PufferDrive 场景 bin **已落地**：779/779 写成 `load_map_binary` 可直接吃的 bin（结构问题 0，场景车道中位 68，route 段中位 56），replay 模式逐步对拍 log 偏差 **0.000 m**（每 bag 抽 2 条 × 40 步）；③ 场景级可行性裁判**已落地**：3183 的 153 个场景 × 3 controller 真跑，**可测切片复现率 71/76 = 93%**，IDM 0 条违规（无常"逼人违规"场景）；抓出 `lane_departure` 缺运动 guard（已补 0.5 m/s）与 replay 模式指标恒 0 的口径问题；④d 交互类奖励项：**已接进引擎但方向错**。`reward_safety_gap`（用 `distance_to_collision`，因为 `ttc` 实测只取 0/5.0 二分）可调可跑；但逐帧几何惩罚把自车类违规从 70 推到 143、对手类仍 39→39，7 条变坏 → checkpoint 被拒。正确形态应是**事件级**约束奖励（场景结束按谓词给一次 ±奖励），见 §14.6。
 ④c 扩到 328 场景（154 自车 + 174 补对手）**失败并被拒**：自车类 70→84 违规（27 变坏），对手类 39→39 无变化，回归保留率 88%。原因：`total_timesteps` 数所有 agent 步、25 车场景里只有自车被控 → 2M agent-steps 仅 ≈80k 自车步（round C 是 900k）；且对手类模板缺对应奖励项。**生产口径仍用 round C**。
 ④b 补对手（`scripts/partner_scenes.py`）：257 个 `needs_partners` 切片里 **174 个（68%）** 补上对手后能复现；3123 从 0/39 → 39/39 是因为 `cut_in_conflict` 的 guard 阈值与引擎 `lane_dist` 有系统偏差（0.97 vs 1.0），已改 0.9。
 ④ 回归保留率**跨 3 条 bag 闭环跑通**：154 个可避场景（3183:71 / 3123:50 / 3139:33），round A（300k）141 违规 → B（600k）20 → C（900k）**4**，相对录制司机修复率 **97.4%**，回归保留率 **100%**、被改坏 0；剩 4 条集中在 3139 同一路口碎段簇。原先单 bag 版本：71 个可避场景，replay 参考 71/71 违规，round A（300k 步）降到 1/71，round B（续训 300k 步）降到 **0/71 → 修复率 100%**，回归保留率 100%、被改坏 0；同 seed 可复现。沿途抓出三个静默问题：`scenario_id` 撞车（779 切片实际 82 场景，已修）、场景 bin 缺限速区段（引擎拒载，已修）、replay 下 `sim_speed` 恒 0 导致速度门限谓词全失效（已改为相邻位姿反推）。**场景包络 20→40 m 会改变结论**（多数早期"越道"是包络不足的假阳性），已记为口径变更。
+  **⚠ 2026-11-06 作废注记**：本段 round A/B/C 全部违规数与修复率系趴窝 harness（argmax 自锁）产物，已被 ADR-0010 修复后实测否定（roundC 真实违规 150/154）；判据侧（154/154、静默问题修复）仍有效。详见 `docs/2026-11-05-canonical-spec-v0.md` §15。
 - P0：**积分器一致性**（ADR-0007 §6.1）——`ACTION_TYPE_CONTROL` + `INTEGRATION_SCHEME_MODEL_EULER` + `skip_actuator_limits` **已落地**，数值对拍 **通过**（`tests/unit_tests/test_control_mode_parity.py`，60 步 / 6 s，max `|Δxy|` 1.7e-5–3.4e-5 m）。**剩余**：桥接层实现 **acc wash-in**（Nova inference 对前4步加速度做 0.2/0.4/0.6/0.8 插值；不洗则 6 s 内偏离 0.39–0.92 m，`test_raw_control_diverges_from_model_intent` 已钉住）。限幅值取 `docs/vehicle_profile.md` §3。
 - P0 环境（2026-11-06 更新）：**`puffer train` 已可用**。系统 g++ 9.4 编不了 `pufferlib._C`（torch 强制 `-std=c++20`，且 9.4 缺 `<compare>`），但**不需要升级系统编译器**：gcc 13 装在 conda 的 build-only 环境 `pufdrive-gcc13` 里，只有 `scripts/build_cpu_ext.sh`（编 `_C`）与 `source scripts/puffer_env.sh`（训练时 inductor 现编 C++）会把工具链挂到当前 shell。`setup.py` 新增 `PUFFER_BUILD_CPU_ONLY=1` 开关绕开 CUDA 12.6/13.2 不匹配。实测：C 测试全 PASS、Python 187 passed / 21 skipped、`python -m pufferlib.pufferl train puffer_drive ...` 跑完并写出 checkpoint。**GPU 已可用**（2026-11-06）：`.venv` 的 torch 从 `2.15.0+cu132` 换成 **`2.14.1+cu126`**（driver 535 / CUDA 12.2 通过 minor version compatibility 跑 cu126），与本机 toolkit 12.6 一致 → `_C` 的 CUDA 内核可编，`torch.cuda.is_available()` 为 True（RTX 3060 / sm_86）；CPU 与 CUDA 两路 V-trace 均已对拍通过，`train.device=cuda` 在 `compile=false` 与 `compile=true`（inductor）下都能跑完并写出 checkpoint。回滚清单在 `.scratch/venv-freeze-before-torch.txt`。
 - 旧记录（2026-11-04）：`.venv` 已用 uv + 清华镜像建好（torch 2.15.0+cu132 / numpy / gymnasium / hydra / omegaconf / matplotlib / pytest 均可用）。**`pufferlib._C` 编译不了**：本机 g++ 9.4（Ubuntu 20.04）不支持 `-std=c++20`（`torch/include/c10/util/intrusive_ptr.h` 需 `<compare>`）——与本次代码改动无关，阻塞的是 `puffer train` 本身。修法：装 g++-11/13 或换新工具链。`pufferlib/ocean/drive/binding*.so` 已用 gcc 直编就位（C 部分无此问题）。
