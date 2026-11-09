@@ -78,11 +78,11 @@ td{{border-bottom:1px solid #eaeef2;padding:5px 8px}}
 .banner{{border-left:3px solid #1a7f37;background:#f0fbf2;padding:9px 13px;border-radius:0 6px 6px 0;font-size:13px;margin:16px 0}}
 </style></head><body>
 <h1>场景构建（M7-2）</h1>
-<p class="sub">779 个切片 → PufferDrive map bin · 结构层全量校验 · 行为层每 bag 抽
+<p class="sub">{summary['rows']} 条切片 = {summary['total']} 个不同场景 → PufferDrive map bin · 结构层全量校验 · 行为层每 bag 抽
  {REPLAY_SAMPLES_PER_BAG} 条真跑引擎（replay 模式，{REPLAY_STEPS} 步）</p>
 <div class="cards">
 <div class="card"><div class="k">写出的场景</div><div class="v">{summary['built']}</div>
-<div class="n">共 {summary['total']} 条切片 · 结构问题 {summary['structural_problems']}</div></div>
+<div class="n">共 {summary['total']} 个不同场景（{summary['rows']} 条切片）· 结构问题 {summary['structural_problems']}</div></div>
 <div class="card"><div class="k">route 段数中位</div><div class="v">{summary['median_route_lanes']:.0f}</div>
 <div class="n">引擎上限 {MAX_ROUTE_LANES} 段</div></div>
 <div class="card"><div class="k">场景车道中位</div><div class="v">{summary['median_scene_lanes']:.0f}</div>
@@ -122,15 +122,24 @@ def main() -> int:
     built = 0
     structural_problems = 0
 
+    seen_scenarios = set()
     for bag, bag_slices in slices.items():
-        print(f"[{bag}] {len(bag_slices)} 切片 …", flush=True)
+        # 同一个 scenario_id 会被多个模板/相邻帧复用（id = bag#int(t_start*10)），
+        # 去重后再建，否则统计里 779 个"切片"其实只有 82 个不同场景。
+        unique_slices = []
+        for slice_info in bag_slices:
+            if slice_info["scenario_id"] in seen_scenarios:
+                continue
+            seen_scenarios.add(slice_info["scenario_id"])
+            unique_slices.append(slice_info)
+        print(f"[{bag}] {len(bag_slices)} 切片 → {len(unique_slices)} 个不同场景 …", flush=True)
         context = load_bag_context(bag)
         bag_route_lanes = []
         bag_scene_lanes = []
         bag_route_m = []
         bag_failed = 0
         built_paths = []
-        for slice_info in bag_slices:
+        for slice_info in unique_slices:
             try:
                 scene, slice_context = build_scene({**slice_info, "bag": bag}, context)
                 if len(scene["agents"][0]["route"]) > MAX_ROUTE_LANES:
@@ -187,7 +196,8 @@ def main() -> int:
         }
 
     summary = {
-        "total": sum(len(value) for value in slices.values()),
+        "total": len(seen_scenarios),
+        "rows": sum(len(value) for value in slices.values()),
         "built": built,
         "structural_problems": structural_problems,
         "median_route_lanes": statistics.median(route_lanes_all) if route_lanes_all else 0,

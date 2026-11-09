@@ -194,7 +194,8 @@ td{{border-bottom:1px solid #eaeef2;padding:5px 8px}}
 .banner{{border-left:3px solid #1a7f37;background:#f0fbf2;padding:9px 13px;border-radius:0 6px 6px 0;font-size:13px;margin:16px 0}}
 </style></head><body>
 <h1>场景级可行性裁判（M7-3）</h1>
-<p class="sub">{summary['template']} · {summary['total']} 个场景 · 3 个 controller × {MAX_STEPS} 步 ·
+<p class="sub">{summary['template']} · {summary['total']} 个不同场景（{summary['rows_in_bag']} 条切片）·
+ 3 个 controller × {MAX_STEPS} 步 ·
  谓词与阈值来自 <code>spec/constraints_v0.yaml</code>（与 M4 同一套实现）</p>
 <div class="cards">
 <div class="card"><div class="k">复现率（可测切片）</div><div class="v">{summary['reproduced']}/{summary['testable']}</div>
@@ -228,6 +229,15 @@ def main() -> int:
 
     mining = json.loads(MINING_JSON.read_text(encoding="utf-8"))
     bag_slices = mining["slices"][args.bag]
+    # 同一 scenario_id 会被多个模板复用（id = bag#int(t_start*10)），去重后才是"场景"数
+    unique_slices = []
+    seen_scenarios = set()
+    for slice_info in bag_slices:
+        if slice_info["scenario_id"] in seen_scenarios:
+            continue
+        seen_scenarios.add(slice_info["scenario_id"])
+        unique_slices.append(slice_info)
+    bag_slices = unique_slices
     if args.limit:
         bag_slices = bag_slices[: args.limit]
     metric_names, metric_index = get_metric_names()
@@ -290,6 +300,7 @@ def main() -> int:
             else f"混合 {len({row['template'] for row in rows})} 种模板"
         ),
         "total": len(rows),
+        "rows_in_bag": len(mining["slices"][args.bag]),
         "reproduced": sum(1 for row in rows if row["replay"]["fired"]),
         "idm_fires": sum(1 for row in rows if row["idm"]["fired"]),
         "static_fires": sum(1 for row in rows if row["static"]["fired"]),

@@ -488,7 +488,43 @@ gate：洗过 < 1e-4 m（float32 地板），不洗 > 0.1 m（否则测试失去
 
 ---
 
-## 14. 评审仪式（每个 milestone 收口必须交的四件东西）
+## 14. M7-4 —— 回归保留率（骨架跑通，结果是 0 修复）
+
+在 71 个「复现且可避」场景上做了一次完整闭环：训练 60k timesteps → 用同一套谓词重评 →
+统计修复率与回归保留率。脚本 `scripts/regression_retention.py`，验收物
+`docs/html/regression_retention_v0.html`。
+
+| 量 | 结果 |
+|---|---|
+| 场景 | 71（3183 的 lane_departure） |
+| 参考零点（replay 按 log 开） | 71/71 违规 —— 场景确实含违规，谓词侧没问题 |
+| 训练 60k 步后 | **修复 0 / 仍失败 71** |
+| 回归保留率 | 100%（没有"变坏"的场景） |
+| 判定可复现 | 同 seed 两次运行数字完全一致（之前 58 / 66 浮动，原因是权重初始化没设种子） |
+
+**结论：60k 步不足以让策略学会避免越道。** 这不是坏消息 —— M7-4 的价值是**把度量做成可审计的**：
+同一批 bin、同一条谓词、同一步数、确定性动作、固定种子，只要换权重就能对比。
+
+### 14.1 这条链上抓到的两个数据完整性问题（都会静默灌水）
+
+1. **`scenario_id` 撞车**：`bag#int(t_start/0.1)` 在 86 Hz 的 pose 上会把约 9 帧映射到同一个 id。
+   结果 779 条切片其实只有 **82 个不同场景**，场景 bin 互相覆盖、统计被放大 9.5 倍。
+   已改成毫秒级 + 带模板，并对同窗口同模板去重 → 现在 **779 条切片 = 779 个唯一场景**。
+2. **场景 bin 缺限速区段**：`speed_limit_random_prob > 0` 时引擎直接拒绝加载整份 map（
+   "carries no speed zones"）。写场景时补上 `SPDZONE1` 段（每条车道自成区），779 个 bin 重建后
+   才能进训练。
+
+### 14.2 已知的度量陷阱（下一轮要处理）
+
+- **基线必须"会动"**：随机初始化策略在 60 步里只挪几米，速度门限（0.5 m/s）一挡就可能判"正常"。
+  现在固定种子后三条策略都会开起来，但真正的回归基线应是**上一次训练的 checkpoint**
+  （`--baseline-checkpoint`），而不是随机权重。
+- **场景包络偏小**：每个场景只写了 route ±20 m 的车道，策略一旦开快就会开出车道集，
+  `lane_dist` 撞上 4.0 的归一化上限。要判别"真越道"还是"开出地图"，得同时看 `offroad`。
+
+---
+
+## 15. 评审仪式（每个 milestone 收口必须交的四件东西）
 
 收口不是"写完了"，而是"可被 review 了"。每个 milestone 必须同时产出：
 
@@ -509,6 +545,7 @@ gate：洗过 < 1e-4 m（float32 地板），不洗 > 0.1 m（否则测试失去
 | `docs/html/route_preview.html` / `route_coverage.html` | M7-1 route 推导 | `python scripts/route_preview.py` / `route_coverage.py` |
 | `docs/html/scene_build_v0.html` | M7-2 场景构建 | `python scripts/scene_build_report.py` |
 | `docs/html/scene_feasibility_v0.html` | M7-3 场景裁判 | `python scripts/scene_feasibility.py` |
+| `docs/html/regression_retention_v0.html` | M7-4 回归保留率 | `python scripts/regression_retention.py` |
 | `docs/html/constraints_v0_library.html` | M4 约束库 | `python scripts/constraint_judge.py` |
 | `docs/html/constraints_v0_feasibility.html` | M4 可行性裁判 | `python scripts/constraint_feasibility.py` |
 | `docs/html/badcase_mining_v0.html` | M5 bad case 挖掘 | `python scripts/badcase_mine.py` |

@@ -799,6 +799,19 @@ def main():
     if not args.check:
         pass  # 实际比对在 gate 段的二次扫描里完成（成本高，--check 时跳过）
 
+    deduped_slices = {}
+    for bag, items in slices_by_bag.items():
+        seen = set()
+        kept = []
+        for item in items:
+            key = (round(item["t_start"], 3), round(item["t_end"], 3), item["template"])
+            if key in seen:
+                continue
+            seen.add(key)
+            kept.append(item)
+        deduped_slices[bag] = kept
+    slices_by_bag = deduped_slices
+
     payload = {
         "schema_version": contract["schema_version"],
         "bags": bag_names,
@@ -809,7 +822,9 @@ def main():
         "slices": {
             bag: [
                 {
-                    "scenario_id": f"{bag}#{int(round(item['t_start'] / contract['slice']['step_s']))}",
+                    # 必须毫秒级 + 带模板：pose 是 ~86 Hz，按 0.1 s 取整会让约 9 帧撞进同一个 id，
+                    # 结果 779 条切片其实只有 82 个不同场景（场景文件互相覆盖、统计被灌水）。
+                    "scenario_id": f"{bag}#{int(round(item['t_start'] * 1000))}#{item['template']}",
                     "template": item["template"],
                     "t_start_s": round(item["t_start"], 3),
                     "t_end_s": round(item["t_end"], 3),

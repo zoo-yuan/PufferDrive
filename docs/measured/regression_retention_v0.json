@@ -1,0 +1,1225 @@
+{
+  "summary": {
+    "scenes": 71,
+    "reference_violated": 0,
+    "violated_before": 71,
+    "clean_before": 0,
+    "fixed": 0,
+    "still_failing": 71,
+    "regressed": 0,
+    "baseline_moved": 71,
+    "retention": 1.0,
+    "fix_rate": 0.0,
+    "median_peak_after": 1.078
+  },
+  "rows": [
+    {
+      "scenario_id": "3183#1788734630754#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.98
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.349
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.005
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630764#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.986
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.35
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.009
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630774#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.992
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.504
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.019
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630784#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.004
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.515
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.026
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630794#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.015
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.528
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.029
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630804#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.026
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.534
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.037
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630814#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.037
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.538
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.043
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630824#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.043
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.545
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.044
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630844#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.964
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.546
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.057
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630854#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.98
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.56
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.059
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630864#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.986
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.566
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.067
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630874#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.992
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.571
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.073
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630884#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.004
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.576
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.073
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630894#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.015
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.592
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.074
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630904#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.026
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.596
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.078
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630914#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.037
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.595
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.085
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630924#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.043
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.614
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.087
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630934#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.048
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.617
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.093
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630944#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.964
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.642
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.096
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630954#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.98
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.657
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.095
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630964#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.986
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.666
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.095
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630974#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.992
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.694
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.094
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630984#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.004
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.709
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.092
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734630994#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.015
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.702
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.1
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631004#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.026
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.707
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.099
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631014#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.037
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.71
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.097
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631024#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.043
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.717
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.093
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631034#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.048
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.714
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.097
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631044#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.964
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.703
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.094
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631134#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.048
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.6
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.072
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631144#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.964
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.575
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.074
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631154#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.98
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.556
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.075
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631164#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.986
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.539
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.071
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631174#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.992
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.52
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.067
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631184#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.004
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.504
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.066
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631194#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.015
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.508
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.068
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631204#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.026
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.491
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.069
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631214#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.037
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.463
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.066
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631224#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.043
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.451
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.064
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631234#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.048
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.438
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.067
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631244#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.964
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.424
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.073
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631254#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.98
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.41
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.073
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631264#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.986
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.406
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.072
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631274#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.992
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.408
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.072
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631284#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.004
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.398
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.071
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631294#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.015
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.359
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.068
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631304#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.026
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.351
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.068
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631314#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.037
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.345
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.068
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631334#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.048
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.315
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.069
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631344#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.964
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.306
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.069
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631354#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.98
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.301
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.082
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631364#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.986
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.294
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.083
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631374#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.992
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.135
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.082
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631384#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.004
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.135
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.083
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631394#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.015
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.13
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.092
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631404#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.026
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.255
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.098
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631414#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.037
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.255
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.099
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631424#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.043
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.237
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.103
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631434#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.048
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.236
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.105
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631444#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.964
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.131
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.107
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631454#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.98
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.13
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.109
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631464#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.986
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.511
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.112
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631474#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.992
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.528
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.131
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631484#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.004
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.532
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.136
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631494#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.015
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.536
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.141
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631504#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.026
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.608
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.145
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631514#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.037
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.605
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.149
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631524#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.043
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.594
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.163
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631534#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.048
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.345
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.177
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734631544#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 1.964
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.334
+      },
+      "after": {
+        "fired": true,
+        "peak": 1.192
+      },
+      "outcome": "still_failing"
+    },
+    {
+      "scenario_id": "3183#1788734632394#lane_departure",
+      "template": "lane_departure",
+      "reference": {
+        "fired": false,
+        "peak": 2.015
+      },
+      "before": {
+        "fired": true,
+        "peak": 1.373
+      },
+      "after": {
+        "fired": true,
+        "peak": 2.052
+      },
+      "outcome": "still_failing"
+    }
+  ],
+  "checkpoint": "experiments/final_model.pt"
+}

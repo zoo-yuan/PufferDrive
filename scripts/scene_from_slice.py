@@ -256,6 +256,9 @@ def build_scene(slice_info, context):
                 "length": float(cumulative[-1]),
                 "cum_lengths": [float(value) for value in cumulative],
                 "widths": [1.0] * len(points),
+                # 每条车道自成限速区：引擎的 speed limit 扰动/限速逻辑要求有速度区，
+                # 否则 speed_limit_random_prob > 0 时整份 map 被拒绝加载。
+                "speed_zone_idx": road_id,
             }
         )
 
@@ -317,7 +320,7 @@ def build_scene(slice_info, context):
         # 标签（即使没有交通控制元素），否则读取器会把宽度的 tag 当成相位 tag 报格式错。
         "has_phase_section": True,
         "has_width_section": True,
-        "has_zone_section": False,
+        "has_zone_section": True,
     }
     context = {
         "scenario_id": slice_info["scenario_id"],
