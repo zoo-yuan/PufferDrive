@@ -381,7 +381,6 @@ static const RewardBound REWARD_BOUNDS[NUM_REWARD_COEFS] = {
     {0.8f, 1.25f, 0},      // REWARD_COEF_STEER           C_steer
     {0.666f, 1.5f, 0},     // REWARD_COEF_ACC             C_acc
     {0.666f, 1.5f, 0},     // REWARD_COEF_SPEED           C_vel
-    {0.0f, 0.5f, 0},       // REWARD_COEF_SAFETY_GAP      α_safety ~ U(0, 0.5)
 };
 
 // Meaning of the values: [min_range, max_range, use_log_scale]
@@ -404,7 +403,6 @@ static const RewardBound REWARD_BOUNDS_LOG[NUM_REWARD_COEFS] = {
     {0.8f, 1.25f, 0},      // REWARD_COEF_STEER           C_steer
     {0.666f, 1.5f, 0},     // REWARD_COEF_ACC             C_acc
     {0.666f, 1.5f, 0},     // REWARD_COEF_SPEED           C_vel
-    {0.0f, 0.5f, 0},       // REWARD_COEF_SAFETY_GAP      α_safety ~ U(0, 0.5)
 };
 
 // ========================================
@@ -2605,7 +2603,6 @@ static void generate_reward_coefs(Drive *env, Agent *agent) {
             REWARD_COEF_VEL_ALIGN,
             REWARD_COEF_OVERSPEED,
             REWARD_COEF_REVERSE,
-            REWARD_COEF_SAFETY_GAP,
         };
         const RewardBound *bounds = env->reward_log_sampling ? REWARD_BOUNDS_LOG : REWARD_BOUNDS;
         for (int i = 0; i < (int) (sizeof(random_coefs) / sizeof(random_coefs[0])); i++) {
@@ -2636,7 +2633,6 @@ static void generate_reward_coefs(Drive *env, Agent *agent) {
         agent->reward_coefs[REWARD_COEF_CENTER_BIAS] = env->reward_center_bias;
         agent->reward_coefs[REWARD_COEF_VEL_ALIGN] = env->reward_vel_align;
         agent->reward_coefs[REWARD_COEF_OVERSPEED] = env->reward_overspeed;
-        agent->reward_coefs[REWARD_COEF_SAFETY_GAP] = env->reward_safety_gap;
         agent->reward_coefs[REWARD_COEF_TIMESTEP] = env->reward_timestep;
         agent->reward_coefs[REWARD_COEF_REVERSE] = env->reward_reverse;
         agent->reward_coefs[REWARD_COEF_THROTTLE] = 1.0f;
@@ -4742,9 +4738,9 @@ static void compute_rewards(Drive *env, int i) {
     // Safety-gap reward: 与最近冲突对象的距离低于边际时按缺口比例惩罚。
     // 0.0 表示该帧已经接触（碰撞另有惩罚），此时按满额计。
     float collision_gap = agent->metrics_array[DISTANCE_TO_COLLISION_IDX];
-    if (agent->reward_coefs[REWARD_COEF_SAFETY_GAP] > 0.0f && collision_gap < SAFETY_GAP_MARGIN_M) {
+    if (env->reward_safety_gap > 0.0f && collision_gap < SAFETY_GAP_MARGIN_M) {
         float shortfall = (SAFETY_GAP_MARGIN_M - collision_gap) / SAFETY_GAP_MARGIN_M;
-        float safety_penalty = -agent->reward_coefs[REWARD_COEF_SAFETY_GAP] * env->dt * shortfall;
+        float safety_penalty = -env->reward_safety_gap * env->dt * shortfall;
         env->rewards[i] += safety_penalty;
         agent_log->reward_safety_gap += safety_penalty;
     }

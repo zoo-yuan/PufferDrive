@@ -1,0 +1,13 @@
+{
+  "name": "lane_departure_roundC",
+  "checkpoint": "checkpoints/lane_departure_roundC.pt",
+  "sha256": "7339d8161c8efcd0572dbf6c0fc4ed30d1c1078b00b1190453f0ea674f46a6e5",
+  "scenes": 154,
+  "metric": "lane_departure (|lane_dist| > 0.9 m while sim_speed > 0.5 m/s)",
+  "reference_violations": 154,
+  "baseline_violations_max": 6,
+  "fix_rate": 0.974,
+  "fix_rate_min": 0.95,
+  "recorded_at": "2026-11-06",
+  "provenance": "300k+300k+300k agent-steps on .scratch/crossbag_scenes, seed from puffer_drive defaults, train.compile=false"
+}

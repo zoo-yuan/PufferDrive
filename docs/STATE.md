@@ -19,6 +19,7 @@ As-of: 2c823832
 - `docs/2026-11-04-session-handoff.md` — 会话交接：30 秒恢复上下文、裁决+证据、产物表、阻塞项、复现命令。**新会话从这里开始。**
 - `docs/2026-11-05-canonical-spec-v0.md` — 主线：M1/M2（73 字段注册表 + 覆盖率/三源审计两个闸门）、M3/M4（§7–§8 观测包络 + 约束库）、M5/M6/M7（§9–§11 挖掘契约 + 桥接 & 地图匹配 + 场景化计划；§10.5 是"分块地图≠缺地图"的撤销记录）。验收物 `docs/html/` 下同名 HTML。
 - `docs/2026-11-04-badcase-as-scenario-seed-constraint-loop.md` — bad case 闭环轴：种子化、A-only 约束反馈、两个 KPI（约束覆盖率 / 回归保留率）。
+- `docs/baselines.md` — **冻结基线清单**（checkpoint / sha256 / 数字 / 复现命令 / 失效条件）；`docs/partner-agents-explained.md` — 补对手机制科普；`docs/vtrace-explained.md` 与 `docs/ppo-training-walkthrough.md` — 训练实现参考。
 - `docs/vehicle_profile.md` — **车辆参数单一真值源**（3799 / P04-161X 原始字段 + 派生量 + 限幅映射 + 新车型模板），新增车型按 §6 复制，不另起文件。
 - `docs/integration/CONTEXT.md` — 集成术语表（PufferDrive Core / 语义外挂 / Scene / M1-M2 / E1a-E1b / Nova 部署契约 / ego-centric RFU）。
 - `docs/adr/0001-0009` — 架构裁决（状态见 Open rulings）。**外部锚点**：Nova 部署契约 19 输入/4 输出以 nova 仓 `数据规范V1.1.3_0911修正版.md` + nova ADR-0003/0004 为准（2026-10-30 生效）。
@@ -28,6 +29,16 @@ As-of: 2c823832
 - `docs/2026-10-31-PufferDrive-vs-TerraZero-*.md` / `docs/2026-11-03-Terra系列全景与PufferDrive落地路线.md`：外部参照（不做选型裁决），开放问题见 Open rulings。
 - `docs/2026-11-04-session-causal-chain.md`（+HTML）：上一轮因果链复盘，**给人看**，不作事实源。
 - `docs/html/*.html`：全部由 `scripts/*.py` 生成的验收物，数字一律从 `docs/measured/*.json` 重算 —— 不手抄。
+
+## 冻结基线（2026-11-06）
+
+- **`lane_departure_roundC`**：`checkpoints/lane_departure_roundC.pt`（sha256 `7339d816…`，不进 git），
+  154 个 lane_departure 场景，**违规 4/154、修复率 97.4%、回归保留率 100%**。
+  校验命令 `python scripts/baseline_check.py --check`（约 45 s，漂移即非 0 退出）。
+  详细清单与"什么会让冻结失效"见 `docs/baselines.md`。
+- 被拒绝的 checkpoint（328 场景 / safety-gap 逐帧惩罚导致 7 条变坏）记录在 §14.5–§14.6，**不进入基线**。
+- 教训：`num_reward_coefs` 是观测向量的一部分（`context_dim = num_reward_coefs + goal_dim`），
+  往系数表里加项等于改观测契约、让所有旧权重失效 —— 新 shaping 系数必须绕开这个数组。
 
 ## Next（下一步）
 

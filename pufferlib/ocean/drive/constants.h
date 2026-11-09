@@ -318,9 +318,11 @@ static const int ROAD_OFFSETS[25][2]
 // 安全余量项：与最近冲突对象的距离低于阈值时按缺口惩罚。0 值 = 关闭。
 // 用 distance_to_collision 而不是 ttc：实测 ttc 在本仓只取 0 或 5.0（二分），
 // distance_to_collision 是渐变量（1.6–2.2 m），才能给出细粒度学习信号。
-#define REWARD_COEF_SAFETY_GAP 18
+//
+// 注意：它**不进** reward_coefs 数组。`context_dim = num_reward_coefs + goal_dim`
+// 是观测的一部分，往数组里加一项就等于改观测契约、让所有旧 checkpoint 全部加载失败。
 #define SAFETY_GAP_MARGIN_M 4.0f
-#define NUM_REWARD_COEFS 19
+#define NUM_REWARD_COEFS 18
 
 // =====================================================================================
 // 10. METRICS & SCORING

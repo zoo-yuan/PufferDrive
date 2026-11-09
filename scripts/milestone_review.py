@@ -884,6 +884,7 @@ a { color:#0b6bcb; }
                 ("M7 route 覆盖率", "python scripts/route_coverage.py --check", "PASS", "≥80% 切片能串出 ≥300 m 连续 route、未匹配帧 ≤10%"),
                 ("M7 场景构建", "python scripts/scene_build_report.py --check", "PASS", "779/779 写成 bin、结构问题 0、回放偏差 ≤0.05 m"),
                 ("M7 场景裁判", "python scripts/scene_feasibility.py --check", "PASS", "可测切片复现率 ≥80%、违规/体感型不被 STATIC 触发"),
+                ("M7-4 冻结基线", "python scripts/baseline_check.py --check", "PASS", "sha256 一致、参考零点 154/154、基线违规 ≤6、修复率 ≥95%"),
             ]
         )
     )
