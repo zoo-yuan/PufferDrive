@@ -86,6 +86,7 @@ struct Log {
     float reward_timestep;
     float reward_reverse;
     float reward_overspeed;
+    float reward_safety_gap;
     float reward_ade;
     float spawn_failed;
     float spawn_reject_collision;
@@ -271,6 +272,7 @@ struct Drive {
     float reward_stop_line;
     float reward_timestep;
     float reward_overspeed;
+    float reward_safety_gap;
     float overspeed_tolerance_mps;
     float reward_ade;
     int reward_conditioning;
@@ -379,6 +381,7 @@ static const RewardBound REWARD_BOUNDS[NUM_REWARD_COEFS] = {
     {0.8f, 1.25f, 0},      // REWARD_COEF_STEER           C_steer
     {0.666f, 1.5f, 0},     // REWARD_COEF_ACC             C_acc
     {0.666f, 1.5f, 0},     // REWARD_COEF_SPEED           C_vel
+    {0.0f, 0.5f, 0},       // REWARD_COEF_SAFETY_GAP      α_safety ~ U(0, 0.5)
 };
 
 // Meaning of the values: [min_range, max_range, use_log_scale]
@@ -401,6 +404,7 @@ static const RewardBound REWARD_BOUNDS_LOG[NUM_REWARD_COEFS] = {
     {0.8f, 1.25f, 0},      // REWARD_COEF_STEER           C_steer
     {0.666f, 1.5f, 0},     // REWARD_COEF_ACC             C_acc
     {0.666f, 1.5f, 0},     // REWARD_COEF_SPEED           C_vel
+    {0.0f, 0.5f, 0},       // REWARD_COEF_SAFETY_GAP      α_safety ~ U(0, 0.5)
 };
 
 // ========================================
@@ -2506,6 +2510,7 @@ static void add_log(Drive *env) {
         episode_log.reward_timestep += env->logs[i].reward_timestep;
         episode_log.reward_reverse += env->logs[i].reward_reverse;
         episode_log.reward_overspeed += env->logs[i].reward_overspeed;
+        episode_log.reward_safety_gap += env->logs[i].reward_safety_gap;
         episode_log.reward_ade += env->logs[i].reward_ade;
         // Comfort and velocity metrics (normalized per timestep)
         episode_log.comfort_violation_count += env->logs[i].comfort_violation_count / safe_timestep;
@@ -2600,6 +2605,7 @@ static void generate_reward_coefs(Drive *env, Agent *agent) {
             REWARD_COEF_VEL_ALIGN,
             REWARD_COEF_OVERSPEED,
             REWARD_COEF_REVERSE,
+            REWARD_COEF_SAFETY_GAP,
         };
         const RewardBound *bounds = env->reward_log_sampling ? REWARD_BOUNDS_LOG : REWARD_BOUNDS;
         for (int i = 0; i < (int) (sizeof(random_coefs) / sizeof(random_coefs[0])); i++) {
@@ -2630,6 +2636,7 @@ static void generate_reward_coefs(Drive *env, Agent *agent) {
         agent->reward_coefs[REWARD_COEF_CENTER_BIAS] = env->reward_center_bias;
         agent->reward_coefs[REWARD_COEF_VEL_ALIGN] = env->reward_vel_align;
         agent->reward_coefs[REWARD_COEF_OVERSPEED] = env->reward_overspeed;
+        agent->reward_coefs[REWARD_COEF_SAFETY_GAP] = env->reward_safety_gap;
         agent->reward_coefs[REWARD_COEF_TIMESTEP] = env->reward_timestep;
         agent->reward_coefs[REWARD_COEF_REVERSE] = env->reward_reverse;
         agent->reward_coefs[REWARD_COEF_THROTTLE] = 1.0f;
@@ -4731,6 +4738,16 @@ static void compute_rewards(Drive *env, int i) {
     float speed_reward = -agent->reward_coefs[REWARD_COEF_OVERSPEED] * env->dt * agent->metrics_array[SPEED_LIMIT_IDX];
     env->rewards[i] += speed_reward;
     agent_log->reward_overspeed += speed_reward;
+
+    // Safety-gap reward: 与最近冲突对象的距离低于边际时按缺口比例惩罚。
+    // 0.0 表示该帧已经接触（碰撞另有惩罚），此时按满额计。
+    float collision_gap = agent->metrics_array[DISTANCE_TO_COLLISION_IDX];
+    if (agent->reward_coefs[REWARD_COEF_SAFETY_GAP] > 0.0f && collision_gap < SAFETY_GAP_MARGIN_M) {
+        float shortfall = (SAFETY_GAP_MARGIN_M - collision_gap) / SAFETY_GAP_MARGIN_M;
+        float safety_penalty = -agent->reward_coefs[REWARD_COEF_SAFETY_GAP] * env->dt * shortfall;
+        env->rewards[i] += safety_penalty;
+        agent_log->reward_safety_gap += safety_penalty;
+    }
 
     // ADE reward
     float current_ade = agent->metrics_array[AVG_DISPLACEMENT_ERROR_IDX];

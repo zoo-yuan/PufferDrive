@@ -606,6 +606,42 @@ python scripts/regression_retention.py --scene-dir .scratch/crossbag_scenes \
 **结论**：补对手的场景目前只能当**评测集**，不能当训练集 —— 除非先做两件事：把 agent-step
 预算换算成"被控步数"，以及给交互类模板加对应的奖励项。
 
+### 14.6 给交互类场景加奖励项：通了，但方向选错（负结果）
+
+交互类模板（cut_in/ttc）此前在训练集里毫无作用（39 → 39）。原因清楚：**奖励里没有"与对手的
+交互后果"**。这一轮把安全余量项接进了引擎。
+
+**实现**（`pufferlib/ocean/drive/` + config）：
+
+| 位置 | 改动 |
+|---|---|
+| `constants.h` | `REWARD_COEF_SAFETY_GAP = 18`（`NUM_REWARD_COEFS` 18→19）、`SAFETY_GAP_MARGIN_M = 4.0f` |
+| `drive.h` | `REWARD_BOUNDS[_LOG]` 各加一项；`compute_rewards` 加一段"余量不足按缺口比例惩罚"；`Log/EpisodeLog` 加 `reward_safety_gap` |
+| `binding.c` / `drive.py` / `config_schema.py` / `puffer_drive.yaml` | 新参数 `reward_safety_gap`（默认 0.05，0 = 关闭） |
+
+**为什么用 `distance_to_collision` 而不是 `ttc`**：实测本仓的 `ttc` 只取 **0 或 5.0**（300 步里
+20% 是 0，其余全 5.0，中间值 0 个），是二分信号；`distance_to_collision` 是渐变的（1.6–2.2 m）。
+验证：同一场景 `coef=0 / 0.05 / 0.2` → 回合奖励 −15.005 / −15.205 / −15.805，线性可调。
+
+**训练结果（328 场景，3M + 3M agent-steps，`reward_safety_gap=0.2`）**：
+
+| 场景来源 | 数量 | round A 违规 | round B 违规 |
+|---|---|---|---|
+| 自车类 | 154 | 143 | 150 |
+| 补对手 | 174 | 39 | **39（仍无变化）** |
+| 合计 | 328 | 182 | 189（**7 条变坏**，回归保留率 95%，**checkpoint 被拒**） |
+
+两个结论，都写进 lessons：
+
+1. **惩罚不等于学会**。给"离障碍物近"加常数惩罚，在 24 辆回放对手的场景里等于持续扣分，
+   策略被推向反常行为（自车类违规反而从 70 升到 143），而不是学会礼让。
+2. **学不会 cut_in 是因为信号不对**：cut_in 的后果发生在**未来几秒**（对手切入 → 必须减速），
+   而当前是"当帧距离惩罚"，没有把后果归因到"该提前减速"这个动作上。
+
+**下一步的正确形态**（未做）：用**事件级**奖励 —— 在场景结束时按"该场景的约束是否被违反"给
+一次性 ±奖励（与 constraints_v0 的谓词同源），这正是 ADR-0007 的 A-only 约束反馈；
+而不是逐帧的几何惩罚。
+
 ## 15. 评审仪式（每个 milestone 收口必须交的四件东西）
 
 收口不是"写完了"，而是"可被 review 了"。每个 milestone 必须同时产出：

@@ -180,6 +180,8 @@ env:
   reward_reverse: 0.005
   reward_timestep: 2.5e-05
   reward_overspeed: 0.005
+  # 与最近冲突对象的距离余量不足时的惩罚系数（0 = 关闭）。约束库的 cut_in/ttc 模板靠它才有学习信号。
+  reward_safety_gap: 0.05
   # m/s above the lane limit before the overspeed penalty fires
   overspeed_tolerance_mps: 0.0
   reward_ade: 0.0

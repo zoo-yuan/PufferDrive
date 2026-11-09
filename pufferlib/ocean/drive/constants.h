@@ -315,7 +315,12 @@ static const int ROAD_OFFSETS[25][2]
 #define REWARD_COEF_STEER 15
 #define REWARD_COEF_ACC 16
 #define REWARD_COEF_SPEED 17
-#define NUM_REWARD_COEFS 18
+// 安全余量项：与最近冲突对象的距离低于阈值时按缺口惩罚。0 值 = 关闭。
+// 用 distance_to_collision 而不是 ttc：实测 ttc 在本仓只取 0 或 5.0（二分），
+// distance_to_collision 是渐变量（1.6–2.2 m），才能给出细粒度学习信号。
+#define REWARD_COEF_SAFETY_GAP 18
+#define SAFETY_GAP_MARGIN_M 4.0f
+#define NUM_REWARD_COEFS 19
 
 // =====================================================================================
 // 10. METRICS & SCORING

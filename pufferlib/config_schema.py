@@ -328,6 +328,7 @@ class DriveEnvConfig:
     reward_reverse: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
     reward_timestep: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
     reward_overspeed: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
+    reward_safety_gap: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
     overspeed_tolerance_mps: float = _constrained_field(NONNEGATIVE_NUMBER_CONSTRAINT)
     reward_ade: float = _constrained_field(FINITE_NUMBER_CONSTRAINT)
     map_dir: str = MISSING

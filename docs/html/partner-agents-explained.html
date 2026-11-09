@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Untitled</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+      var sections = document.querySelectorAll('section[id]');
+      var links = document.querySelectorAll('.toc-list a');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            links.forEach(function(l) { l.classList.remove('active'); });
+            var a = document.querySelector('.toc-list a[href="#' + e.target.id + '"]');
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -60% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+  </script>
+  <style>
+:root {
+  --bg:#F0EFEB; --ink:#1C1C1A; --paper:#F0EFEB; --dark:#1C1C1A;
+  --muted:#8F8E88; --faint:#C6C5BF; --grid:#DEDDD6;
+  --tint:#E7E6E0; --tint2:#D8D7D1;
+  --radius:24px; --max:1640px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--faint); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--ink); }
+.page { max-width: var(--max); margin: 0 auto; padding: 40px 20px 80px; }
+
+/* ── Layout：卡与页同底，无边框无阴影，靠 22px 留白分卡 ── */
+.layout { display: grid; grid-template-columns: 260px minmax(0,1fr); gap: 22px; align-items: start; }
+.hero { padding: 34px 34px 28px; margin-bottom: 22px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--tint2); color: var(--ink); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
+h1 { margin: 0 0 10px; font-size: 26px; font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; }
+.subtitle { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* ── TOC ── */
+.toc { position: sticky; top: 20px; padding: 18px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.toc h2 { margin: 0 0 12px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-list li { margin: 0; }
+.toc-list a { display: block; padding: 5px 8px; border-radius: 8px; color: var(--muted); font-size: 13px; font-weight: 500; text-decoration: none; transition: color .15s, background .15s; }
+.toc-list a:hover { color: var(--ink); background: var(--tint); }
+.toc-list a.active { color: var(--ink); background: var(--tint); font-weight: 700; border-left: 3px solid var(--ink); padding-left: 5px; }
+.toc-sub { list-style: none; padding-left: 12px; margin: 0; }
+.toc-sub a { font-size: 12px; padding: 3px 8px; }
+
+/* ── Content ── */
+.content { display: flex; flex-direction: column; gap: 22px; }
+.section { padding: 26px 28px; }
+h2 { margin: 0 0 16px; font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
+h3 { margin: 24px 0 10px; font-size: 15px; font-weight: 700; color: var(--ink); border-left: 3px solid var(--ink); padding-left: 10px; }
+h4 { margin: 18px 0 8px; font-size: 13px; font-weight: 700; letter-spacing: .04em; color: #4A4944; }
+p { margin: 0 0 12px; }
+
+/* ── Callouts：无彩色，用墨条粗细表达严重程度（明度即数据的正文版） ── */
+.callout-blue, .callout-amber, .callout-green, .callout-purple, .callout-red, .callout-gray {
+  background: var(--tint); border-radius: 16px; padding: 16px 18px; margin: 16px 0; border-left: 3px solid var(--ink);
+}
+.callout-amber { border-left-width: 4px; }
+.callout-red   { border-left-width: 6px; }
+.callout-gray  { border-left-width: 2px; border-left-color: var(--faint); }
+.callout-title { font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; color: var(--ink); }
+.callout-red .callout-title { font-weight: 800; }
+
+/* ── Step boxes ── */
+.step-box { display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; padding: 16px 18px; background: var(--tint); border-radius: 16px; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+.step-content { flex: 1; min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+.step-content strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+/* ── Table：表头全大写加字距，墨线分界 ── */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: transparent; color: var(--ink); text-align: left; font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; border-bottom: 2px solid var(--ink); }
+td { padding: 10px 14px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+tbody tr:nth-child(even) { background: var(--tint); }
+
+/* ── Code：暗卡纪律，墨色代码块 + 纸色字 ── */
+pre { background: var(--dark); border-radius: 16px; padding: 16px 20px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono", Consolas, Monaco, monospace; font-size: 13px; line-height: 1.8; color: var(--paper); white-space: pre; }
+code { background: var(--tint2); border-radius: 6px; padding: 2px 7px; font-family: "SF Mono", Consolas, Monaco, monospace; font-size: 13px; color: var(--ink); }
+pre code { background: none; padding: 0; color: var(--paper); }
+
+/* ── Misc ── */
+blockquote { margin: 18px 0; padding: 4px 0 4px 20px; border-left: 4px solid var(--ink); color: #4A4944; font-size: 15px; }
+ul, ol { padding-left: 24px; margin: 8px 0 12px; }
+li { margin: 6px 0; }
+img { max-width: 100%; border-radius: 16px; margin: 12px 0; }
+hr { border: none; border-top: 1px solid var(--grid); margin: 24px 0; }
+
+/* ── Badges：灰阶明度分层 ── */
+.badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 2px 10px; border-radius: 99px; margin: 2px; }
+.badge-purple, .badge-blue { background: var(--tint2); color: var(--ink); }
+.badge-green  { background: var(--faint); color: var(--ink); }
+.badge-amber  { background: #B0AFA9; color: var(--ink); }
+
+/* ── Motion：quarticOut 性格（快进快停不弹跳）+ 降级 ── */
+.hero, .section { animation: rise .7s cubic-bezier(.25,1,.5,1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+@media (prefers-reduced-motion: reduce) { .hero, .section { animation: none; } }
+
+@media (max-width: 920px) { .layout { grid-template-columns: 1fr; } .toc { position: static; } }
+@media (max-width: 640px) { .page { padding: 18px 12px 56px; } .hero, .section { padding: 20px 18px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <div class="eyebrow">🤝 场景构建</div>
+      <h1>Untitled</h1>
+      <p class="subtitle"></p>
+    </div>
+    <div class="layout">
+      <nav class="toc">
+<h2>&#128209; &#30446;&#24405;</h2>
+<ul class="toc-list">
+<li><a href="#1">1. 为什么需要它：一张表看懂</a></li>
+<li><a href="#2">2. "对手"从哪里来：不是仿真出来的，是感知看到的</a></li>
+<li><a href="#3-agent">3. 怎么变成一个 agent：四道筛选</a></li>
+<li><a href="#4">4. 为什么"回放"而不是"会反应"</a></li>
+<li><a href="#5-174-257">5. 效果：174 / 257</a></li>
+<ul class="toc-sub">
+<li><a href="#51-bug">5.1 顺带抓到的口径 bug（值得单独记）</a></li>
+</ul>
+<li><a href="#6">6. 怎么自己跑</a></li>
+<li><a href="#7">7. 常见误解</a></li>
+</ul>
+</nav>
+      <div class="content">
+        <div class="section">
+<blockquote>
+<p>一句话：我们的场景 bin 里原来只有<strong>自车</strong>一辆车。像"与前车 TTC 过短""被加塞"这类违规，
+本质是<strong>两辆车之间的关系</strong>，没有第二辆车就不可能判出来。补对手 = 把 bag 里感知到的
+其它交通参与者写成 agent 补进场景，让这些谓词有机会非平凡。</p>
+<p>脚本：<code>scripts/partner_scenes.py</code> + <code>scripts/scene_from_slice.py</code> 的
+<code>load_obstacle_tracks</code> / <code>partner_agents</code>。验收物：<code>docs/html/partner_scenes_v0.html</code>。</p>
+</blockquote>
+<hr /></div>
+<div class="section">
+<section id="1"><h2>1. 为什么需要它：一张表看懂</h2><table>
+<thead>
+<tr>
+<th>约束模板</th>
+<th>谓词依赖的指标</th>
+<th>只有自车时会发生什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lane_departure</code></td>
+<td><code>lane_dist</code>（自车 ↔ 车道）</td>
+<td>可以判（自车与地图的关系）</td>
+</tr>
+<tr>
+<td><code>jerk_over</code> / <code>long_accel_over</code></td>
+<td><code>jerk_long</code> / <code>accel_long</code>（自车）</td>
+<td>可以判（自车动力学）</td>
+</tr>
+<tr>
+<td><strong><code>ttc_shortfall</code></strong></td>
+<td><code>ttc</code>（自车 ↔ 前车）</td>
+<td><code>ttc</code> 恒等于 5.0 s 的默认值 → <strong>永远不触发</strong></td>
+</tr>
+<tr>
+<td><strong><code>cut_in_conflict</code></strong></td>
+<td><code>ttc</code> + 横向偏移</td>
+<td>同上 → <strong>永远不触发</strong></td>
+</tr>
+<tr>
+<td><strong><code>collision_any</code></strong></td>
+<td><code>collision</code>（自车 ↔ 任何物体）</td>
+<td>恒为 0 → <strong>永远不触发</strong></td>
+</tr>
+<tr>
+<td><code>braking_distance_short</code></td>
+<td><code>distance_to_collision</code></td>
+<td>恒为默认值</td>
+</tr>
+</tbody>
+</table>
+<p>所以 M7-3 的场景裁判里，257 个切片被标成 <code>needs_partners</code>（缺件）——
+<strong>不是判据写错了，是场景里根本没有第二辆车</strong>。</p>
+<pre><code>   只有自车（M7-2 的场景）                补对手之后
+   ┌──────────────────────┐            ┌──────────────────────┐
+   │   ego ──────────►    │            │   ego ──────────►    │
+   │                      │            │     ▲ 前车 ← 加塞者   │
+   │  ttc = 5.0 (默认)    │            │  ttc = 0.8 s ✓       │
+   │  谓词永不触发        │            │  谓词能触发          │
+   └──────────────────────┘            └──────────────────────┘
+</code></pre>
+<hr /></div>
+<div class="section">
+<section id="2"><h2>2. "对手"从哪里来：不是仿真出来的，是感知看到的</h2><p>这一点最容易误解。对手轨迹<strong>不是</strong>我们编的、也不是引擎生成的，而是直接取自 bag 里的
+<code>/apollo/perception/obstacles</code> 通道 —— 也就是<strong>当时自车的感知系统看到的东西</strong>。</p>
+<p>这意味着三件事：</p>
+<ol>
+<li><strong>它带着真实感知缺陷</strong>：遮挡导致的轨迹断点、跟踪 id 切换、速度抖动都在里面；</li>
+<li><strong>它不是真值</strong>：与"真值里那辆车"可能有几百毫秒的延迟和几十厘米的偏差；</li>
+<li><strong>它天生与自车同步</strong>：同一条 bag、同一个时钟，不需要时间对齐。</li>
+</ol>
+<p>对训练来说这恰好是我们想要的 —— 训练契约要匹配的是<strong>部署时的感知质量</strong>，不是真值。</p>
+<hr /></div>
+<div class="section">
+<section id="3-agent"><h2>3. 怎么变成一个 agent：四道筛选</h2><pre><code class="language-python"># scripts/scene_from_slice.py
+load_obstacle_tracks(bag)      # ① 按 track id 归并成轨迹
+partner_agents(tracks, window, origin_x, origin_y)   # ②③④ 筛选 + 转 agent
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>规则</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 归并</td>
+<td>按 <code>obstacle.id</code> 聚合，时间戳排序</td>
+<td>感知每帧给一坨障碍物，要先拼成"同一个物体的时间序列"</td>
+</tr>
+<tr>
+<td>② 出现率</td>
+<td>窗口内可见 ≥ <strong>60%</strong> 的帧</td>
+<td>一闪而过的检测（鬼影）不该变成一辆车</td>
+</tr>
+<tr>
+<td>③ 距离</td>
+<td>距自车轨迹最近 ≤ <strong>80 m</strong></td>
+<td>80 m 外的车对 ttc/加塞没有因果作用，只会稀释观测</td>
+</tr>
+<tr>
+<td>④ 数量</td>
+<td>最多 <strong>24</strong> 辆，按距离从近到远</td>
+<td>引擎的 partner 槽位与观测带宽有限；先保近处的</td>
+</tr>
+</tbody>
+</table>
+<p>然后每辆车写成 PufferDrive agent 的字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x, y</code></td>
+<td>障碍物位置 − 场景原点（<strong>必须先平移</strong>，float32 在 3.4e6 m 量级只有 0.25 m 分辨率）</td>
+</tr>
+<tr>
+<td><code>h</code>（航向）</td>
+<td>障碍物 <code>theta</code></td>
+</tr>
+<tr>
+<td><code>vx, vy</code></td>
+<td>障碍物速度</td>
+</tr>
+<tr>
+<td><code>len, wid, hgt</code></td>
+<td>障碍物尺寸中位数；缺失时用 4.6 × 1.9 × 1.6 m</td>
+</tr>
+<tr>
+<td><code>valid</code></td>
+<td>该帧是否可见（不可见 = 0，引擎会跳过）</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>Apollo 类型 5→VEHICLE、4→CYCLIST、3→PEDESTRIAN</td>
+</tr>
+<tr>
+<td><strong><code>mark_as_expert</code></strong></td>
+<td><strong>1</strong> —— 关键：这辆车按 log <strong>回放</strong>，不受策略控制</td>
+</tr>
+</tbody>
+</table>
+<p>自车则是 <code>mark_as_expert = 0</code>，由策略（或 IDM/replay 裁判）控制。</p>
+<hr /></div>
+<div class="section">
+<section id="4"><h2>4. 为什么"回放"而不是"会反应"</h2><p>当前对手是<strong>脚本化的</strong>：照着自己那条真实轨迹走，你怎么开它都不变。</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>现在（回放对手）</th>
+<th>需要什么才能做到</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>让 ttc / 加塞 / 碰撞谓词非平凡</td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td>复现"真实世界里发生过的那次加塞"</td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td>测"策略礼让后对方会不会感激/抢行"</td>
+<td>❌</td>
+<td>交互式对手（IDM / 学习型策略）</td>
+</tr>
+<tr>
+<td>对抗性搜索（找策略的软肋）</td>
+<td>❌</td>
+<td>self-play 对手分布（ADR-0003 Σ）</td>
+</tr>
+</tbody>
+</table>
+<p>所以这一步的定位很明确：<strong>让判据能工作</strong>，而不是做交互仿真。真正的交互对抗是 M8 的事。</p>
+<hr /></div>
+<div class="section">
+<section id="5-174-257"><h2>5. 效果：174 / 257</h2><table>
+<thead>
+<tr>
+<th>bag</th>
+<th>缺件切片</th>
+<th>补对手后复现</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3183</td>
+<td>31</td>
+<td><strong>31 (100%)</strong></td>
+<td>cut_in</td>
+</tr>
+<tr>
+<td>3123</td>
+<td>39</td>
+<td><strong>39 (100%)</strong></td>
+<td>修 guard 前是 <strong>0</strong></td>
+</tr>
+<tr>
+<td>3139</td>
+<td>119</td>
+<td>71 (60%)</td>
+<td>路口碎段，部分 ttc 距离过远</td>
+</tr>
+<tr>
+<td>2688</td>
+<td>66</td>
+<td>33 (50%)</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>2292 / 2714</td>
+<td>1 / 1</td>
+<td>0 / 0</td>
+<td>单条样本</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>257</strong></td>
+<td><strong>174 (68%)</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="51-bug">5.1 顺带抓到的口径 bug（值得单独记）</h3>
+<p>3123 一开始是 <strong>0/39</strong>。查下来不是缺对手，而是 guard 阈值：</p>
+<pre><code class="language-yaml"># cut_in_conflict 的 guard
+guard: {metric: lane_dist, op: abs_gt, threshold_param: adjacent_lane_m}
+# 原值 1.0 m
+</code></pre>
+<p>引擎在 3123 上量到的 <code>|lane_dist|</code> 峰值是 <strong>0.97 m</strong> —— 差 <strong>0.03 m</strong>，guard 永远不成立。</p>
+<p>根因：bag 侧用"匹配车道的横向偏移"算加塞，引擎用"到最近车道的距离"；
+两者存在系统性偏差（2714 上是 <strong>−0.31 m</strong>）。把 guard 改成 <strong>0.9 m</strong>（与 <code>lane_departure</code> 同源）后
+立刻 39/39。</p>
+<p><strong>教训：跨实现比对同一个量时，阈值必须留出系统偏差的余量，否则 0.03 m 就能让一整批场景"消失"。</strong></p>
+<hr /></div>
+<div class="section">
+<section id="6"><h2>6. 怎么自己跑</h2><pre><code class="language-bash"># 为一条 bag 的所有&quot;缺件&quot;切片补对手并重跑复现判定
+python scripts/partner_scenes.py --bags 3183
+
+# 全部 6 条 bag（约 3 分钟）
+python scripts/partner_scenes.py --bags 2292 2688 2714 3123 3139 3183
+</code></pre>
+<p>产物：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.scratch/partner_scenes/*.bin</code></td>
+<td>补过对手的场景（含 1 自车 + ≤24 对手）</td>
+</tr>
+<tr>
+<td><code>docs/measured/partner_scenes_v0.json</code></td>
+<td>逐场景：agent 数、峰值、是否复现</td>
+</tr>
+<tr>
+<td><code>docs/html/partner_scenes_v0.html</code></td>
+<td>上面那张表的可视化</td>
+</tr>
+</tbody>
+</table>
+<hr /></div>
+<div class="section">
+<section id="7"><h2>7. 常见误解</h2><table>
+<thead>
+<tr>
+<th>误解</th>
+<th>事实</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"对手是仿真的 NPC"</td>
+<td>不是，是 bag 里<strong>感知到的真实车辆</strong>，按 log 回放</td>
+</tr>
+<tr>
+<td>"补了对手就能做 self-play 了"</td>
+<td>不能，回放对手不反应；self-play 需要 M8 的对手分布</td>
+</tr>
+<tr>
+<td>"对手越多越好"</td>
+<td>不是，&gt;24 辆会挤爆观测带宽；筛选按距离从近到远</td>
+</tr>
+<tr>
+<td>"对手位置是精确的"</td>
+<td>不是，它带感知噪声与延迟，这正是训练要匹配的部署条件</td>
+</tr>
+<tr>
+<td>"ttc 的默认值 5.0 说明没危险"</td>
+<td>是哨兵值，表示"视野内没有会撞的车"；峰值 5.0 不代表触发，要看谓词是否成立</td>
+</tr>
+</tbody>
+</table></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
