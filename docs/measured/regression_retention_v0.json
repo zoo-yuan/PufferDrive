@@ -1,1225 +1,1653 @@
 {
   "summary": {
     "scenes": 71,
-    "reference_violated": 0,
-    "violated_before": 71,
-    "clean_before": 0,
-    "fixed": 0,
-    "still_failing": 71,
+    "reference_violated": 71,
+    "violated_before": 1,
+    "clean_before": 70,
+    "fixed": 1,
+    "still_failing": 0,
     "regressed": 0,
-    "baseline_moved": 71,
+    "baseline_moved": 42,
     "retention": 1.0,
-    "fix_rate": 0.0,
-    "median_peak_after": 1.078
+    "fix_rate": 1.0,
+    "fixed_vs_reference": 71,
+    "fix_rate_vs_reference": 1.0,
+    "median_peak_after": 0.528
   },
   "rows": [
     {
       "scenario_id": "3183#1788734630754#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.98
+        "fired": true,
+        "peak": 1.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.349
+        "fired": false,
+        "peak": 0.396,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.005
+        "fired": false,
+        "peak": 0.396,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630764#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.986
+        "fired": true,
+        "peak": 1.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.35
+        "fired": false,
+        "peak": 0.396,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.009
+        "fired": false,
+        "peak": 0.396,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630774#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.992
+        "fired": true,
+        "peak": 1.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.504
+        "fired": false,
+        "peak": 0.402,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.019
+        "fired": false,
+        "peak": 0.402,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630784#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.004
+        "fired": true,
+        "peak": 2.004,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.515
+        "fired": false,
+        "peak": 0.407,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.026
+        "fired": false,
+        "peak": 0.407,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630794#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.015
+        "fired": true,
+        "peak": 2.015,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.528
+        "fired": false,
+        "peak": 0.407,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.029
+        "fired": false,
+        "peak": 0.407,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630804#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.026
+        "fired": true,
+        "peak": 2.026,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.534
+        "fired": false,
+        "peak": 0.414,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.037
+        "fired": false,
+        "peak": 0.414,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630814#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.037
+        "fired": true,
+        "peak": 2.037,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.538
+        "fired": false,
+        "peak": 0.419,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.043
+        "fired": false,
+        "peak": 0.419,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630824#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.043
+        "fired": true,
+        "peak": 2.043,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.545
+        "fired": false,
+        "peak": 0.419,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.044
+        "fired": false,
+        "peak": 0.419,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630844#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.964
+        "fired": true,
+        "peak": 1.964,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.546
+        "fired": false,
+        "peak": 0.43,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.057
+        "fired": false,
+        "peak": 0.43,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630854#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.98
+        "fired": true,
+        "peak": 1.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.56
+        "fired": false,
+        "peak": 0.43,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.059
+        "fired": false,
+        "peak": 0.43,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630864#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.986
+        "fired": true,
+        "peak": 1.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.566
+        "fired": false,
+        "peak": 0.436,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.067
+        "fired": false,
+        "peak": 0.436,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630874#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.992
+        "fired": true,
+        "peak": 1.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.571
+        "fired": false,
+        "peak": 0.442,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.073
+        "fired": false,
+        "peak": 0.442,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630884#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.004
+        "fired": true,
+        "peak": 2.004,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.576
+        "fired": false,
+        "peak": 0.442,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.073
+        "fired": false,
+        "peak": 0.442,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630894#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.015
+        "fired": true,
+        "peak": 2.015,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.592
+        "fired": false,
+        "peak": 0.442,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.074
+        "fired": false,
+        "peak": 0.442,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630904#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.026
+        "fired": true,
+        "peak": 2.026,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.596
+        "fired": false,
+        "peak": 0.446,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.078
+        "fired": false,
+        "peak": 0.446,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630914#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.037
+        "fired": true,
+        "peak": 2.037,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.595
+        "fired": false,
+        "peak": 0.454,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.085
+        "fired": false,
+        "peak": 0.454,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630924#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.043
+        "fired": true,
+        "peak": 2.043,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.614
+        "fired": false,
+        "peak": 0.456,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.087
+        "fired": false,
+        "peak": 0.456,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630934#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.048
+        "fired": true,
+        "peak": 2.048,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.617
+        "fired": false,
+        "peak": 0.462,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.093
+        "fired": false,
+        "peak": 0.462,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630944#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.964
+        "fired": true,
+        "peak": 1.964,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.642
+        "fired": false,
+        "peak": 0.465,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.096
+        "fired": false,
+        "peak": 0.465,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630954#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.98
+        "fired": true,
+        "peak": 1.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.657
+        "fired": false,
+        "peak": 0.465,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.095
+        "fired": false,
+        "peak": 0.465,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630964#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.986
+        "fired": true,
+        "peak": 1.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.666
+        "fired": false,
+        "peak": 0.465,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.095
+        "fired": false,
+        "peak": 0.465,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630974#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.992
+        "fired": true,
+        "peak": 1.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.694
+        "fired": false,
+        "peak": 0.466,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.094
+        "fired": false,
+        "peak": 0.466,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630984#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.004
+        "fired": true,
+        "peak": 2.004,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.709
+        "fired": false,
+        "peak": 0.466,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.092
+        "fired": false,
+        "peak": 0.466,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734630994#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.015
+        "fired": true,
+        "peak": 2.015,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.702
+        "fired": false,
+        "peak": 0.477,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.1
+        "fired": false,
+        "peak": 0.477,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631004#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.026
+        "fired": true,
+        "peak": 2.026,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.707
+        "fired": false,
+        "peak": 0.477,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.099
+        "fired": false,
+        "peak": 0.477,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631014#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.037
+        "fired": true,
+        "peak": 2.037,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.71
+        "fired": false,
+        "peak": 0.477,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.097
+        "fired": false,
+        "peak": 0.477,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631024#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.043
+        "fired": true,
+        "peak": 2.043,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.717
+        "fired": false,
+        "peak": 0.478,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.093
+        "fired": false,
+        "peak": 0.478,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631034#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.048
+        "fired": true,
+        "peak": 2.048,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.714
+        "fired": false,
+        "peak": 0.485,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.097
+        "fired": false,
+        "peak": 0.485,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631044#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.964
+        "fired": true,
+        "peak": 1.964,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.703
+        "fired": false,
+        "peak": 0.488,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.094
+        "fired": false,
+        "peak": 0.488,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631134#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.048
+        "fired": true,
+        "peak": 2.048,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.6
+        "fired": false,
+        "peak": 0.511,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.072
+        "fired": false,
+        "peak": 0.511,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631144#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.964
+        "fired": true,
+        "peak": 1.964,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.575
+        "fired": false,
+        "peak": 0.517,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.074
+        "fired": false,
+        "peak": 0.517,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631154#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.98
+        "fired": true,
+        "peak": 1.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.556
+        "fired": false,
+        "peak": 0.522,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.075
+        "fired": false,
+        "peak": 0.522,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631164#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.986
+        "fired": true,
+        "peak": 1.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.539
+        "fired": false,
+        "peak": 0.522,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.071
+        "fired": false,
+        "peak": 0.522,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631174#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.992
+        "fired": true,
+        "peak": 1.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.52
+        "fired": false,
+        "peak": 0.522,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.067
+        "fired": false,
+        "peak": 0.522,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631184#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.004
+        "fired": true,
+        "peak": 2.004,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.504
+        "fired": false,
+        "peak": 0.524,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.066
+        "fired": false,
+        "peak": 0.524,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631194#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.015
+        "fired": true,
+        "peak": 2.015,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.508
+        "fired": false,
+        "peak": 0.528,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.068
+        "fired": false,
+        "peak": 0.528,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631204#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.026
+        "fired": true,
+        "peak": 2.026,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.491
+        "fired": false,
+        "peak": 0.532,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.069
+        "fired": false,
+        "peak": 0.532,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631214#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.037
+        "fired": true,
+        "peak": 2.037,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.463
+        "fired": false,
+        "peak": 0.534,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.066
+        "fired": false,
+        "peak": 0.534,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631224#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.043
+        "fired": true,
+        "peak": 2.043,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.451
+        "fired": false,
+        "peak": 0.534,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.064
+        "fired": false,
+        "peak": 0.534,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631234#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.048
+        "fired": true,
+        "peak": 2.048,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.438
+        "fired": false,
+        "peak": 0.538,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.067
+        "fired": false,
+        "peak": 0.538,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631244#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.964
+        "fired": true,
+        "peak": 1.964,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.424
+        "fired": false,
+        "peak": 0.545,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.073
+        "fired": false,
+        "peak": 0.545,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631254#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.98
+        "fired": true,
+        "peak": 1.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.41
+        "fired": false,
+        "peak": 0.545,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.073
+        "fired": false,
+        "peak": 0.545,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631264#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.986
+        "fired": true,
+        "peak": 1.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.406
+        "fired": false,
+        "peak": 0.545,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.072
+        "fired": false,
+        "peak": 0.545,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631274#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.992
+        "fired": true,
+        "peak": 1.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.408
+        "fired": false,
+        "peak": 0.545,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.072
+        "fired": false,
+        "peak": 0.545,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631284#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.004
+        "fired": true,
+        "peak": 2.004,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.398
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.071
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631294#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.015
+        "fired": true,
+        "peak": 2.015,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.359
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.068
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631304#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.026
+        "fired": true,
+        "peak": 2.026,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.351
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.068
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631314#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.037
+        "fired": true,
+        "peak": 2.037,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.345
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.068
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631334#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.048
+        "fired": true,
+        "peak": 2.048,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.315
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.069
+        "fired": false,
+        "peak": 0.546,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631344#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.964
+        "fired": true,
+        "peak": 1.964,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.306
+        "fired": false,
+        "peak": 0.547,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.069
+        "fired": false,
+        "peak": 0.547,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631354#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.98
+        "fired": true,
+        "peak": 1.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.301
+        "fired": false,
+        "peak": 0.558,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.082
+        "fired": false,
+        "peak": 0.558,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631364#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.986
+        "fired": true,
+        "peak": 1.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.294
+        "fired": false,
+        "peak": 0.558,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.083
+        "fired": false,
+        "peak": 0.558,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631374#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.992
+        "fired": true,
+        "peak": 1.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.135
+        "fired": false,
+        "peak": 0.558,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.082
+        "fired": false,
+        "peak": 0.558,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631384#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.004
+        "fired": true,
+        "peak": 2.004,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.135
+        "fired": false,
+        "peak": 0.558,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.083
+        "fired": false,
+        "peak": 0.558,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631394#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.015
+        "fired": true,
+        "peak": 2.015,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.13
+        "fired": false,
+        "peak": 0.564,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.092
+        "fired": false,
+        "peak": 0.564,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631404#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.026
+        "fired": true,
+        "peak": 2.026,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.255
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.098
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631414#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.037
+        "fired": true,
+        "peak": 2.037,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.255
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.099
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631424#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.043
+        "fired": true,
+        "peak": 2.043,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.237
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.103
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631434#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.048
+        "fired": true,
+        "peak": 2.048,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.236
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.105
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631444#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.964
+        "fired": true,
+        "peak": 1.964,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.131
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.107
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631454#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.98
+        "fired": true,
+        "peak": 1.98,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.13
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.109
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631464#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.986
+        "fired": true,
+        "peak": 1.986,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.511
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.112
+        "fired": false,
+        "peak": 0.57,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631474#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.992
+        "fired": true,
+        "peak": 1.992,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.528
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.131
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631484#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.004
+        "fired": true,
+        "peak": 2.004,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.532
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.136
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631494#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.015
+        "fired": true,
+        "peak": 2.015,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.536
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.141
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631504#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.026
+        "fired": true,
+        "peak": 2.026,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.608
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.145
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631514#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.037
+        "fired": true,
+        "peak": 2.037,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.605
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.149
+        "fired": false,
+        "peak": 0.582,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631524#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.043
+        "fired": true,
+        "peak": 2.043,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.594
+        "fired": false,
+        "peak": 0.585,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.163
+        "fired": false,
+        "peak": 0.585,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631534#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.048
+        "fired": true,
+        "peak": 2.048,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.345
+        "fired": false,
+        "peak": 0.59,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.177
+        "fired": false,
+        "peak": 0.59,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734631544#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 1.964
+        "fired": true,
+        "peak": 1.964,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
-        "fired": true,
-        "peak": 1.334
+        "fired": false,
+        "peak": 0.594,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 1.192
+        "fired": false,
+        "peak": 0.594,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "clean"
     },
     {
       "scenario_id": "3183#1788734632394#lane_departure",
       "template": "lane_departure",
       "reference": {
-        "fired": false,
-        "peak": 2.015
+        "fired": true,
+        "peak": 2.015,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "before": {
         "fired": true,
-        "peak": 1.373
+        "peak": 0.968,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
       "after": {
-        "fired": true,
-        "peak": 2.052
+        "fired": false,
+        "peak": 1.09,
+        "offroad_steps": 0,
+        "offroad_dominant": false
       },
-      "outcome": "still_failing"
+      "outcome": "fixed"
     }
   ],
-  "checkpoint": "experiments/final_model.pt"
+  "checkpoint": "experiments/roundB/final_model.pt"
 }

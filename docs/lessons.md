@@ -11,3 +11,5 @@
 - **GPU 不可用先看 CUDA 代际，不要先动驱动**：driver 535（CUDA 12.2）跑 `torch 2.15.0+cu132` 直接判 false。换成 `2.14.1+cu126`（与本机 toolkit 12.6 同代）后 `is_available()` 为 True —— CUDA 12.x 的 minor version compatibility 允许 12.6 运行时跑在 12.2 驱动上。代价只是 torch 退一个小版本，比升级驱动安全得多。装 cu126 wheel 时 `pypi.nvidia.com` 在国内会超时，加清华源做 `--extra-index-url` 并设 `--index-strategy unsafe-best-match` 才能把 nvidia-* 依赖拉全。
 - **主键碰撞会让统计灌水 9.5 倍**：`scenario_id = bag#int(t_start/0.1)` 在 86 Hz 的 pose 流上把约 9 帧压成同一个 id，于是 779 条"切片"只有 82 个不同场景、场景 bin 互相覆盖，M7-2/M7-3 的场景数全被放大。派生 id 必须由**原始时间戳精度**（毫秒）+ 模板 + 去重共同保证唯一，并在生成端断言 `len(unique) == len(rows)`。
 - **环境拒绝加载时先看它要什么可选段**：场景 bin 缺 `SPDZONE1` 段时，只要 `speed_limit_random_prob > 0` 引擎就整份 map 拒载（"carries no speed zones"）。自己写二进制格式时，可选尾段的**存在条件**要和读取方的默认配置对齐，否则训练一开就崩。
+- **场景包络是判据的一部分**：`lane_departure` 判"离最近车道 > 0.9 m"，而地图里只写了 route ±20 m 的车道时，策略一开快就开出车道集、`lane_dist` 撞上 4.0 归一化上限，被记成"越道"。把包络扩到 ±40 m 后，同一批 71 个场景里策略侧违规从 71 降到 1 —— 改包络等于改判据，必须和数字一起记录，否则"71 个 bad case"在两次实验里指的不是同一个东西。
+- **"参考零点 0 违规"往往是测量错了**：replay 模式贴 log 位姿、不积分动力学，`sim_speed`/`accel`/`jerk` 全为 0，于是带速度门限的谓词在参考跑里永不成立，量出"场景里没有违规"的假结论。凡是用 replay 做参照，速度必须由相邻位姿反推。

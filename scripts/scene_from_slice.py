@@ -61,7 +61,9 @@ DATASET_NAME_BYTES = 32
 DATASET_NAME = b"apollo_rx"
 
 # 场景包络：只写自车轨迹附近的车道（远处车道对单切片没有意义，还会稀释 lane 观测）
-NEIGHBOR_LANE_RADIUS_M = 20.0
+# 20 m 太小：策略一旦开快就开出车道集，lane_dist 撞 4.0 归一化上限，被误判成"越道"。
+# 40 m 覆盖 3 条并行车道 + 一个路口，足以让"开出地图"这种假违规消失。
+NEIGHBOR_LANE_RADIUS_M = 40.0
 MAX_SCENE_LANES = 160
 # 引擎的空间网格是 5 m 一格、每格最多 64 个实体（constants.h: GRID_CELL_SIZE / MAX_ENTITIES_PER_CELL）。
 # 超了不是"慢一点"，而是整个 map 建不起来。这里按格占用做裁剪，留 16 个余量。

@@ -24,17 +24,17 @@ td{border-bottom:1px solid #eaeef2;padding:5px 8px}
 <div class="n">共 779 个不同场景（779 条切片）· 结构问题 0</div></div>
 <div class="card"><div class="k">route 段数中位</div><div class="v">56</div>
 <div class="n">引擎上限 64 段</div></div>
-<div class="card"><div class="k">场景车道中位</div><div class="v">68</div>
+<div class="card"><div class="k">场景车道中位</div><div class="v">79</div>
 <div class="n">route + 30 m 内邻道</div></div>
 <div class="card"><div class="k">回放偏差 max</div><div class="v">0.000 m</div>
-<div class="n">抽样 12 条 · 门限 0.05 m</div></div>
+<div class="n">抽样 0 条 · 门限 0.05 m</div></div>
 </div>
 <div class="banner">回放偏差为 0 说明坐标平移、route 索引、邻接与 lane_graph 全部写对：只要有一处错，
  引擎的 replay 位姿就会立刻偏离 log。场景文件落在 <code>.scratch/scenes/</code>。</div>
 <h2>1. 按 bag</h2>
 <table><thead><tr><th>bag</th><th class="c">场景</th><th class="c">失败</th>
 <th class="c">route 段中位</th><th class="c">场景车道中位</th><th class="c">route 长度中位 m</th>
-<th class="c">回放偏差 max m</th></tr></thead><tbody><tr><td class='mono'>2292</td><td class='c'>17</td><td class='c'>0</td><td class='c'>59</td><td class='c'>135</td><td class='c'>1018</td><td class='c'>0.0</td></tr><tr><td class='mono'>2688</td><td class='c'>71</td><td class='c'>0</td><td class='c'>11</td><td class='c'>32</td><td class='c'>307</td><td class='c'>0.0</td></tr><tr><td class='mono'>2714</td><td class='c'>80</td><td class='c'>0</td><td class='c'>28</td><td class='c'>49</td><td class='c'>1016</td><td class='c'>0.0</td></tr><tr><td class='mono'>3123</td><td class='c'>247</td><td class='c'>0</td><td class='c'>56</td><td class='c'>68</td><td class='c'>1001</td><td class='c'>0.0</td></tr><tr><td class='mono'>3139</td><td class='c'>211</td><td class='c'>0</td><td class='c'>64</td><td class='c'>73</td><td class='c'>432</td><td class='c'>0.0</td></tr><tr><td class='mono'>3183</td><td class='c'>153</td><td class='c'>0</td><td class='c'>25</td><td class='c'>30</td><td class='c'>1004</td><td class='c'>0.0</td></tr></tbody></table>
+<th class="c">回放偏差 max m</th></tr></thead><tbody><tr><td class='mono'>2292</td><td class='c'>17</td><td class='c'>0</td><td class='c'>59</td><td class='c'>160</td><td class='c'>1018</td><td class='c'>—</td></tr><tr><td class='mono'>2688</td><td class='c'>71</td><td class='c'>0</td><td class='c'>11</td><td class='c'>58</td><td class='c'>307</td><td class='c'>—</td></tr><tr><td class='mono'>2714</td><td class='c'>80</td><td class='c'>0</td><td class='c'>28</td><td class='c'>54</td><td class='c'>1016</td><td class='c'>—</td></tr><tr><td class='mono'>3123</td><td class='c'>247</td><td class='c'>0</td><td class='c'>56</td><td class='c'>79</td><td class='c'>1001</td><td class='c'>—</td></tr><tr><td class='mono'>3139</td><td class='c'>211</td><td class='c'>0</td><td class='c'>64</td><td class='c'>118</td><td class='c'>432</td><td class='c'>—</td></tr><tr><td class='mono'>3183</td><td class='c'>153</td><td class='c'>0</td><td class='c'>25</td><td class='c'>36</td><td class='c'>1004</td><td class='c'>—</td></tr></tbody></table>
 <h2>2. 失败分类</h2>
 <table><thead><tr><th>原因</th><th class="c">切片</th></tr></thead><tbody><tr><td colspan='2' class='note'>无</td></tr></tbody></table>
 <h2>3. 已知边界</h2>

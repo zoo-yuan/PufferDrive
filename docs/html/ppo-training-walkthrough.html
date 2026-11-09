@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>当前实现怎么跑 PPO：从 puffer train 到一次梯度更新</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+      var sections = document.querySelectorAll('section[id]');
+      var links = document.querySelectorAll('.toc-list a');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            links.forEach(function(l) { l.classList.remove('active'); });
+            var a = document.querySelector('.toc-list a[href="#' + e.target.id + '"]');
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -60% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+  </script>
+  <style>
+:root {
+  --bg: #f5f7fb; --card: #ffffff; --text: #1f2937; --muted: #667085;
+  --line: #e5e7eb; --primary: #7c3aed; --primary-soft: #faf5ff;
+  --accent: #2563eb; --shadow: 0 10px 30px rgba(15,23,42,0.08);
+  --radius: 18px; --max: 1640px; --toc-w: 240px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: linear-gradient(180deg,#fdf4ff 0%,var(--bg) 240px);
+  color: var(--text);
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height: 1.85;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.page { max-width: var(--max); margin: 0 auto; padding: 32px 24px 80px; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: var(--toc-w) minmax(0,1fr); gap: 28px; align-items: start; }
+.hero {
+  background: radial-gradient(circle at top right,rgba(124,58,237,0.12),transparent 30%),
+              radial-gradient(circle at left bottom,rgba(37,99,235,0.08),transparent 24%), var(--card);
+  border: 1px solid rgba(124,58,237,0.15); border-radius: 24px;
+  box-shadow: var(--shadow); padding: 36px 40px 30px; margin-bottom: 24px;
+}
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #faf5ff; color: #6d28d9; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+h1 { margin: 0 0 10px; font-size: 28px; line-height: 1.25; letter-spacing: -0.02em; }
+.subtitle { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* ── TOC ── */
+.toc { position: sticky; top: 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.toc h2 { margin: 0 0 12px; font-size: 15px; }
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-list li { margin: 0; }
+.toc-list a { display: block; padding: 5px 8px; border-radius: 8px; color: var(--muted); font-size: 13px; transition: all 0.15s; }
+.toc-list a:hover { color: var(--primary); background: #faf5ff; text-decoration: none; }
+.toc-list a.active { color: var(--primary); background: #eff6ff; font-weight: 600; border-left: 3px solid var(--primary); padding-left: 5px; }
+.toc-sub { list-style: none; padding-left: 12px; margin: 0; }
+.toc-sub a { font-size: 12px; padding: 3px 8px; }
+
+/* ── Content ── */
+.content { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 30px 36px; }
+h2 { margin: 0 0 16px; font-size: 24px; }
+h3 { margin: 24px 0 10px; font-size: 18px; color: #111827; border-left: 3px solid #e9d5ff; padding-left: 10px; }
+h4 { margin: 18px 0 8px; font-size: 16px; color: #374151; font-weight: 700; }
+p { margin: 0 0 12px; }
+
+/* ── Callouts ── */
+.callout-blue   { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-amber  { background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-green  { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-purple { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-red    { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-gray   { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-title  { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.callout-blue .callout-title   { color: #1d4ed8; }
+.callout-amber .callout-title  { color: #92400e; }
+.callout-green .callout-title  { color: #166534; }
+.callout-purple .callout-title { color: #6d28d9; }
+.callout-red .callout-title    { color: #9f1239; }
+.callout-gray .callout-title   { color: #334155; }
+
+/* ── Step boxes ── */
+.step-box { display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; padding: 16px 18px; background: #fafafa; border: 1px solid var(--line); border-radius: 14px; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.step-content { flex: 1; min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+.step-content strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: #faf5ff; color: #4c1d95; text-align: left; font-weight: 700; padding: 10px 14px; border-bottom: 2px solid #e9d5ff; }
+td { padding: 10px 14px; border-bottom: 1px solid #eef2f7; vertical-align: top; }
+tbody tr:nth-child(even) { background: #fefaff; }
+
+/* ── Code ── */
+pre { background: #1e1e2e; border-radius: 12px; padding: 16px 20px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; line-height: 1.8; color: #cdd6f4; white-space: pre; }
+code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 7px; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; color: #6d28d9; }
+pre code { background: none; border: none; padding: 0; color: #cdd6f4; }
+
+/* ── Mermaid ── */
+.mermaid { margin: 20px 0; padding: 22px; background: #fbfaff; border: 1px solid #ede9fe; border-radius: 14px; overflow-x: auto; text-align: center; }
+
+/* ── Misc ── */
+blockquote { margin: 18px 0; padding: 16px 20px; border-left: 4px solid var(--primary); background: rgba(124,58,237,0.05); border-radius: 0 12px 12px 0; color: #3f3f46; font-size: 15px; }
+ul, ol { padding-left: 24px; margin: 8px 0 12px; }
+li { margin: 6px 0; }
+img { max-width: 100%; border-radius: 12px; margin: 12px 0; }
+hr { border: none; border-top: 2px dashed #e9d5ff; margin: 24px 0; }
+
+/* ── Badges ── */
+.badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 99px; margin: 2px; }
+.badge-purple { background: #ede9fe; color: #4c1d95; }
+.badge-green  { background: #dcfce7; color: #166534; }
+.badge-amber  { background: #fef3c7; color: #92400e; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+
+@media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .toc { position: static; } }
+@media (max-width: 640px) { .page { padding: 18px 12px 56px; } .hero, .section { padding: 20px 18px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <div class="eyebrow">📚 训练流程</div>
+      <h1>当前实现怎么跑 PPO：从 puffer train 到一次梯度更新</h1>
+      <p class="subtitle">pufferlib/pufferl.py 流水线拆解 · 数据形状 · 优势过滤 · PPO clip 损失 · 排查顺序</p>
+    </div>
+    <div class="layout">
+      <nav class="toc">
+<h2>&#128209; &#30446;&#24405;</h2>
+<ul class="toc-list">
+<li><a href="#1">1. 全景图</a></li>
+<li><a href="#2-segments-horizon">2. 数据形状：为什么是 "segments × horizon"</a></li>
+<li><a href="#3-6">3. 一次更新里的 6 步</a></li>
+<ul class="toc-sub">
+<li><a href="#1-evaluatepufferlpy384">① 采样（evaluate，pufferl.py:384）</a></li>
+<li><a href="#2-_compute_advantagespufferlpy646">② 算优势（_compute_advantages，pufferl.py:646）</a></li>
+<li><a href="#3-adv_filterpufferlpy754">③ 优势过滤（adv_filter，pufferl.py:754+）</a></li>
+<li><a href="#4-minibatchpufferlpy800">④ 打乱 + minibatch（pufferl.py:800+）</a></li>
+<li><a href="#5-ppo-_ppo_losspufferlpy564">⑤ PPO 损失（_ppo_loss，pufferl.py:564）</a></li>
+<li><a href="#6-pufferlpy637">⑥ 梯度裁剪 + 更新（pufferl.py:637）</a></li>
+</ul>
+<li><a href="#4-rnn-use_rnntrue">4. RNN 路径不一样的两处（use_rnn=True）</a></li>
+<li><a href="#5-pufferliboceantorchpy">5. 模型与观测（pufferlib/ocean/torch.py）</a></li>
+<li><a href="#6">6. 存档与评测</a></li>
+<li><a href="#7-puffer_driveyaml">7. 关键超参一览（puffer_drive.yaml）</a></li>
+<li><a href="#8">8. 从"跑通"到"训出东西"的排查顺序</a></li>
+<li><a href="#9-bad-case-m7-4">9. 和 bad case 训练回路的关系（M7-4 要用的接口）</a></li>
+<li><a href="#10">10. 一句话总结</a></li>
+</ul>
+</nav>
+      <div class="content">
+        <div class="section">
+<blockquote>
+<p>面向"想知道代码里到底发生了什么"的读者。所有行号对应当前 HEAD 的
+<code>pufferlib/pufferl.py</code>、<code>pufferlib/ocean/torch.py</code>、<code>pufferlib/config/puffer_drive.yaml</code>。</p>
+<p>一句话：<strong>多进程 env 产数据 → 按 <code>bptt_horizon</code> 切成固定形状的段 → 算优势 → 按 |优势| 过滤 →
+打乱做 minibatch → PPO clip 损失更新 → 记录/存档</strong>。</p>
+</blockquote>
+<hr /></div>
+<div class="section">
+<section id="1"><h2>1. 全景图</h2><pre><code>   ┌──────────────── 20 个 worker 进程（vec.backend=Multiprocessing）────────────────┐
+   │ 每个 worker 里跑一份 C 仿真（pufferlib.ocean.drive.binding）+ 若干 agent          │
+   └───────────────┬────────────────────────────────────────────────────────────────┘
+                   │ recv(): obs, reward, done, trunc, info, env_id, mask
+                   ▼
+   ┌──────────────────────────── Trainer.evaluate()  pufferl.py:384 ────────────────┐
+   │ 填满 self.segments 行 × horizon 列                                              │
+   │   observations[seg, t, obs_dim]   ← 每个 agent 一列                             │
+   │   actions / logprobs / values / rewards / terminals / masks                     │
+   └───────────────┬────────────────────────────────────────────────────────────────┘
+                   ▼
+   _compute_advantages()  pufferl.py:646        →  V-trace/GAE 内核（C++/CUDA）
+                   ▼
+   优势过滤 adv_filter  pufferl.py:754+         →  只留 |A| ≥ 0.01×EMA(max|A|) 的 transition
+                   ▼
+   打乱 → minibatch → update_epochs 轮          pufferl.py:800+（非 RNN） / 666+（RNN 优先采样）
+                   ▼
+   _ppo_loss()  pufferl.py:564                  →  policy clip + value clip + entropy
+                   ▼
+   clip_grad_norm_(0.5) → optimizer.step()      pufferl.py:637
+                   ▼
+   mean_and_log / print_dashboard / save_checkpoint   pufferl.py:863 / 975 / 920
+</code></pre>
+<hr /></div>
+<div class="section">
+<section id="2-segments-horizon"><h2>2. 数据形状：为什么是 "segments × horizon"</h2><p><code>Trainer.__init__</code>（<code>pufferl.py:176-196</code>）：</p>
+<pre><code class="language-python">if config[&quot;batch_size&quot;] == &quot;auto&quot;:
+    config[&quot;batch_size&quot;] = total_agents * config[&quot;bptt_horizon&quot;]
+segments = batch_size // horizon
+self.observations = torch.zeros(segments, horizon, *obs_space.shape, ...)
+</code></pre>
+<p>代入本仓默认值（<code>bptt_horizon: 128</code>，<code>minibatch_size: 65536</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th>含义</th>
+<th>例子（512 agents）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>total_agents</code></td>
+<td>所有 worker 加起来同时被控的车</td>
+<td>512</td>
+</tr>
+<tr>
+<td><code>bptt_horizon</code></td>
+<td>每个 agent 连续存多少步</td>
+<td>128</td>
+</tr>
+<tr>
+<td><code>batch_size</code></td>
+<td>一次 update 用的 transition 总数</td>
+<td>512 × 128 = 65 536</td>
+</tr>
+<tr>
+<td><code>segments</code></td>
+<td>有多少条"列"（row）</td>
+<td>65 536 / 128 = 512</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么不是"一个 episode 一行"</strong>：PPO 不要求轨迹完整，它只需要固定形状的批。
+把每个 agent 的连续 128 步当成一行，既能让 agent 之间被打散，又能保证时间维连续
+（V-trace 要在时间维上倒着递推）。</p>
+<p>一行满了就把该 agent 的<strong>下一行</strong>接着写。列被 <code>masks</code> 标记有效/无效：
+episode 提前结束时该位置 <code>mask=False</code>，训练时被掩掉 —— 这就是日志里的 <code>masked_fraction</code>。</p>
+<hr /></div>
+<div class="section">
+<section id="3-6"><h2>3. 一次更新里的 6 步</h2><h3 id="1-evaluatepufferlpy384">① 采样（<code>evaluate</code>，<code>pufferl.py:384</code>）</h3>
+<pre><code class="language-python">while self.full_rows &lt; self.segments:
+    o, r, d, t, info, env_id, mask = self.vecenv.recv()
+    logits, value = self.policy.forward_eval(o_device, state)
+    action, logprob, _, _ = pufferlib.pytorch.sample_logits(logits, ...)
+</code></pre>
+<ul>
+<li>策略在 <code>torch.no_grad()</code> 下前向，动作从分布里采样（<code>sample_logits</code>，<code>pytorch.py:145</code>）；</li>
+<li><code>r</code> 若开 <code>normalize_rewards</code> 会做 <code>sign(r)·log1p(|r|)</code> 压缩；</li>
+<li>采样完 <code>vecenv.send(action)</code> 把动作发回 worker，形成流水线。</li>
+</ul>
+<h3 id="2-_compute_advantagespufferlpy646">② 算优势（<code>_compute_advantages</code>，<code>pufferl.py:646</code>）</h3>
+<p>见 <code>docs/vtrace-explained.md</code>。默认配置（<code>rnn_name: null</code>）走的是 <code>ratio=1</code> 的路径，
+等价于 GAE(γ=0.999, λ=0.95)。</p>
+<h3 id="3-adv_filterpufferlpy754">③ 优势过滤（<code>adv_filter</code>，<code>pufferl.py:754+</code>）</h3>
+<pre><code class="language-python">current_max = valid_abs_adv.max()
+self.ema_max = beta * current_max + (1 - beta) * self.ema_max   # beta = 0.25
+threshold = 0.01 * self.ema_max                                  # threshold_scale
+keep_idx = valid_idx[valid_abs_adv &gt;= threshold]
+</code></pre>
+<p>只训练"相对重要"的 transition。<strong>这对 bad case 训练非常关键</strong>：绝大多数帧是平稳跟车
+（优势接近 0），真正教策略的是那 1% 的临界时刻。日志里 <code>kept_fraction</code> 就是这个比例。</p>
+<h3 id="4-minibatchpufferlpy800">④ 打乱 + minibatch（<code>pufferl.py:800+</code>）</h3>
+<pre><code class="language-python">for _ in range(config[&quot;update_epochs&quot;]):           # 默认 3 轮
+    permutation = keep_idx[torch.randperm(keep_idx.numel())]
+    for start in range(0, retained_transition_count, self.minibatch_size):
+        ...  # 前向 + 反向，每 accumulate_minibatches 次 step 一次
+</code></pre>
+<p><strong>同一批数据被重复用 <code>update_epochs</code> 遍</strong> —— 这正是需要 PPO 的 clip 与（可选）V-trace 折扣的原因：
+用第二遍时策略已经变了。</p>
+<h3 id="5-ppo-_ppo_losspufferlpy564">⑤ PPO 损失（<code>_ppo_loss</code>，<code>pufferl.py:564</code>）</h3>
+<pre><code class="language-python">ratio = (newlogprob - mb_logprobs).exp()
+pg_loss1 = -mb_adv * ratio
+pg_loss2 = -mb_adv * torch.clamp(ratio, 1 - clip_coef, 1 + clip_coef)
+pg_loss  = torch.max(pg_loss1, pg_loss2).mean()          # clip_coef = 0.2
+
+v_clipped = mb_values + clamp(newvalue - mb_values, ±vf_clip_coef)   # 默认 None，即不裁
+v_loss    = 0.5 * max((newvalue-return)², (v_clipped-return)²).mean()
+
+entropy_loss = entropy.mean()
+loss = pg_loss - ent_coef * entropy_loss + vf_coef * v_loss          # 0.01 / 0.5
+</code></pre>
+<p>三个细节值得记：</p>
+<ul>
+<li><strong>优势在 minibatch 内部重新标准化</strong>：<code>(adv - mean) / (std + 1e-8)</code>，让小批量之间的尺度一致；</li>
+<li><strong><code>ratio</code> 用对数差再 <code>exp</code></strong>（<code>(newlogprob - oldlogprob).exp()</code>）而不是直接除，数值更稳；</li>
+<li>诊断量 <code>approx_kl</code>、<code>clipfrac</code> 每轮都记 —— 训练崩之前通常先看到 <code>clipfrac</code> 冲到 0.3+ 或 KL 爆掉。</li>
+</ul>
+<h3 id="6-pufferlpy637">⑥ 梯度裁剪 + 更新（<code>pufferl.py:637</code>）</h3>
+<pre><code class="language-python">grad_norm = torch.nn.utils.clip_grad_norm_(self.policy.parameters(), max_grad_norm)  # 0.5
+self.optimizer.step()
+</code></pre>
+<hr /></div>
+<div class="section">
+<section id="4-rnn-use_rnntrue"><h2>4. RNN 路径不一样的两处（use_rnn=True）</h2><p>虽然默认配置不走这里，但它是本仓"优先级采样"的实现地，值得知道：</p>
+<pre><code class="language-python"># pufferl.py:666+  _train_ppo_trajectory
+anneal_beta = b0 + (1 - b0) * a * self.epoch / self.total_epochs
+adv = advantages.abs().sum(axis=1)                    # 每段的总优势
+prio_probs = (adv ** a) / (adv ** a).sum()            # 按 |A|^α 采样段
+mb_prio = (self.segments * prio_probs[idx, None]) ** -anneal_beta   # 重要性校正
+</code></pre>
+<ol>
+<li><strong>按优势大小优先采样</strong>（而不是均匀打乱），<code>beta</code> 随训练线性退火到 1 → 前期偏重难例、后期回归无偏；</li>
+<li><strong>每轮重算 <code>ratio</code></strong> 并喂给 V-trace → 同一批轨迹多次复用也保持无偏。</li>
+</ol>
+<hr /></div>
+<div class="section">
+<section id="5-pufferliboceantorchpy"><h2>5. 模型与观测（pufferlib/ocean/torch.py）</h2><p>策略把所有实体按类型分槽，各自过一个 MLP 再 max-pool：</p>
+<table>
+<thead>
+<tr>
+<th>槽</th>
+<th>内容</th>
+<th>宽度参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ego</td>
+<td>自车状态 + 目标</td>
+<td><code>ego_input_size: 128</code></td>
+</tr>
+<tr>
+<td>partner</td>
+<td>其他车辆</td>
+<td><code>partner_input_size: 256</code></td>
+</tr>
+<tr>
+<td>lane</td>
+<td>车道中心线</td>
+<td><code>lane_input_size</code></td>
+</tr>
+<tr>
+<td>boundary</td>
+<td>路沿/边界</td>
+<td><code>boundary_input_size</code></td>
+</tr>
+<tr>
+<td>traffic_control</td>
+<td>红绿灯/停止线</td>
+<td><code>traffic_control_input_size</code></td>
+</tr>
+<tr>
+<td>context</td>
+<td>全局上下文</td>
+<td><code>context_input_size</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python"># pufferlib/ocean/torch.py:42-56
+def _encode_and_pool(self, objects, valid_counts, encoder):
+    valid_mask = torch.arange(objects.shape[1], device=...) &lt; valid_counts.unsqueeze(1)
+    encoded = encoder(objects)
+    masked  = encoded.masked_fill(~valid_mask.unsqueeze(2), torch.finfo(...).min)
+    pooled  = masked.max(dim=1).values            # 空槽位用 0 兜底
+    return torch.where(valid_counts.unsqueeze(1) == 0, pooled.new_zeros(()), pooled)
+</code></pre>
+<p><strong>为什么用 mask + max-pool 而不是定长拼接</strong>：partner 数量随场景变化，max-pool 让输出维度与数量无关；
+<code>torch.compile</code> 又要求形状静态，所以用 <code>masked_fill</code> 而不是动态切片。
+坏处是"数量信息"丢了 —— 需要的话得显式加特征。</p>
+<p><code>forward_eval</code>（推理）与 <code>forward</code>（训练）分开：前者不做 LSTM 状态更新、不需要梯度，
+推理/评测走这条。</p>
+<hr /></div>
+<div class="section">
+<section id="6"><h2>6. 存档与评测</h2><p><code>save_checkpoint</code>（<code>pufferl.py:920</code>）每 <code>checkpoint_interval</code> 个 update 存一次：</p>
+<pre><code class="language-python">state = {
+    &quot;policy_state_dict&quot;: ..., &quot;optimizer_state_dict&quot;: ..., &quot;scheduler_state_dict&quot;: ...,
+    &quot;global_step&quot;: ..., &quot;epoch&quot;: ..., &quot;ema_max&quot;: ..., &quot;rng_state&quot;: ...,
+}
+</code></pre>
+<ul>
+<li><code>experiments/models/model_&lt;env&gt;_&lt;epoch&gt;.pt</code>：只保留最新一个（自动删旧的）；</li>
+<li><code>experiments/trainer_state.pt</code>：连优化器和 RNG 一起存，用于断点续训；</li>
+<li><code>experiments/final_model.pt</code>：训练结束的最终权重；</li>
+<li><code>ema_max</code> 也在里面 —— <strong>优势过滤的阈值状态必须跟着存</strong>，否则续训第一批的过滤会跳变。</li>
+</ul>
+<p><code>load_policy</code>（<code>pufferl.py:2785</code>）支持 <code>train.load_model_path=latest</code> / 具体路径，
+并会用 <code>clean_policy_state_dict</code> 去掉 <code>torch.compile</code> 加的 <code>_orig_mod.</code> 前缀。</p>
+<hr /></div>
+<div class="section">
+<section id="7-puffer_driveyaml"><h2>7. 关键超参一览（puffer_drive.yaml）</h2><table>
+<thead>
+<tr>
+<th>键</th>
+<th>默认</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>total_timesteps</code></td>
+<td>5e11</td>
+<td>总预算（本仓默认极大，实际靠外部中断）</td>
+</tr>
+<tr>
+<td><code>bptt_horizon</code></td>
+<td>128</td>
+<td>每行的步数；太短则 V-trace 看不到长期后果</td>
+</tr>
+<tr>
+<td><code>minibatch_size</code></td>
+<td>65536</td>
+<td>每次梯度更新用多少 transition</td>
+</tr>
+<tr>
+<td><code>update_epochs</code></td>
+<td>3</td>
+<td>同一批数据复用几遍（PPO 的核心杠杆）</td>
+</tr>
+<tr>
+<td><code>clip_coef</code></td>
+<td>0.2</td>
+<td>策略比率裁剪范围</td>
+</tr>
+<tr>
+<td><code>gamma</code> / <code>gae_lambda</code></td>
+<td>0.999 / 0.95</td>
+<td>折扣与优势平滑</td>
+</tr>
+<tr>
+<td><code>ent_coef</code></td>
+<td>0.01</td>
+<td>熵奖励（探索）</td>
+</tr>
+<tr>
+<td><code>vf_coef</code></td>
+<td>0.5</td>
+<td>价值损失权重</td>
+</tr>
+<tr>
+<td><code>max_grad_norm</code></td>
+<td>0.5</td>
+<td>梯度裁剪</td>
+</tr>
+<tr>
+<td><code>adv_filter_*</code></td>
+<td>0.25 / 0.01 / 0.0</td>
+<td>优势过滤的 EMA、阈值、泄漏比例</td>
+</tr>
+<tr>
+<td><code>anneal_lr</code></td>
+<td>true</td>
+<td>学习率线性退火</td>
+</tr>
+</tbody>
+</table>
+<hr /></div>
+<div class="section">
+<section id="8"><h2>8. 从"跑通"到"训出东西"的排查顺序</h2><p>按这个顺序看，能省掉大部分瞎调：</p>
+<ol>
+<li><strong><code>masked_fraction</code> 是否过高</strong> → episode 太短或 <code>scenario_length</code> 与 <code>bptt_horizon</code> 不匹配；</li>
+<li><strong><code>kept_fraction</code> 是否接近 1</strong> → 优势区分度不足（奖励信号太弱/太吵），过滤失去意义；</li>
+<li><strong><code>approx_kl</code> / <code>clipfrac</code></strong> → <code>clipfrac &gt; 0.3</code> 说明步长太大，降 <code>lr</code> 或 <code>update_epochs</code>；</li>
+<li><strong><code>explained_variance</code>（价值拟合）</strong> → 长期 &lt; 0.3 说明 critic 没学会，先修观测/奖励再谈策略；</li>
+<li><strong><code>SPS</code></strong> → 采样是否成为瓶颈（GPU 利用率低往往意味着 env 侧慢）；</li>
+<li>再看 <code>score</code> / <code>dnf_rate</code> / <code>lane_center_rate</code> 这些任务指标。</li>
+</ol>
+<hr /></div>
+<div class="section">
+<section id="9-bad-case-m7-4"><h2>9. 和 bad case 训练回路的关系（M7-4 要用的接口）</h2><p>本仓已经把三件事做好了，正好对应"约束驱动的训练"：</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>现成机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>只在临界时刻学</td>
+<td><code>adv_filter_enabled</code> + <code>adv_filter_threshold_scale</code></td>
+</tr>
+<tr>
+<td>难场景多采样</td>
+<td>RNN 路径的优先采样（<code>adv_sampling_prio_alpha/beta0</code>）</td>
+</tr>
+<tr>
+<td>场景可替换（换成 bad case 场景）</td>
+<td><code>env.map_dir</code> 指向任意 <code>.bin</code> 目录；<code>env.benchmark</code> 选内置数据集</td>
+</tr>
+</tbody>
+</table>
+<p>也就是说 M7-4 <strong>不需要改训练循环</strong>：把 779 个场景（或其中"复现且可避"的 70 个）放进一个目录，
+让 <code>map_dir</code> 指向它、<code>simulation_mode=replay</code> + <code>control_mode=control_sdc_only</code> + <code>sdc_controller=policy</code>，
+策略就在这些 bad case 上学；再用引擎指标统计"同一批 bad case 是否还失败"，就是回归保留率。</p>
+<hr /></div>
+<div class="section">
+<section id="10"><h2>10. 一句话总结</h2><p><strong>PPO 在这份代码里不是一段公式，而是一条流水线</strong>：
+多进程 env 产固定形状的段 → V-trace/GAE 给每格打优势分 → 只留高分格 → 三遍 clip 更新 →
+存档。改任何一个环节（奖励、优势、过滤、裁剪）都能单独验证，因为每一步都有对应的日志量。</p></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

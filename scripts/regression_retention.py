@@ -150,6 +150,8 @@ def evaluate_replay(scene_path: Path, template, metric_names, metric_index):
     env.reset(seed=EVAL_SEED)
     fired = False
     peak = 0.0
+    offroad_steps = 0
+    previous = None
     for _ in range(STEPS):
         env.step(np.zeros((env.num_agents, 2), dtype=np.float32))
         state = env.get_state()
@@ -157,10 +159,23 @@ def evaluate_replay(scene_path: Path, template, metric_names, metric_index):
         for scenario in scenarios:
             for agent in scenario.get("agents") or []:
                 row = state_row(agent, metric_names, metric_index)
+                # replay 贴位姿、不积分，sim_speed 恒为 0；带速度门限的谓词会因此全部失效。
+                # 用相邻位姿反推速度（与 M7-3 同一处理）。
+                if previous is not None:
+                    moved = ((agent["sim_x"] - previous[0]) ** 2 + (agent["sim_y"] - previous[1]) ** 2) ** 0.5
+                    row["sim_speed"] = moved / DT_S
+                previous = (agent["sim_x"], agent["sim_y"])
                 peak = max(peak, abs(row.get(metric_name, 0.0)))
+                if row.get("offroad", 0.0) > 0.5:
+                    offroad_steps += 1
                 if (guard is None or guard_holds(guard, params, row)) and evaluate(predicates, params, row):
                     fired = True
-    return {"fired": fired, "peak": round(peak, 3)}
+    return {
+        "fired": fired,
+        "peak": round(peak, 3),
+        "offroad_steps": offroad_steps,
+        "offroad_dominant": offroad_steps > STEPS // 2,
+    }
 
 
 def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_index, device):
@@ -173,6 +188,7 @@ def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_inde
     obs, _ = env.reset(seed=EVAL_SEED)
     fired = False
     peak = 0.0
+    offroad_steps = 0
     for step_index in range(STEPS):
         obs_tensor = torch.as_tensor(np.asarray(obs), dtype=torch.float32, device=device)
         with torch.no_grad():
@@ -191,6 +207,8 @@ def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_inde
             for agent in scenario.get("agents") or []:
                 row = state_row(agent, metric_names, metric_index)
                 peak = max(peak, abs(row.get(metric_name, 0.0)))
+                if row.get("offroad", 0.0) > 0.5:
+                    offroad_steps += 1
                 # 不从 warmup 之后才开始判定：切片把 ego 放在违规时刻前 1.6 s，
                 # 从第 0 步就判，策略才有机会"提前避开"；从违规帧才开始判，任何策略都必失败。
                 if step_index < RETENTION_EVAL_START_STEP:
@@ -199,7 +217,14 @@ def evaluate_scene(policy, scene_path: Path, template, metric_names, metric_inde
                     fired = True
         if bool(np.any(terminal)) or bool(np.any(truncation)):
             break
-    return {"fired": fired, "peak": round(peak, 3)}
+    # lane_dist 撞上 4.0 的归一化上限 = 车已经不在任何映射车道附近（开出地图），
+    # 那不是"越道"，必须与真越道分开计。
+    return {
+        "fired": fired,
+        "peak": round(peak, 3),
+        "offroad_steps": offroad_steps,
+        "offroad_dominant": offroad_steps > STEPS // 2,
+    }
 
 
 def render_html(report) -> str:
@@ -237,8 +262,10 @@ td{{border-bottom:1px solid #eaeef2;padding:5px 8px}}
 <div class="cards">
 <div class="card"><div class="k">参考零点（replay）</div><div class="v">{summary['reference_violated']}/{summary['scenes']}</div>
 <div class="n">录制司机违规的场景数（场景确实含违规）</div></div>
-<div class="card"><div class="k">修复率</div><div class="v">{summary['fixed']}/{summary['violated_before']}</div>
-<div class="n">训练前违规、训练后不再违规</div></div>
+<div class="card"><div class="k">修复率（对录制司机）</div><div class="v">{summary['fixed_vs_reference']}/{summary['reference_violated']}</div>
+<div class="n">{summary['fix_rate_vs_reference'] * 100:.0f}% 的违规被策略消除</div></div>
+<div class="card"><div class="k">相对上轮 checkpoint 修复</div><div class="v">{summary['fixed']}/{summary['violated_before']}</div>
+<div class="n">回归语义看这一格</div></div>
 <div class="card"><div class="k">仍失败</div><div class="v">{summary['still_failing']}</div>
 <div class="n">两个策略都失败（诚实记 0 进展）</div></div>
 <div class="card"><div class="k">回归保留率</div><div class="v">{summary['retention'] * 100:.0f}%</div>
@@ -344,6 +371,14 @@ def main() -> int:
         "baseline_moved": sum(1 for row in rows if row["before"]["peak"] > 0.5),
         "retention": (1.0 - regressed / clean_before) if clean_before else 1.0,
         "fix_rate": (fixed / violated_before) if violated_before else 0.0,
+        # 相对录制司机（场景的真实零点）的修复率：这才是"策略有没有学会"的主指标
+        "fixed_vs_reference": sum(
+            1 for row in rows if row["reference"]["fired"] and not row["after"]["fired"]
+        ),
+        "fix_rate_vs_reference": (
+            sum(1 for row in rows if row["reference"]["fired"] and not row["after"]["fired"])
+            / max(1, sum(1 for row in rows if row["reference"]["fired"]))
+        ),
         "median_peak_after": statistics.median([row["after"]["peak"] for row in rows]),
     }
     report = {"summary": summary, "rows": rows, "checkpoint": str(args.checkpoint)}

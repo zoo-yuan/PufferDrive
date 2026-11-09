@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V-trace 科普：为什么算优势还要打折，本仓怎么算的</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+      var sections = document.querySelectorAll('section[id]');
+      var links = document.querySelectorAll('.toc-list a');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            links.forEach(function(l) { l.classList.remove('active'); });
+            var a = document.querySelector('.toc-list a[href="#' + e.target.id + '"]');
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -60% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+  </script>
+  <style>
+:root {
+  --bg: #f5f7fb; --card: #ffffff; --text: #1f2937; --muted: #667085;
+  --line: #e5e7eb; --primary: #7c3aed; --primary-soft: #faf5ff;
+  --accent: #2563eb; --shadow: 0 10px 30px rgba(15,23,42,0.08);
+  --radius: 18px; --max: 1640px; --toc-w: 240px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: linear-gradient(180deg,#fdf4ff 0%,var(--bg) 240px);
+  color: var(--text);
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height: 1.85;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.page { max-width: var(--max); margin: 0 auto; padding: 32px 24px 80px; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: var(--toc-w) minmax(0,1fr); gap: 28px; align-items: start; }
+.hero {
+  background: radial-gradient(circle at top right,rgba(124,58,237,0.12),transparent 30%),
+              radial-gradient(circle at left bottom,rgba(37,99,235,0.08),transparent 24%), var(--card);
+  border: 1px solid rgba(124,58,237,0.15); border-radius: 24px;
+  box-shadow: var(--shadow); padding: 36px 40px 30px; margin-bottom: 24px;
+}
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #faf5ff; color: #6d28d9; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+h1 { margin: 0 0 10px; font-size: 28px; line-height: 1.25; letter-spacing: -0.02em; }
+.subtitle { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* ── TOC ── */
+.toc { position: sticky; top: 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.toc h2 { margin: 0 0 12px; font-size: 15px; }
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-list li { margin: 0; }
+.toc-list a { display: block; padding: 5px 8px; border-radius: 8px; color: var(--muted); font-size: 13px; transition: all 0.15s; }
+.toc-list a:hover { color: var(--primary); background: #faf5ff; text-decoration: none; }
+.toc-list a.active { color: var(--primary); background: #eff6ff; font-weight: 600; border-left: 3px solid var(--primary); padding-left: 5px; }
+.toc-sub { list-style: none; padding-left: 12px; margin: 0; }
+.toc-sub a { font-size: 12px; padding: 3px 8px; }
+
+/* ── Content ── */
+.content { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 30px 36px; }
+h2 { margin: 0 0 16px; font-size: 24px; }
+h3 { margin: 24px 0 10px; font-size: 18px; color: #111827; border-left: 3px solid #e9d5ff; padding-left: 10px; }
+h4 { margin: 18px 0 8px; font-size: 16px; color: #374151; font-weight: 700; }
+p { margin: 0 0 12px; }
+
+/* ── Callouts ── */
+.callout-blue   { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-amber  { background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-green  { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-purple { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-red    { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-gray   { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-title  { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.callout-blue .callout-title   { color: #1d4ed8; }
+.callout-amber .callout-title  { color: #92400e; }
+.callout-green .callout-title  { color: #166534; }
+.callout-purple .callout-title { color: #6d28d9; }
+.callout-red .callout-title    { color: #9f1239; }
+.callout-gray .callout-title   { color: #334155; }
+
+/* ── Step boxes ── */
+.step-box { display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; padding: 16px 18px; background: #fafafa; border: 1px solid var(--line); border-radius: 14px; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.step-content { flex: 1; min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+.step-content strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: #faf5ff; color: #4c1d95; text-align: left; font-weight: 700; padding: 10px 14px; border-bottom: 2px solid #e9d5ff; }
+td { padding: 10px 14px; border-bottom: 1px solid #eef2f7; vertical-align: top; }
+tbody tr:nth-child(even) { background: #fefaff; }
+
+/* ── Code ── */
+pre { background: #1e1e2e; border-radius: 12px; padding: 16px 20px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; line-height: 1.8; color: #cdd6f4; white-space: pre; }
+code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 7px; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; color: #6d28d9; }
+pre code { background: none; border: none; padding: 0; color: #cdd6f4; }
+
+/* ── Mermaid ── */
+.mermaid { margin: 20px 0; padding: 22px; background: #fbfaff; border: 1px solid #ede9fe; border-radius: 14px; overflow-x: auto; text-align: center; }
+
+/* ── Misc ── */
+blockquote { margin: 18px 0; padding: 16px 20px; border-left: 4px solid var(--primary); background: rgba(124,58,237,0.05); border-radius: 0 12px 12px 0; color: #3f3f46; font-size: 15px; }
+ul, ol { padding-left: 24px; margin: 8px 0 12px; }
+li { margin: 6px 0; }
+img { max-width: 100%; border-radius: 12px; margin: 12px 0; }
+hr { border: none; border-top: 2px dashed #e9d5ff; margin: 24px 0; }
+
+/* ── Badges ── */
+.badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 99px; margin: 2px; }
+.badge-purple { background: #ede9fe; color: #4c1d95; }
+.badge-green  { background: #dcfce7; color: #166534; }
+.badge-amber  { background: #fef3c7; color: #92400e; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+
+@media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .toc { position: static; } }
+@media (max-width: 640px) { .page { padding: 18px 12px 56px; } .hero, .section { padding: 20px 18px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <div class="eyebrow">📚 算法原理</div>
+      <h1>V-trace 科普：为什么算优势还要打折，本仓怎么算的</h1>
+      <p class="subtitle">pufferlib/extensions/pufferlib.cpp 内核逐行拆解 · GAE / V-trace / ρ 与 c 的区别</p>
+    </div>
+    <div class="layout">
+      <nav class="toc">
+<h2>&#128209; &#30446;&#24405;</h2>
+<ul class="toc-list">
+<li><a href="#1">1. 为什么需要它</a></li>
+<li><a href="#2-14-c">2. 三段递推（就是那 14 行 C++）</a></li>
+<li><a href="#3-4">3. 一个 4 步的手算例子</a></li>
+<li><a href="#4-rho-c">4. rho 和 c 不是一个东西</a></li>
+<li><a href="#5-rnn-v-trace-gae">5. 本仓的一个关键事实：非 RNN 路径下 V-trace 退化成 GAE</a></li>
+<li><a href="#6">6. 边界与陷阱（踩过的）</a></li>
+<li><a href="#7">7. 和相关算法的关系（一张表）</a></li>
+<li><a href="#8">8. 想改它的时候看哪里</a></li>
+</ul>
+</nav>
+      <div class="content">
+        <div class="section">
+<blockquote>
+<p>一句话：V-trace 是"用旧策略采的数据，给新策略算优势"时的折扣算法。数据越旧、策略差得越远，
+折扣越狠；<code>lambda</code> 控制"看多远"，<code>rho</code>/<code>c</code> 控制"敢信多少"。</p>
+<p>本仓实现：<code>pufferlib/extensions/pufferlib.cpp:28-41</code>（CPU）与 <code>pufferlib/extensions/cuda/pufferlib.cu:7-50</code>（GPU），
+由 <code>pufferl.py:646</code> 的 <code>_compute_advantages</code> 调用。</p>
+</blockquote>
+<hr /></div>
+<div class="section">
+<section id="1"><h2>1. 为什么需要它</h2><p>PPO 的训练数据是这样来的：</p>
+<pre><code> 旧策略 π_old  ──跑环境──►  一批轨迹 (s, a, r)  ──►  更新策略变成 π_new
+</code></pre>
+<p>更新完之后，这批轨迹已经不是 <code>π_new</code> 采的了。算优势（advantage）时如果假装是，就会引入偏差：</p>
+<ul>
+<li>某个动作在旧策略下概率很低、在新策略下概率很高 → 这条轨迹对 <code>π_new</code> 是<strong>稀有样本</strong>，
+  它在旧策略下的回报不能代表 <code>π_new</code> 会得到什么；</li>
+<li>反过来，若某动作在新策略下几乎不会做，那它的回报对 <code>π_new</code> 毫无意义。</li>
+</ul>
+<p><strong>折扣的做法</strong>：按重要性权重 <code>π_new(a|s) / π_old(a|s)</code> 给每条回报加权，并且<strong>截断</strong>权重上限，
+防止一两条"运气好"的稀有样本把整批更新带偏。</p>
+<div class="mermaid">
+flowchart LR
+    A["旧策略采样<br/>π_old 的轨迹"] --> B["重要性权重<br/>ρ = π_new/π_old"]
+    B --> C{"截断<br/>ρ̄ = min(ρ, ρ_clip)"}
+    C --> D["带折扣的 TD 误差 δ"]
+    D --> E["沿时间累积<br/>λ 折扣"]
+    E --> F["优势 A_t"]
+</div>
+<hr /></div>
+<div class="section">
+<section id="2-14-c"><h2>2. 三段递推（就是那 14 行 C++）</h2><p>本仓的实现极其紧凑，去掉校验后只有这么多：</p>
+<pre><code class="language-c">// pufferlib/extensions/pufferlib.cpp:28-41
+void puff_advantage_row(float* values, float* rewards, float* dones,
+        float* importance, float* advantages, float gamma, float lambda,
+        float rho_clip, float c_clip, int horizon) {
+    float lastpufferlam = 0;
+    for (int t = horizon-2; t &gt;= 0; t--) {
+        int t_next = t + 1;
+        float nextnonterminal = 1.0 - dones[t_next];
+        float rho_t = fminf(importance[t], rho_clip);      // ① 折扣回报的权重
+        float c_t   = fminf(importance[t], c_clip);        // ② 折扣&quot;累积&quot;的权重
+        float delta = rho_t * (rewards[t_next] + gamma*values[t_next]*nextnonterminal - values[t]);
+        lastpufferlam = delta + gamma*lambda*c_t*lastpufferlam*nextnonterminal;  // ③
+        advantages[t] = lastpufferlam;
+    }
+}
+</code></pre>
+<p>三件事，逐个说：</p>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>代码</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>δ_t</code></td>
+<td><code>rewards[t_next] + γV(t+1)·mask − V(t)</code></td>
+<td><strong>TD 误差</strong>：走一步之后，"实际拿到的 + 后面预估"比"原来预估"好多少</td>
+</tr>
+<tr>
+<td><code>ρ̄_t</code></td>
+<td><code>min(importance[t], rho_clip)</code></td>
+<td>截断后的重要性权重，乘在 TD 误差上</td>
+</tr>
+<tr>
+<td><code>c̄_t</code></td>
+<td><code>min(importance[t], c_clip)</code></td>
+<td>截断后的权重，乘在<strong>累积项</strong>上（控制"多相信过去的推测"）</td>
+</tr>
+<tr>
+<td>递推</td>
+<td><code>A_t = δ_t + γλ c̄_t A_{t+1}</code></td>
+<td>沿时间反向累积，<code>λ</code> 越接近 1 看得越远</td>
+</tr>
+</tbody>
+</table>
+<p>两个容易看错的细节：</p>
+<ol>
+<li><strong>倒着算</strong>（<code>t</code> 从 <code>horizon-2</code> 到 <code>0</code>），因为 <code>A_t</code> 依赖 <code>A_{t+1}</code>；</li>
+<li><strong>回报用的是 <code>t+1</code> 的索引</strong>：<code>rewards[t_next]</code> 与 <code>dones[t_next]</code>。第 t 步执行动作后得到
+   <code>r_{t+1}</code>，"这步的好处在下一步才结算"，终止标志同理。</li>
+<li><code>horizon-1</code> 那一格的 <code>advantages</code> <strong>保持为 0</strong>（循环不写它）。它只是 GAE 的 bootstrap 边界，
+   训练时被 <code>masks</code> 掩掉（见下文 <code>masked_fraction</code>）。</li>
+</ol>
+<hr /></div>
+<div class="section">
+<section id="3-4"><h2>3. 一个 4 步的手算例子</h2><p>设 <code>γ = 0.99</code>、<code>λ = 0.95</code>、全程无终止（<code>nextnonterminal = 1</code>）、<code>values = [1.0, 1.2, 0.9, 1.5]</code>、
+<code>rewards = [0, 1.0, 0.0, 2.0]</code>（<code>rewards[0]</code> 不使用）。</p>
+<p><strong>第一步：算 TD 误差</strong>（<code>rho</code> 全取 1，简化）</p>
+<table>
+<thead>
+<tr>
+<th>t</th>
+<th><code>δ_t = r_{t+1} + γV_{t+1} − V_t</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>1.0 + 0.99×1.2 − 1.0 = 1.188</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>0.0 + 0.99×0.9 − 1.2 = −0.309</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>2.0 + 0.99×1.5 − 0.9 = 2.585</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>第二步：倒着累积</strong>（<code>A_3 = 0</code>）</p>
+<pre><code>A_2 = 2.585
+A_1 = −0.309 + 0.99×0.95×2.585 = 2.124
+A_0 = 1.188 + 0.99×0.95×2.124 = 3.186
+</code></pre>
+<p>注意 <code>A_1</code> 是<strong>正的</strong>：单步看是负的（<code>δ_1 = −0.309</code>），但它后面紧跟着一个 2.0 的大奖励，
+<code>λ = 0.95</code> 让它把后面那笔"功劳"借了过来。这就是 <code>λ</code> 的作用 —— <code>λ = 0</code> 退化成单步 TD，
+<code>λ = 1</code> 退化成蒙特卡洛回报。</p>
+<hr /></div>
+<div class="section">
+<section id="4-rho-c"><h2>4. rho 和 c 不是一个东西</h2><p>这是 V-trace 最容易搞混的地方：</p>
+<ul>
+<li><strong><code>rho_clip</code>（ρ̄）</strong> 乘在 <strong>TD 误差</strong>上 —— 决定"这一格的即时优势能信几分"；</li>
+<li><strong><code>c_clip</code>（c̄）</strong> 乘在 <strong>累积项</strong>上 —— 决定"从下一格往前传的历史优势能信几分"。</li>
+</ul>
+<p>为什么分开：重要性权重的方差随累积步数指数增长。如果两处都用 <code>ρ</code>，长序列会把方差放大到无法训练；
+<code>c</code> 的截断相当于给"历史累积"加了个安全阀。实践中通常 <code>ρ_clip = c_clip</code>（本仓默认都是 1，
+见 <code>puffer_drive.yaml:357-358</code>），但算法上它们是两个旋钮。</p>
+<hr /></div>
+<div class="section">
+<section id="5-rnn-v-trace-gae"><h2>5. 本仓的一个关键事实：非 RNN 路径下 V-trace 退化成 GAE</h2><p>看调用处：</p>
+<pre><code class="language-python"># pufferlib/pufferl.py:646-661  (_compute_advantages)
+advantages = compute_puff_advantage(
+    self.values,
+    self.rewards,
+    terminals,
+    ratio,                    # ← 传进来的是不是真的 π_new/π_old？
+    torch.zeros_like(self.values, device=device),
+    config[&quot;gamma&quot;],
+    config[&quot;gae_lambda&quot;],
+    rho_clip,
+    c_clip,
+)
+</code></pre>
+<p>再往上追一层：</p>
+<pre><code class="language-python"># pufferl.py:732-739  (_train_ppo_transition，非 RNN 路径)
+advantages, returns, masks = self._compute_advantages(
+    torch.ones_like(self.values, device=device),   # ratio 全是 1
+    1.0,                                           # rho_clip = 1
+    1.0,                                           # c_clip   = 1
+)
+</code></pre>
+<p><code>importance ≡ 1</code> 且两个 clip 都是 1 时，<code>ρ̄ = c̄ = 1</code>，递推变成：</p>
+<pre><code>A_t = δ_t + γλ·A_{t+1}     ← 这就是 GAE(γ, λ)
+</code></pre>
+<p><strong>所以：本仓在 <code>use_rnn = false</code>（默认配置 <code>rnn_name: null</code>）时跑的是标准 GAE，
+V-trace 只是同一份内核的特例。</strong> 真正用上 V-trace 的折扣能力是在 RNN 路径
+（<code>_train_ppo_trajectory</code>，<code>pufferl.py:666+</code>）：它每次更新前用<strong>当前策略</strong>重算
+<code>ratio</code>，并且按优势大小做优先采样。</p>
+<p>这不是 bug，是有意为之的工程选择：</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>ratio 来源</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>非 RNN（默认）</td>
+<td>恒为 1</td>
+<td>GAE，一次采样一次更新，PPO 的 clip 负责纠正偏差</td>
+</tr>
+<tr>
+<td>RNN</td>
+<td>每轮重算 <code>π_new/π_old</code></td>
+<td>真正的 V-trace，多次复用同一批轨迹也安全</td>
+</tr>
+</tbody>
+</table>
+<p><strong>看代码时别被名字骗了</strong>：函数叫 <code>compute_puff_advantage</code>、内核叫 V-trace，但你要看传进去的
+<code>importance</code> 才能判断当下跑的是 GAE 还是 V-trace。</p>
+<hr /></div>
+<div class="section">
+<section id="6"><h2>6. 边界与陷阱（踩过的）</h2><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优势出现 NaN</td>
+<td>单条 transition 时 <code>mb_adv.std()</code> 无定义</td>
+<td><code>pufferl.py</code> 里 <code>retained_transition_count % minibatch_size == 1</code> 时最后一条不参与本次更新</td>
+</tr>
+<tr>
+<td>优势无意义</td>
+<td>长度 1 的序列（<code>horizon-1 == 0</code> 时循环不跑）</td>
+<td>用 <code>bptt_horizon ≥ 2</code>；本仓默认 128</td>
+</tr>
+<tr>
+<td>终止后仍在累积</td>
+<td>忘了乘 <code>nextnonterminal</code></td>
+<td>代码里 <code>dones[t_next]</code> 已处理；<code>terminals = (terminals \| ~masks)</code> 把"被掩掉的行"也当终止</td>
+</tr>
+<tr>
+<td>换成 uint8 的 dones</td>
+<td>内核只接受 <code>float32</code> 且要求同 device</td>
+<td><code>vtrace_check</code> 会直接 <code>TORCH_CHECK</code> 报错（<code>pufferlib.cpp:43-58</code>）</td>
+</tr>
+</tbody>
+</table>
+<hr /></div>
+<div class="section">
+<section id="7"><h2>7. 和相关算法的关系（一张表）</h2><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>优势估计</th>
+<th>能否复用旧数据</th>
+<th>本仓哪里用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A2C</td>
+<td><code>δ_t</code>（单步 TD）</td>
+<td>勉强</td>
+<td>—</td>
+</tr>
+<tr>
+<td>GAE(λ)</td>
+<td><code>δ_t + γλA_{t+1}</code>，无重要性权重</td>
+<td>单轮复用</td>
+<td>非 RNN 路径（默认）</td>
+</tr>
+<tr>
+<td><strong>V-trace</strong></td>
+<td>带 <code>ρ̄</code>、<code>c̄</code> 的累积</td>
+<td>多轮复用也安全</td>
+<td>RNN 路径</td>
+</tr>
+<tr>
+<td>Retrace(λ)</td>
+<td>类似，但 <code>c</code> 取 1</td>
+<td>多轮</td>
+<td>—</td>
+</tr>
+<tr>
+<td>VMPO / IMPALA</td>
+<td>V-trace + 额外 KL 约束</td>
+<td>多轮</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr /></div>
+<div class="section">
+<section id="8"><h2>8. 想改它的时候看哪里</h2><table>
+<thead>
+<tr>
+<th>想做的事</th>
+<th>改哪</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>换 <code>γ</code>/<code>λ</code></td>
+<td><code>puffer_drive.yaml:322-323</code>（<code>gamma</code> / <code>gae_lambda</code>）</td>
+</tr>
+<tr>
+<td>收紧 V-trace 折扣</td>
+<td><code>puffer_drive.yaml:357-358</code>（<code>vtrace_rho_clip</code> / <code>vtrace_c_clip</code>），注意只在 RNN 路径生效</td>
+</tr>
+<tr>
+<td>改递推公式</td>
+<td><code>pufferlib/extensions/pufferlib.cpp</code> 与 <code>pufferlib/extensions/cuda/pufferlib.cu</code> <strong>两处都要改</strong>（否则 CPU/CUDA 结果不一致），改完必须 <code>scripts/build_cpu_ext.sh</code></td>
+</tr>
+<tr>
+<td>改多步验收</td>
+<td><code>tests/unit_tests/</code> 里有 V-trace 对拍用例；改公式后先跑它们</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>改完记得重建：<code>scripts/build_cpu_ext.sh</code>（默认编 CUDA 版；CUDA 不可用时加 <code>--cpu-only</code>）。</p>
+</blockquote></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
