@@ -4,7 +4,7 @@ As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，
 （2026-11-05 会话：回归上游 3.0 → M1 spec 冻结 → M2 三源审计 → M3 观测包络 → M4 约束库+可行性 → M5 挖掘 v0 → M6 桥接 wash-in + 地图匹配。全部 gate PASS。
 2026-11-06 会话①：撤销冻结基线（harness bug）→ 修复 harness（ADR-0010：mean 动作选择 + 训练 dt 契约）→ roundC 诚实数字 150/154，重训成为必经路。
 2026-11-06 会话②：事件级越道奖励落地（`reward_lane_departure`，每集一次性、谓词与 judge 同源）→ 重训 event_reward_v1（900k/20min）→ **负结果**：154/154 违规。
-2026-11-06 会话③：奖励尺度审计推翻会话②的归因 → 诊断出两个结构性阻塞：**①训练快照 `reward_randomization: true` 让配置里的奖励系数全部失效**（旧计划"减 reward_velocity"本是空操作）；**②dt=0.3 下横向动作退化成 bang-bang**（IDM 对照：max lane_dist 4.0 vs 0.1 s 的 1.2）。落地 `scripts/reward_scale_report.py` 四道尺度门 + 三轮实验（v2a/v3/v4），见 ADR-0011。）
+2026-11-06 会话③：奖励尺度审计推翻会话②的归因 → 诊断出两个结构性阻塞：**①训练快照 `reward_randomization: true` 让配置里的奖励系数全部失效**（旧计划"减 reward_velocity"本是空操作）；**②dt=0.3 下横向动作退化成 bang-bang**（IDM 对照：max lane_dist 4.0 vs 0.1 s 的 1.2）。落地 `scripts/reward_scale_report.py` 四道尺度门 + 三轮实验（v2a/v3/v4），见 ADR-0011。同会话还做了**判据可行性重标定**：`lane_departure` 的 0.9 m 绝对门限落在"地图偏移噪声带"里（参考司机本来就开在离映射中心线 0.80 m 处，p90 0.87；45% 的帧天然超限）——154 个 bad case 里 **50 个的真实偏移只有 0.2–0.3 m（假 bad case）**，另有 **82 个存在车道关联中途变号**。见 `docs/adr/0012-*.md`（proposed）。）
 约定：本仓库自有 `AGENTS.md` 仍是放置规则权威；strata 分层（STATE / adr / lessons）自 2026-10-09 启用。
 
 ## Where（现状，均已对照代码核实）
@@ -22,6 +22,7 @@ As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，
 - `docs/2026-11-04-session-handoff.md` — 会话交接：30 秒恢复上下文、裁决+证据、产物表、阻塞项、复现命令。**新会话从这里开始。**
 - `docs/2026-11-05-canonical-spec-v0.md` — 主线：M1/M2（73 字段注册表 + 覆盖率/三源审计两个闸门）、M3/M4（§7–§8 观测包络 + 约束库）、M5/M6/M7（§9–§11 挖掘契约 + 桥接 & 地图匹配 + 场景化计划；§10.5 是"分块地图≠缺地图"的撤销记录）。验收物 `docs/html/` 下同名 HTML。
 - `docs/2026-11-04-badcase-as-scenario-seed-constraint-loop.md` — bad case 闭环轴：种子化、A-only 约束反馈、两个 KPI（约束覆盖率 / 回归保留率）。
+- `docs/eval-harness-traps.md` — **评测 harness 的 6 个契约陷阱**（argmax 自锁 / dt 覆盖 / 跨轮快照 / 观测打包假设被证伪 / 参考窗口不对称 / `--limit` 与 `.get` 默认值）+ 受影响的数字台账。新增评测脚本前先读它。
 - `docs/baselines.md` — **冻结基线清单**（checkpoint / sha256 / 数字 / 复现命令 / 失效条件）；`docs/partner-agents-explained.md` — 补对手机制科普；`docs/vtrace-explained.md` 与 `docs/ppo-training-walkthrough.md` — 训练实现参考。
 - `docs/vehicle_profile.md` — **车辆参数单一真值源**（3799 / P04-161X 原始字段 + 派生量 + 限幅映射 + 新车型模板），新增车型按 §6 复制，不另起文件。
 - `docs/integration/CONTEXT.md` — 集成术语表（PufferDrive Core / 语义外挂 / Scene / M1-M2 / E1a-E1b / Nova 部署契约 / ego-centric RFU）。
@@ -50,7 +51,7 @@ As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，
 - 判据侧仍有效：录制司机 154/154 违规（**但峰值中位只有 1.13 m，离 0.9 m 门限仅 ~0.3 m 余量，可行性口径待重标**）、IDM 0/168（口径未动）。
 - 教训：`num_reward_coefs` 是观测向量的一部分（`context_dim = num_reward_coefs + goal_dim`），
   往系数表里加项等于改观测契约、让所有旧权重失效 —— 新 shaping 系数必须绕开这个数组。
-  **同一条也适用于改系数的"值"**：同一份权重换一份快照评测，中位车速 1.85 → 4.56 m/s、
+  **同一条也适用于改系数的"值"**：同一份权重换一份快照评测，中位车速 2.00 → 4.62 m/s、
   clamp 场景 19 → 131（会话③实测）。多轮实验必须 `--run-config <data_dir>/config.yaml`。
 
 ## Next（下一步）
@@ -58,7 +59,7 @@ As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，
 - **P0（当前焦点）：把策略从「median peak 1.445 m」推进到「全程 < 0.9 m」**。会话③把奖励与 dt 两个结构性阻塞清掉了（ADR-0011），剩下的问题很具体：v4（dt 0.1、lane_center 0.08、velocity 0.05、900k）中位 `lane_dist` 峰值 **1.445 m**、中位车速 2.34 m/s，但 153/154 仍越道；v3 只跑 300k 时违规 141/154 却在爬行（1.15 m/s）。`episode_length` 从 16/60 升到 43–56/60 但**物理时长没变**（≈4.4–4.8 s）——说明瓶颈已不是"活多久"而是**横向精度**。下一步候选（按性价比）：
   ① 训练量：v4 只 900k 步（dt 0.1 下等于 1/3 的仿真秒），先跑到 2.7M 步看 `num_goals_reached` 能否跳出 0（它一直是 0，意味着正向通道只有 velocity 一项在起作用）；
   ② 横向动作粒度：离散 3 档 jerk {-4,0,+4} 在 dt 0.1 下仍是 ±0.4 m/s²/步，做 <0.9 m 的保持未必够——候选是加细横向档（如 {-4,-1.5,0,1.5,4}）或换连续动作头；改档位等于改动作表，旧权重全废，须新开一轮；
-  ③ 判据可行性重标：`lane_departure` 的 0.9 m 门限 vs 录制司机峰值中位 1.13 m，余量只有 ~0.3 m；"avoidable"口径要按实测余量重新定义，否则"全修好"可能本来不可达；
+  ③ **判据重标（已测，降级为阻塞项）**：`scripts/lane_offset_calibration.py` 实测 154 个场景的参考零点 —— 每场景中位有符号 `lane_dist` 的绝对值中位 **0.804 m**（p90 0.867，袋内极差 <0.53），去偏后峰值 <0.3 m 的场景 **50/154**（假 bad case：它们的"违规"只是基准线坐在 0.9 m 附近），车道关联中途变号 **82/154**（如 3139#1790748302138：+0.98 → -0.29 → 跳回 +0.98）。去偏口径下参考司机仍有 94/154 超过 0.9 m（真实越道）。**继续训练前按 ADR-0012 改判据并重挖 bad case**，否则 KPI 分母含 50 个假 case、82 个地图记账窗口。
   ④ 课程学习（先直道后弯道）仅在 ①②③ 都不动时再上。
   开训前必须先过四道尺度门：`python scripts/reward_scale_report.py --config <data_dir>/config.yaml --check` + `pytest tests/unit_tests/test_reward_scale_contract.py`（`live_coefs` / `lane_signal` / `event_dominance` / `positive_channel`）。验收门不变（ADR-0010 + 中位车速 gate + 参考 154/154），达标才重冻基线。
 - **训练/评测的三个坑（会话③新踩）**：① `reward_randomization: true` 时配置里的奖励系数**全部不生效**（被 `REWARD_BOUNDS` 抽样覆盖），调参轮必须关；② 奖励系数的**值**也是观测上下文，换快照评测会造出 2.5 倍的行为差异（用 `--run-config`）；③ `num_reward_coefs` 数组不许加项（旧权重全废），新 shaping 走独立 env 字段。
@@ -94,6 +95,7 @@ As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，
 - ADR-0009 地图匹配接受判据（航向 ≤60° / 横向 ≤3 m 否则无判定 / 置信率是数据质量 / 分块地图按 bbox 选片）：**accepted** 2026-11-05（owner 指出误判后实测修正）。
 - ADR-0010 评测 harness = 训练契约镜像（mean 动作选择 + 训练 dt）：**accepted** 2026-11-06（会话①）。
 - ADR-0011 训练/评测的 dt 与奖励尺度是契约（场景 bin 线 dt=0.1；调参轮关 `reward_randomization`；训练与评测同一快照；四道尺度门是开训前置）：**accepted** 2026-11-06（会话③，owner 授权奖励搜索）。
+- ADR-0012 lane_departure 判据必须去偏并剔除车道关联翻转窗口（0.9 m 绝对门限 ≈ 地图偏移噪声带；建议改 `|lane_dist - baseline| > 0.9` + 剔除相邻步变号窗口 + 奖励同步去偏）：**proposed** 2026-11-06（会话③实测，待 owner 裁决）。
 - 新增未决（2026-11-04）：canonical spec 字段清单与版本策略；走廊域 vs 漫游域的合法性判据归属；约束模板库 owner 与入库流程（体感型 20% 的转写人）；plan→pose 误差标定口径；**AD 系统能力上限 12.5 m/s 的观测层成因**（感知最远距离 / perception→planning 延迟 / planning→control 延迟）待从 bag 实测，它决定仿真的 obs 范围与延迟参数。
 - 未决（阻塞项，见 `.scratch/handoff/`）：抖动过滤归属层（感知平滑 / planner 自滤波 / 独立估计层）；观测契约全量 vs 子集；Σ 用固定 fraction 还是 policy pool/league；基线是否钉死 `dev/zoo_v3.0`。
 - 新增未决（2026-10-31）：PufferDrive world 系（heading 0 = +x，`Agent.cos_heading/sin_heading`）→ Nova ego-centric RFU（直行 = π/2）的偏置换算未实测；`static_polygon` cap 32 的 PufferDrive 侧丢弃数上报口径未定。

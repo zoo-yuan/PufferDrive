@@ -28,8 +28,8 @@ P0 的原始计划是"一次性事件罚不够 → 加大罚金 / 减小速度�
 2. **调参轮关 `reward_randomization`**；新 shaping 走独立 env 字段（不进 `reward_coefs`，
    因为它是观测上下文的一部分）。
 3. **训练与评测必须同一份快照**：`scripts/regression_retention.py --run-config
-   <data_dir>/config.yaml`。反例实测：同一份 roundC 权重，在自己的快照下评 1.85 m/s /
-   19 个场景撞上限，在 v2a 快照下评 4.56 m/s / 131 个 —— 拿错快照能凭空造出 3 倍行为差异。
+   <data_dir>/config.yaml`。反例实测：同一份 roundC 权重，在自己的快照下评 2.00 m/s /
+   19 个场景撞上限，在 v2a 快照下评 4.62 m/s / 131 个 —— 拿错快照能凭空造出 3 倍行为差异。
 4. **四道奖励尺度门是开训前置条件**（`scripts/reward_scale_report.py --check`，
    `tests/unit_tests/test_reward_scale_contract.py` 钉住）：
    `live_coefs`（系数是否生效）· `lane_signal`（密集横向累积 ≥ 0.3×终止事件）·

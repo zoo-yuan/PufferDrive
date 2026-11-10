@@ -5514,8 +5514,8 @@ static void move_dynamics(Drive *env, int action_idx, int agent_idx) {
             } else {
                 j_long = j_long_action * JERK_LONG[3]; // Positive: [0, 1] → [0, 4] (acceleration)
             }
-            // Symmetric scaling for lateral jerk
-            j_lat = action_array_f[action_idx][1] * JERK_LAT[2];
+            // Symmetric scaling for lateral jerk; last entry is the magnitude cap of the table
+            j_lat = action_array_f[action_idx][1] * JERK_LAT[NUM_JERK_LAT_ACTIONS - 1];
         }
 
         if (agent->phantom_braking_counter > 0) {
