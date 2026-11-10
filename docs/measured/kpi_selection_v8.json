@@ -1,0 +1,121 @@
+{
+  "run_dir": "/home/zoo/labs-y/30-simulation-and-generation/Self-Play/PufferDrive/.scratch/experiments_v8",
+  "run_config": "/home/zoo/labs-y/30-simulation-and-generation/Self-Play/PufferDrive/.scratch/experiments_v8/config.yaml",
+  "badcase_set": "/home/zoo/labs-y/30-simulation-and-generation/Self-Play/PufferDrive/spec/badcase_set_v1.yaml",
+  "denominator_scenes": 70,
+  "min_speed_mps": 2.0,
+  "rank_rule": "parked_first, violations, median_peak_m, -median_speed_mps",
+  "best": {
+    "checkpoint": "models/model_puffer_drive_000600.pt",
+    "violations": 0,
+    "scenes": 70,
+    "clamp_scenes": 0,
+    "median_peak_m": 0.701,
+    "median_speed_mps": 2.131,
+    "health_scenes": 154,
+    "health_clamp_scenes": 50,
+    "health_median_speed_mps": 2.143
+  },
+  "history": [
+    {
+      "checkpoint": "models/model_puffer_drive_000600.pt",
+      "violations": 0,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 0.701,
+      "median_speed_mps": 2.131,
+      "health_scenes": 154,
+      "health_clamp_scenes": 50,
+      "health_median_speed_mps": 2.143
+    },
+    {
+      "checkpoint": "models/model_puffer_drive_001000.pt",
+      "violations": 52,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 1.114,
+      "median_speed_mps": 2.34,
+      "health_scenes": 154,
+      "health_clamp_scenes": 70,
+      "health_median_speed_mps": 2.34
+    },
+    {
+      "checkpoint": "models/model_puffer_drive_000400.pt",
+      "violations": 59,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 1.144,
+      "median_speed_mps": 2.34,
+      "health_scenes": 154,
+      "health_clamp_scenes": 70,
+      "health_median_speed_mps": 2.34
+    },
+    {
+      "checkpoint": "models/model_puffer_drive_001200.pt",
+      "violations": 59,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 1.231,
+      "median_speed_mps": 2.34,
+      "health_scenes": 154,
+      "health_clamp_scenes": 70,
+      "health_median_speed_mps": 2.34
+    },
+    {
+      "checkpoint": "models/model_puffer_drive_001400.pt",
+      "violations": 59,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 1.236,
+      "median_speed_mps": 2.34,
+      "health_scenes": 154,
+      "health_clamp_scenes": 70,
+      "health_median_speed_mps": 2.34
+    },
+    {
+      "checkpoint": "models/model_puffer_drive_000800.pt",
+      "violations": 59,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 1.24,
+      "median_speed_mps": 2.34,
+      "health_scenes": 154,
+      "health_clamp_scenes": 70,
+      "health_median_speed_mps": 2.34
+    },
+    {
+      "checkpoint": "models/model_puffer_drive_001600.pt",
+      "violations": 59,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 1.247,
+      "median_speed_mps": 2.34,
+      "health_scenes": 154,
+      "health_clamp_scenes": 70,
+      "health_median_speed_mps": 2.34
+    },
+    {
+      "checkpoint": "models/model_puffer_drive_001758.pt",
+      "violations": 59,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 1.254,
+      "median_speed_mps": 2.34,
+      "health_scenes": 154,
+      "health_clamp_scenes": 70,
+      "health_median_speed_mps": 2.34
+    },
+    {
+      "checkpoint": "models/model_puffer_drive_000200.pt",
+      "violations": 0,
+      "scenes": 70,
+      "clamp_scenes": 0,
+      "median_peak_m": 0.42,
+      "median_speed_mps": 1.442,
+      "health_scenes": 154,
+      "health_clamp_scenes": 50,
+      "health_median_speed_mps": 1.48
+    }
+  ],
+  "note": "event_reward_v8: JERK_LAT 9 classes (36 action classes), keep_checkpoints, checkpoint every 200 epochs. KPI denominator = spec/badcase_set_v1.yaml genuine (70). Selected epoch 600: 0/70 violations at median speed 2.13 m/s; full 154 set reads 58/154 because the 50 artefact scenes still blow out (median peak 4.0, speed 5.4 m/s)."
+}

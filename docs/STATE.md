@@ -54,6 +54,14 @@ As-of: 312f313e（代码）/ 2026-11-06 会话③
   **KPI 分母（ADR-0012 已裁决，2026-11-06）**：`spec/badcase_set_v1.yaml` —— genuine **70**（分母）、
   marginal 34（单列）、artefact 50（剔除）、map_suspect 32（分母内 30，单列）。
   按新分母重述已有权重：**v6 = 36/70**（中位 `lane_dist` 峰值 0.901 m）—— 全集口径的 107/154 里有一半是假 case/翻转窗口。
+
+  **🥇 首个过诚实 KPI 的 checkpoint（2026-11-06 会话③，v8 = 横向 9 档 + 按 KPI 选点）**：
+  `.scratch/experiments_v8/best_kpi.pt`（epoch **600**）在 genuine **70 上是 0 违规**、
+  中位 `lane_dist` 峰值 0.701 m、中位车速 **2.13 m/s**（录制司机 3.09 / IDM 3.0）。
+  **但不算达标**，两条健康警告：① 全集 154 里仍有 **50 个场景 `lane_dist` 撞上限**（artefact 桶，
+  策略在那儿以 5.4 m/s 冲出去）→ "分母上完美、分母外乱开"；② 全集仅 58/154。
+  同一轮的 9 个 checkpoint 违规数在 **0 / 52 / 59** 之间跳（epoch 200 与 600 是 0，其余 59）——
+  再次证明**必须按 KPI 选点**，训练曲线完全看不出差别。记录件 `docs/measured/kpi_selection_v8.json`。
   工具：`scripts/scene_badcase_set.py`（生成+`--check`）、`regression_retention.py --badcase-set`、
   `scripts/kpi_select.py`（按 KPI 逐个 checkpoint 排序 + `--finalize` 出 `best_kpi.pt`）。
   记录件：`docs/measured/regression_retention_v{4,6}.json`、`docs/measured/badcase_set_v1.json` + `.scratch/experiments_v{2a,3,4,5,6,6b,7}/regression_retention.json`；负结果与推理链在 `.scratch/experiments_v4/RATIONALE.md`。
@@ -65,7 +73,8 @@ As-of: 312f313e（代码）/ 2026-11-06 会话③
 
 ## Next（下一步）
 
-- **P0（当前焦点）：把 v6（107/154、中位 peak 0.967 m）推进到「全程 < 0.9 m」，并补上 checkpoint 选择**。
+- **P0（当前焦点）：把 v8-best（genuine **0/70**、全集 58/154、50 个场景撞上限）推进到「全集也干净」**。
+  **下一步（会话③末新增，优先于其它）**：① 把"健康指标"（全集 clamp 比例 + 全集中位车速）并入选点排序——`scripts/kpi_select.py` 现在只打 WARN，不参与排序；② 查清 artefact 桶为什么在 5.4 m/s 冲出去（同样的策略在 genuine 桶只有 2.13 m/s，差异太大，怀疑是那批场景的路段几何/曲率让它加速失控）；③ 若要冻结，先扩压测集。
   **新增发现（会话③续）：训练曲线不判别好坏，最好的是中途权重的某个点。** v6（900k，LR 衰减快）→ 107/154；v6b（2.7M，同一配置但 LR 衰减拉长 3×）→ 139/154，两者训练末日志都写 `offroad_rate 1.000`。也就是说"多训就好"是错的，**必须按部署 KPI（154 场景的中位 lane_dist 峰值）做周期性评测并选点**，而现在的 `train.evaluation_benchmarks=null` + `best_models/` 只留 50 epoch 的一个快照，选不了。落地方向：① 训练时每 N 步在 crossbag 场景上跑一次回归（154 场景 ≈ 54 s，代价可接受）并按中位峰值存 best；② 或者先把 LR schedule 固定成"短跑"（900k）当基线，别再拉长。会话③把奖励与 dt 两个结构性阻塞清掉了（ADR-0011），剩下的问题很具体：v4（dt 0.1、lane_center 0.08、velocity 0.05、900k）中位 `lane_dist` 峰值 **1.445 m**、中位车速 2.34 m/s，但 153/154 仍越道；v3 只跑 300k 时违规 141/154 却在爬行（1.15 m/s）。`episode_length` 从 16/60 升到 43–56/60 但**物理时长没变**（≈4.4–4.8 s）——说明瓶颈已不是"活多久"而是**横向精度**。下一步候选（按性价比）：
   ① **训练量（已测，否）**：v4 → v5 同配置跑到 **2.7M 步**（3× 预算）只从 153/154 降到 139/154，`num_goals_reached` **始终为 0**。**goal 放置审计（已做）：首个 waypoint 在正前方 31.6 m、离车道中心 0.01–0.42 m、航向偏差 3°、`goal_lane_idx=0` —— goal 本身没放错**（不是 off-road beaming），只是 60 步 × dt 0.1 = 6 s 的窗口刚好覆盖 30 m，几乎踩线；实测 v7（`max_goal_spacing` 200→40）把 `num_goals_reached` 抬到 0.091 但违规反而涨到 149/154。结论：加预算/改 goal 间距都不是杠杆，正向通道暂时只能靠 velocity 一项。
   ② **横向动作粒度（已测，是主因）**：`JERK_LAT` 3 档 {-4,0,+4} → **7 档 {-4,-1.5,-0.5,0,0.5,1.5,4}**（28 类动作，`pufferlib/ocean/drive/constants.h`），同配置 900k 步：**153/154 → 107/154**，中位 `lane_dist` 峰值 **1.445 → 0.967 m**（录制司机 1.129 m）。下一步：v6 跑 2.7M 看能否继续下探（`.scratch/experiments_v6b`）。旧 checkpoint 全部不可加载（12→28 类），roundC 已彻底作废。

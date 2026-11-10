@@ -11,6 +11,14 @@ v6（900k 步）在 154 个场景上违规 **107**、中位 `lane_dist` 峰值 *
 训练后（或并发）用这个脚本按 **KPI 分母（默认 `spec/badcase_set_v1.yaml` 的 genuine 70）**
 逐个评测，报分并存最优。
 
+健康指标（不参与排序，但超阈值会警告）
+----------------------------------------
+分母之外的桶**不能**拿来算修复率，但必须当健康指标看：v8 选中的 checkpoint 在
+genuine 70 上是 0 违规，却在 artefact 桶以 **5.4 m/s** 冲出去、`lane_dist` 撞归一化上限
+（50/154 个场景 clamp）——只盯分denominator 会选出"在分母上完美、在别处乱开"的权重。
+所以每个 checkpoint 同时算**全部场景**的 `clamp_scenes`（peak ≥ 3.99）与中位车速，
+超过 `--clamp-frac-max` 就打 WARN。
+
 KPI 排序（字典序，全部越小/越大越好）
 ------------------------------------
 1. 违规场景数（越小越好）
@@ -53,7 +61,7 @@ def load_denominator(set_path: Path) -> set[str]:
     return {row["scenario_id"] for row in document["scenes"] if row["bucket"] == "genuine"}
 
 
-def evaluate(policy, scenes, scene_dir, metric_names, metric_index, device) -> dict:
+def evaluate(policy, scenes, scene_dir, metric_names, metric_index, device, peaks_only=False) -> dict:
     fired = 0
     peaks = []
     speeds = []
@@ -64,12 +72,14 @@ def evaluate(policy, scenes, scene_dir, metric_names, metric_index, device) -> d
         fired += int(result["fired"])
         peaks.append(result["peak"])
         speeds.append(result.get("median_speed", 0.0))
-    return {
+    report = {
         "violations": fired,
         "scenes": len(scenes),
+        "clamp_scenes": sum(1 for peak in peaks if peak >= 3.99),
         "median_peak_m": round(statistics.median(peaks), 3) if peaks else 0.0,
         "median_speed_mps": round(statistics.median(speeds), 3) if speeds else 0.0,
     }
+    return report
 
 
 def rank_key(result: dict, min_speed: float) -> tuple:
@@ -85,7 +95,12 @@ def main() -> int:
     parser.add_argument("--badcase-set", default=str(DEFAULT_BADCASE_SET))
     parser.add_argument("--checkpoints", default="models/model_*.pt",
                         help="相对 run-dir 的 glob；默认评测训练中保留的所有 checkpoint")
-    parser.add_argument("--min-speed", type=float, default=1.0)
+    parser.add_argument("--min-speed", type=float, default=2.0,
+                        help="车动门：中位车速低于它直接判不合格（默认 2.0；录制司机 3.09、IDM 3.0）")
+    parser.add_argument("--clamp-frac-max", type=float, default=0.2,
+                        help="全部场景里 lane_dist 撞上限（peak ≥ 3.99）的比例上限，超了打 WARN")
+    parser.add_argument("--health-scenes", default=None,
+                        help="健康指标用的场景集（默认: 全部有 bin 的场景，不受分母限制）")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--finalize", action="store_true", help="把最优权重复制成 <run-dir>/best_kpi.pt")
     args = parser.parse_args()
@@ -112,7 +127,18 @@ def main() -> int:
     if not scenes:
         print(f"ERROR: KPI 分母为空（{args.badcase_set}）", file=sys.stderr)
         return 1
+    if args.health_scenes:
+        health_dir = Path(args.health_scenes)
+        health_scenes = [scene for scene in harness.scene_ids()
+                         if (health_dir / f"{scene['scenario_id'].replace('#', '_')}.bin").exists()]
+    else:
+        health_scenes = [scene for scene in harness.scene_ids()
+                         if (scene_dir / f"{scene['scenario_id'].replace('#', '_')}.bin").exists()]
+    health_placeholder = None
+    if [s["scenario_id"] for s in health_scenes] == [s["scenario_id"] for s in scenes]:
+        health_scenes = health_placeholder = "same-as-denominator"
     print(f"[kpi] 分母 {len(scenes)} 个场景（{Path(args.badcase_set).name}, genuine）· "
+          f"健康集 {0 if health_placeholder else len(health_scenes)} 个 · "
           f"{len(checkpoints)} 个待评 checkpoint", flush=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -128,11 +154,21 @@ def main() -> int:
             print(f"[skip] {checkpoint.name}: {str(error).splitlines()[0]}", flush=True)
             continue
         result = evaluate(policy, scenes, scene_dir, metric_names, metric_index, device)
+        if health_placeholder is None:
+            health = evaluate(policy, health_scenes, scene_dir, metric_names, metric_index, device,
+                              peaks_only=True)
+            result["health_scenes"] = health["scenes"]
+            result["health_clamp_scenes"] = health["clamp_scenes"]
+            result["health_median_speed_mps"] = health["median_speed_mps"]
         row = {"checkpoint": str(checkpoint.relative_to(run_dir)), **result}
         history.append(row)
+        health_text = ""
+        if "health_clamp_scenes" in result:
+            health_text = (f" · 全集 clamp {result['health_clamp_scenes']}/{result['health_scenes']}"
+                           f" · 全集车速 {result['health_median_speed_mps']:.2f}")
         print(f"  {checkpoint.name:<32} 违规 {result['violations']:>3}/{result['scenes']} · "
-              f"中位峰值 {result['median_peak_m']:.3f} m · 车速 {result['median_speed_mps']:.2f} m/s",
-              flush=True)
+              f"中位峰值 {result['median_peak_m']:.3f} m · 车速 {result['median_speed_mps']:.2f} m/s"
+              f"{health_text}", flush=True)
 
     if not history:
         print("ERROR: 没有可评测的 checkpoint（全部形状不匹配？）", file=sys.stderr)
@@ -161,6 +197,13 @@ def main() -> int:
               " —— 全都在趴窝，KPI 无意义")
         print("GATE      : FAIL")
         return 1
+
+    if "health_clamp_scenes" in best:
+        clamp_frac = best["health_clamp_scenes"] / max(1, best["health_scenes"])
+        if clamp_frac > args.clamp_frac_max:
+            print(f"[warn] 最优权重在全集有 {best['health_clamp_scenes']}/{best['health_scenes']} "
+                  f"个场景 lane_dist 撞上限（{clamp_frac * 100:.0f}% > {args.clamp_frac_max * 100:.0f}%）"
+                  " —— 分母上完美、分母外乱开；下一轮要把健康指标一起进排序")
 
     if args.finalize:
         import shutil
