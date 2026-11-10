@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Untitled</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+      var sections = document.querySelectorAll('section[id]');
+      var links = document.querySelectorAll('.toc-list a');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            links.forEach(function(l) { l.classList.remove('active'); });
+            var a = document.querySelector('.toc-list a[href="#' + e.target.id + '"]');
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -60% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+  </script>
+  <style>
+:root {
+  --bg: #f5f7fb; --card: #ffffff; --text: #1f2937; --muted: #667085;
+  --line: #e5e7eb; --primary: #7c3aed; --primary-soft: #faf5ff;
+  --accent: #2563eb; --shadow: 0 10px 30px rgba(15,23,42,0.08);
+  --radius: 18px; --max: 1640px; --toc-w: 240px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: linear-gradient(180deg,#fdf4ff 0%,var(--bg) 240px);
+  color: var(--text);
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height: 1.85;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.page { max-width: var(--max); margin: 0 auto; padding: 32px 24px 80px; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: var(--toc-w) minmax(0,1fr); gap: 28px; align-items: start; }
+.hero {
+  background: radial-gradient(circle at top right,rgba(124,58,237,0.12),transparent 30%),
+              radial-gradient(circle at left bottom,rgba(37,99,235,0.08),transparent 24%), var(--card);
+  border: 1px solid rgba(124,58,237,0.15); border-radius: 24px;
+  box-shadow: var(--shadow); padding: 36px 40px 30px; margin-bottom: 24px;
+}
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #faf5ff; color: #6d28d9; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+h1 { margin: 0 0 10px; font-size: 28px; line-height: 1.25; letter-spacing: -0.02em; }
+.subtitle { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* ── TOC ── */
+.toc { position: sticky; top: 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.toc h2 { margin: 0 0 12px; font-size: 15px; }
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-list li { margin: 0; }
+.toc-list a { display: block; padding: 5px 8px; border-radius: 8px; color: var(--muted); font-size: 13px; transition: all 0.15s; }
+.toc-list a:hover { color: var(--primary); background: #faf5ff; text-decoration: none; }
+.toc-list a.active { color: var(--primary); background: #eff6ff; font-weight: 600; border-left: 3px solid var(--primary); padding-left: 5px; }
+.toc-sub { list-style: none; padding-left: 12px; margin: 0; }
+.toc-sub a { font-size: 12px; padding: 3px 8px; }
+
+/* ── Content ── */
+.content { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 30px 36px; }
+h2 { margin: 0 0 16px; font-size: 24px; }
+h3 { margin: 24px 0 10px; font-size: 18px; color: #111827; border-left: 3px solid #e9d5ff; padding-left: 10px; }
+h4 { margin: 18px 0 8px; font-size: 16px; color: #374151; font-weight: 700; }
+p { margin: 0 0 12px; }
+
+/* ── Callouts ── */
+.callout-blue   { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-amber  { background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-green  { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-purple { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-red    { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-gray   { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+.callout-title  { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.callout-blue .callout-title   { color: #1d4ed8; }
+.callout-amber .callout-title  { color: #92400e; }
+.callout-green .callout-title  { color: #166534; }
+.callout-purple .callout-title { color: #6d28d9; }
+.callout-red .callout-title    { color: #9f1239; }
+.callout-gray .callout-title   { color: #334155; }
+
+/* ── Step boxes ── */
+.step-box { display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; padding: 16px 18px; background: #fafafa; border: 1px solid var(--line); border-radius: 14px; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.step-content { flex: 1; min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+.step-content strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: #faf5ff; color: #4c1d95; text-align: left; font-weight: 700; padding: 10px 14px; border-bottom: 2px solid #e9d5ff; }
+td { padding: 10px 14px; border-bottom: 1px solid #eef2f7; vertical-align: top; }
+tbody tr:nth-child(even) { background: #fefaff; }
+
+/* ── Code ── */
+pre { background: #1e1e2e; border-radius: 12px; padding: 16px 20px; margin: 14px 0; overflow-x: auto; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; line-height: 1.8; color: #cdd6f4; white-space: pre; }
+code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 7px; font-family: "SF Mono",Consolas,Monaco,monospace; font-size: 13px; color: #6d28d9; }
+pre code { background: none; border: none; padding: 0; color: #cdd6f4; }
+
+/* ── Mermaid ── */
+.mermaid { margin: 20px 0; padding: 22px; background: #fbfaff; border: 1px solid #ede9fe; border-radius: 14px; overflow-x: auto; text-align: center; }
+
+/* ── Misc ── */
+blockquote { margin: 18px 0; padding: 16px 20px; border-left: 4px solid var(--primary); background: rgba(124,58,237,0.05); border-radius: 0 12px 12px 0; color: #3f3f46; font-size: 15px; }
+ul, ol { padding-left: 24px; margin: 8px 0 12px; }
+li { margin: 6px 0; }
+img { max-width: 100%; border-radius: 12px; margin: 12px 0; }
+hr { border: none; border-top: 2px dashed #e9d5ff; margin: 24px 0; }
+
+/* ── Badges ── */
+.badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 99px; margin: 2px; }
+.badge-purple { background: #ede9fe; color: #4c1d95; }
+.badge-green  { background: #dcfce7; color: #166534; }
+.badge-amber  { background: #fef3c7; color: #92400e; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+
+@media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .toc { position: static; } }
+@media (max-width: 640px) { .page { padding: 18px 12px 56px; } .hero, .section { padding: 20px 18px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <div class="eyebrow">🪤 评测陷阱</div>
+      <h1>Untitled</h1>
+      <p class="subtitle"></p>
+    </div>
+    <div class="layout">
+      <nav class="toc">
+<h2>&#128209; &#30446;&#24405;</h2>
+<ul class="toc-list">
+<li><a href="#0-bug">0. 为什么这类 bug 特别贵</a></li>
+<li><a href="#1-a-argmax-000-ms">1. 坑 A：动作选择用 argmax（→ 0.00 m/s 自锁）</a></li>
+<ul class="toc-sub">
+<li><a href="#_1">现场</a></li>
+<li><a href="#_2">机制</a></li>
+<li><a href="#_3">检测/防线</a></li>
+</ul>
+<li><a href="#2-b-dt-8">2. 坑 B：评测覆盖了训练用的 dt（→ 速度低估 8 倍）</a></li>
+<ul class="toc-sub">
+<li><a href="#_4">现场</a></li>
+<li><a href="#_5">机制</a></li>
+<li><a href="#_6">检测/防线</a></li>
+</ul>
+<li><a href="#3-c-23">3. 坑 C：评测读到了别轮的配置快照（→ 行为 2.3 倍差异）</a></li>
+<ul class="toc-sub">
+<li><a href="#2026-11-06-3">现场（2026-11-06 会话③实测）</a></li>
+<li><a href="#_7">机制</a></li>
+<li><a href="#_8">检测/防线</a></li>
+</ul>
+<li><a href="#4-d">4. 坑 D：观测打包不一致（这一条被证伪了，但过程本身是教训）</a></li>
+<ul class="toc-sub">
+<li><a href="#_9">现场</a></li>
+<li><a href="#_10">教训</a></li>
+</ul>
+<li><a href="#5-e">5. 坑 E：参考零点与策略侧口径不对称（判据侧的合法偏差，但是个混淆项）</a></li>
+<li><a href="#6-f-limit">6. 坑 F：--limit 在过滤之前生效（小，但会让人以为"场景没了"）</a></li>
+<li><a href="#7-6">7. 现状：这 6 条现在由什么挡住</a></li>
+<li><a href="#8">8. 附：受影响的数字台账</a></li>
+</ul>
+</nav>
+      <div class="content">
+        <div class="section">
+<blockquote>
+<p>一句话：本仓的策略评测是<strong>手搓</strong>的（脚本自己拼 env、自己把 logits 变成动作、自己挑配置快照），
+而训练是一条黑盒流水线（vecenv 打包观测 → sample_logits → 引擎解码）。手搓路径里<strong>每一个
+环节都是一个隐式契约</strong>，"跑得通"不等于"等价"。本文件把已经踩过的 6 个坑、它们的检测方式、
+以及"哪些数字因此作废"集中记在一处。</p>
+<p>相关裁决：<code>docs/adr/0010-eval-harness-mirrors-training-contract.md</code>（动作选择 + dt）、
+<code>docs/adr/0011-training-dt-and-reward-scale-contract.md</code>（dt 与奖励尺度）、
+事故现场记录：<code>docs/2026-11-05-canonical-spec-v0.md</code> §15。</p>
+</blockquote>
+<hr /></div>
+<div class="section">
+<section id="0-bug"><h2>0. 为什么这类 bug 特别贵</h2><p>同一个 checkpoint，在三份不同的评测口径下读出的数字：</p>
+<table>
+<thead>
+<tr>
+<th>口径</th>
+<th>中位车速</th>
+<th>越道违规</th>
+<th>撞 <code>lane_dist</code> 上限(4.0)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>harness（argmax + dt 0.1）—— 作废</td>
+<td><strong>0.00 m/s</strong></td>
+<td>4/154（假"修复率 97.4%"）</td>
+<td>0</td>
+</tr>
+<tr>
+<td>harness 修好（mean + 训练 dt 0.3）</td>
+<td>2.00 m/s</td>
+<td><strong>150/154</strong></td>
+<td>19</td>
+</tr>
+<tr>
+<td>再换一份训练快照（v2a 的 coefs）</td>
+<td><strong>4.62 m/s</strong></td>
+<td>154/154</td>
+<td><strong>131</strong></td>
+</tr>
+</tbody>
+</table>
+<p>三行说的都是 <code>checkpoints/lane_departure_roundC.pt</code> 这<strong>同一份权重</strong>。
+这不是"精度差异"，是<strong>结论方向相反</strong>：第一行说"修好了 97.4%"，第二行说"基本没修"。
+所以本仓的规矩是：<strong>任何策略侧数字必须连同产生它的 harness 口径一起记录</strong>，
+口径不明的数字一律视为未测。</p>
+<hr /></div>
+<div class="section">
+<section id="1-a-argmax-000-ms"><h2>1. 坑 A：动作选择用 argmax（→ 0.00 m/s 自锁）</h2><h3 id="_1">现场</h3>
+<p><code>scripts/regression_retention.py</code> 早期用 <code>logits.argmax(-1)</code> 选动作。同一权重在训练里
+<code>avg_speed_per_agent ≈ 6 m/s</code>，在 harness 里 154 个场景 <strong>150 个中位速度 0.00 m/s</strong>。</p>
+<h3 id="_2">机制</h3>
+<p>策略是 <strong>12 模态离散 categorical</strong>（<code>JERK_LONG[4] × JERK_LAT[3]</code>），训练 rollout 是
+<strong>采样</strong>，训练 eval 是 <strong><code>action_selection: mean</code></strong>（<code>discrete_probs_to_continuous_mean</code>：
+物理动作表上的概率加权期望）。车在驻车起步时，策略分布的众数压在 <strong>no-op 格（实测 ~63%）</strong>：</p>
+<pre><code>argmax → no-op → 车不动 → 下一步观测还是&quot;停着&quot; → 分布还是压 no-op → 自锁
+</code></pre>
+<p>而 mean 输出的是期望值（有 24% 的质量在满加速格上）→ 车动起来。</p>
+<p>更毒的一点：<strong>带速度门限的谓词（<code>sim_speed &gt; 0.5 m/s</code>）对静止车永远不成立</strong>，
+所以"趴窝"会被判据读成"没有越道" → 违规数从 150 塌到 4 → 凭空生成 97.4% 的修复率。</p>
+<h3 id="_3">检测/防线</h3>
+<ul>
+<li>单一出口 <code>select_eval_action</code>（离散→mean 物理期望；连续→<code>Normal.loc</code>），
+  <code>evaluate_scene</code> 与 <code>zeroshot_eval.run_policy_trace</code> 共用。</li>
+<li><code>tests/unit_tests/test_policy_eval_action_contract.py::test_select_eval_action_is_prob_weighted_mean_not_argmax</code></li>
+<li><strong>车动门</strong>：评测必须报 <code>median_speed</code>，低于 1 m/s 的数字不能进任何结论
+  （<code>baseline_check.py</code> / <code>regression_retention.py --check</code> 的硬判据）。</li>
+</ul>
+<hr /></div>
+<div class="section">
+<section id="2-b-dt-8"><h2>2. 坑 B：评测覆盖了训练用的 dt（→ 速度低估 8 倍）</h2><h3 id="_4">现场</h3>
+<p><code>build_env()</code> 早期强制 <code>dt=0.1</code>（判据侧 <code>DT_S</code>），而训练快照 <code>dt=0.3</code>。
+同一个"选对动作"的权重，中位速度读成 <strong>0.38 m/s</strong>，正确口径下是 <strong>2.44 m/s</strong>。</p>
+<h3 id="_5">机制</h3>
+<p>dt 同时是<strong>积分步长</strong>和<strong>决策步长</strong>。用 1/3 的 dt 去跑按 0.3 s 训练的权重：
+速度、转角、每步奖励全部按 ~3 倍缩水（速度读出低估约 8 倍，因为航向/加速度的耦合）。
+更糟的是它把 <code>episode_length</code> 的语义也换了（60 步 = 6 s 而不是 18 s）。</p>
+<h3 id="_6">检测/防线</h3>
+<ul>
+<li><code>build_env</code> <strong>不许覆盖 dt</strong>，一律继承训练快照（只允许覆盖 map_dir/种子/控制者/agent 数）。</li>
+<li><code>test_policy_env_matches_training_dt</code>（断言 <code>env.dt == snapshot.dt</code>）。</li>
+<li>跨 dt 比较训练指标必须换算成<strong>秒</strong>：dt 0.3 → episode 16/60 步 = 4.8 s，
+  dt 0.1 → 51/60 步 = 5.1 s，看起来"活了 3 倍"其实一样（ADR-0011）。</li>
+</ul>
+<hr /></div>
+<div class="section">
+<section id="3-c-23"><h2>3. 坑 C：评测读到了别轮的配置快照（→ 行为 2.3 倍差异）</h2><h3 id="2026-11-06-3">现场（2026-11-06 会话③实测）</h3>
+<p><code>regression_retention.py</code> 的 <code>training_env_config()</code> 硬编码读 <code>experiments/config.yaml</code>，
+所以拿它去评测另一轮实验的 checkpoint 时，喂进去的是<strong>旧那一轮</strong>的 env 段。
+奖励系数是观测上下文的一部分，于是：</p>
+<table>
+<thead>
+<tr>
+<th>权重</th>
+<th>在哪个快照下评测</th>
+<th>中位车速</th>
+<th>撞 <code>lane_dist</code> 上限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>roundC</td>
+<td>自己的（<code>randomization=true</code>, dt 0.3）</td>
+<td>2.00 m/s</td>
+<td>19/154</td>
+</tr>
+<tr>
+<td>roundC</td>
+<td>v2a 的（<code>randomization=false</code>, <code>lane_center 0.04</code>）</td>
+<td><strong>4.62 m/s</strong></td>
+<td><strong>131/154</strong></td>
+</tr>
+<tr>
+<td>v2a</td>
+<td>v2a 自己的</td>
+<td>4.54 m/s</td>
+<td>154/154</td>
+</tr>
+</tbody>
+</table>
+<p>同一份权重换一份快照，行为差异 2.3 倍、越道上限命中数 7 倍。</p>
+<h3 id="_7">机制</h3>
+<p><code>context_dim = num_reward_coefs + goal_dim</code> —— <strong>奖励系数是观测上下文的一部分</strong>
+（<code>write_reward_target_obs</code>）。所以"换个快照评测"不是改评分标准，而是<strong>改策略的输入</strong>：
+网络会按另一组系数条件化，输出完全不同的动作分布。
+同理，往 <code>reward_coefs</code> 数组<strong>加一项</strong>等于改观测维度，所有旧权重直接加载失败。</p>
+<h3 id="_8">检测/防线</h3>
+<ul>
+<li><code>--run-config &lt;data_dir&gt;/config.yaml</code>（每轮实验一个 <code>train.data_dir</code>，快照随 checkpoint 走）；
+  默认产物也写到该目录，避免覆盖上一轮的 <code>docs/measured/*</code>。</li>
+<li>CLI 会打印实际生效的快照路径（<code>[contract] env 快照 = …</code>），日志里可核对。</li>
+<li>训练启动会<strong>覆写</strong> <code>data_dir/config.yaml</code>（基础配置 + 本轮 override）→ 多轮实验共用默认
+  <code>experiments/</code> 会静默覆盖上一轮的契约（roundC 的快照就这么丢的，靠会话记录重建，
+  重建件 <code>.scratch/config_roundC_reconstructed.yaml</code>）。</li>
+</ul>
+<hr /></div>
+<div class="section">
+<section id="4-d"><h2>4. 坑 D：观测打包不一致（这一条被证伪了，但过程本身是教训）</h2><h3 id="_9">现场</h3>
+<p>第一次面对"训练 6 m/s / harness 0.00 m/s"时，第一假设是<strong>观测打包被手搓坏了</strong>
+（<code>compress_observations</code> / dtype / mask / zero-copy），于是逐位对拍 obs —— <strong>完全一致</strong>。</p>
+<h3 id="_10">教训</h3>
+<ul>
+<li>假设要能证伪，对拍要做的第一步就是它；<strong>但"obs 一致"不等于"推理路径等价"</strong>。
+  真正的偏离在两个没人当回事的地方（坑 A、坑 B）：动作选择和 dt。</li>
+<li>事故记录写成"harness 观测不一致"（<code>docs/2026-11-05-canonical-spec-v0.md</code> §15），
+  后来被 ADR-0010 更正。<strong>保留这段错误结论是有意的</strong>：它提醒"最先想到的那条缝"
+  往往不是漏的那条。</li>
+</ul>
+<hr /></div>
+<div class="section">
+<section id="5-e"><h2>5. 坑 E：参考零点与策略侧口径不对称（判据侧的合法偏差，但是个混淆项）</h2><ul>
+<li>replay 参考（录制司机）用 <strong>dt 0.1、60 步 = 6 s</strong>（保冻结判据数字 154/154）；</li>
+<li>策略侧（在 dt 0.3 训练时）用 <strong>dt 0.3、60 步 = 18 s</strong>。</li>
+</ul>
+<p>结果是<strong>策略被评估的时间窗是参考的 3 倍</strong>。在场景 bin 里，地图的车道覆盖是围绕切片
+建的：车开出去十几二十米就可能离开映射车道集，<code>lane_dist</code> 撞 4.0 归一化上限 →
+被判成"越道"。于是"开得快"本身就更容易违规，而 roundC 的"低违规 + 1.37 m/s"
+很大一部分是<strong>开得慢所以没开出地图</strong>换来的（ADR-0011 把训练/评测统一到 dt 0.1 之后
+这条对角线才被拉平）。</p>
+<p><strong>规矩</strong>：参考侧与策略侧的窗口必须一致；不一致必须在代码注释和数字旁边写清楚（现在是）。</p>
+<hr /></div>
+<div class="section">
+<section id="6-f-limit"><h2>6. 坑 F：--limit 在过滤之前生效（小，但会让人以为"场景没了"）</h2><p><code>scenes[:limit]</code> 先截断、再按 <code>scene_dir</code> 过滤 → 用 <code>--limit 2</code> 指一个只含另一批 bag 的
+目录时，结果是"没有可评测场景"。已改成先过滤后截断。
+同类的还有 <code>.get()</code> 默认值掩盖键名错误：诊断脚本里 <code>agent.get("steer", 0.0)</code>
+读一个<strong>不存在的</strong>键 → 15 步全打印 <code>steer +0.000</code>，看起来像"策略从不打方向"。
+真实键名是 <code>sim_steering</code>。<strong>读 state 字典不要给 <code>.get</code> 兜底默认值</strong>，宁可 KeyError。</p>
+<hr /></div>
+<div class="section">
+<section id="7-6"><h2>7. 现状：这 6 条现在由什么挡住</h2><table>
+<thead>
+<tr>
+<th>坑</th>
+<th>现在的挡板</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A argmax</td>
+<td><code>select_eval_action</code> 单一出口 + 3 个单测 + 车动门</td>
+</tr>
+<tr>
+<td>B dt</td>
+<td><code>build_env</code> 不覆盖 dt + <code>test_policy_env_matches_training_dt</code> + 换算成秒</td>
+</tr>
+<tr>
+<td>C 快照</td>
+<td><code>--run-config</code> + 每轮独立 <code>train.data_dir</code> + 启动打印快照</td>
+</tr>
+<tr>
+<td>D 观测</td>
+<td>逐位对拍（发现问题的正确第一步，只是当时结论方向错了）</td>
+</tr>
+<tr>
+<td>E 窗口</td>
+<td>训练/评测统一 dt 0.1（ADR-0011）；不对称必须注释 + 记录</td>
+</tr>
+<tr>
+<td>F 小坑</td>
+<td>先过滤后截断；state 字典不给默认值</td>
+</tr>
+</tbody>
+</table>
+<p>评测前自查三行：</p>
+<pre><code class="language-bash">python scripts/reward_scale_report.py --config &lt;data_dir&gt;/config.yaml --check   # 奖励契约
+python -m pytest tests/unit_tests/test_policy_eval_action_contract.py -q        # 动作/dt 契约
+python scripts/regression_retention.py --scene-dir .scratch/crossbag_scenes \
+  --run-config &lt;data_dir&gt;/config.yaml --checkpoint &lt;data_dir&gt;/final_model.pt --check
+</code></pre>
+<p><code>--check</code> 的两条硬判据永远是：<strong>车在动</strong>（中位车速门）与<strong>参考零点没漂</strong>（154/154）。</p>
+<hr /></div>
+<div class="section">
+<section id="8"><h2>8. 附：受影响的数字台账</h2><p><strong>作废</strong>（建立在 argmax 趴窝 harness 上）：M7-4 修复率 97.4% / 回归保留率 100%、
+<code>docs/html/regression_retention_v0.html</code> 的旧行、§14.5 的 328 场景对比、§14.6 的
+safety-gap 惩罚结论、冻结基线 <code>lane_departure_roundC</code> 的"4/154"。</p>
+<p><strong>仍然有效</strong>（不依赖策略推理）：录制司机 154/154、IDM 0/168、M7-1/2/3
+（route 推导、场景构建 replay 对拍 0.000 m、补对手 174/257）、训练管线自身日志里的指标。</p></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

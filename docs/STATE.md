@@ -100,7 +100,7 @@ As-of: 312f313e（代码）/ 2026-11-06 会话③
 - ADR-0009 地图匹配接受判据（航向 ≤60° / 横向 ≤3 m 否则无判定 / 置信率是数据质量 / 分块地图按 bbox 选片）：**accepted** 2026-11-05（owner 指出误判后实测修正）。
 - ADR-0010 评测 harness = 训练契约镜像（mean 动作选择 + 训练 dt）：**accepted** 2026-11-06（会话①）。
 - ADR-0011 训练/评测的 dt 与奖励尺度是契约（场景 bin 线 dt=0.1；调参轮关 `reward_randomization`；训练与评测同一快照；四道尺度门是开训前置）：**accepted** 2026-11-06（会话③，owner 授权奖励搜索）。
-- ADR-0012 lane_departure 判据必须去偏并剔除车道关联翻转窗口（0.9 m 绝对门限 ≈ 地图偏移噪声带；建议改 `|lane_dist - baseline| > 0.9` + 剔除相邻步变号窗口 + 奖励同步去偏）：**proposed** 2026-11-06（会话③实测，待 owner 裁决）。
+- ADR-0012 lane_departure 判据：挑 bad case 去偏（场景级基准）、评策略保留绝对 0.9 m、剔除车道关联翻转步：**accepted** 2026-11-06（owner"按推荐"）。执行默认：baseline 用场景级常数；翻转过滤按比例（>25% 步数）；门限不放宽。新分母：真越道 **70**、边缘 34 单列、假 case **50 剔除**、翻转 >25% 的 32 个标 `map_suspect`。
 - 新增未决（2026-11-04）：canonical spec 字段清单与版本策略；走廊域 vs 漫游域的合法性判据归属；约束模板库 owner 与入库流程（体感型 20% 的转写人）；plan→pose 误差标定口径；**AD 系统能力上限 12.5 m/s 的观测层成因**（感知最远距离 / perception→planning 延迟 / planning→control 延迟）待从 bag 实测，它决定仿真的 obs 范围与延迟参数。
 - 未决（阻塞项，见 `.scratch/handoff/`）：抖动过滤归属层（感知平滑 / planner 自滤波 / 独立估计层）；观测契约全量 vs 子集；Σ 用固定 fraction 还是 policy pool/league；基线是否钉死 `dev/zoo_v3.0`。
 - 新增未决（2026-10-31）：PufferDrive world 系（heading 0 = +x，`Agent.cos_heading/sin_heading`）→ Nova ego-centric RFU（直行 = π/2）的偏置换算未实测；`static_polygon` cap 32 的 PufferDrive 侧丢弃数上报口径未定。
