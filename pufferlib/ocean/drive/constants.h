@@ -144,13 +144,15 @@ static const float ACCEL_LONG_LIMIT[2] = {-5.0f, 2.5f};
 static const float ACCEL_LAT_LIMIT[2] = {-4.0f, 4.0f};
 
 #define NUM_JERK_LONG_ACTIONS 4
-// 横向是 7 档而不是 3 档：a_lat 是积分量（a_lat += j_lat * dt），换成车道保持需要的
+// 横向是 9 档而不是 3 档：a_lat 是积分量（a_lat += j_lat * dt），车道保持需要的
 // 横向加速度分辨率是 ~0.05–0.1 m/s²。dt=0.1 下 3 档 {-4,0,4} 的最小非零步长是 0.4 m/s²，
 // 只能"不打方向"或"猛打"（实测 IDM 在 dt=0.3 上 max|lane_dist| 4.0、dt=0.1 上 1.2，见 ADR-0011）。
-// 7 档的中心仍是 0，相邻最小档 ±0.5 → 0.05 m/s²/步。
-#define NUM_JERK_LAT_ACTIONS 7
+// 9 档的中心仍是 0（index 4），最小档 ±0.25 → 0.025 m/s²/步（v6 用 7 档拿到 107/154、中位峰值 0.967 m，
+// 离 0.9 m 门限只差 0.07 m，所以继续加细一档）。
+#define NUM_JERK_LAT_ACTIONS 9
 static const float JERK_LONG[NUM_JERK_LONG_ACTIONS] = {-15.0f, -4.0f, 0.0f, 4.0f};
-static const float JERK_LAT[NUM_JERK_LAT_ACTIONS] = {-4.0f, -1.5f, -0.5f, 0.0f, 0.5f, 1.5f, 4.0f};
+static const float JERK_LAT[NUM_JERK_LAT_ACTIONS]
+    = {-4.0f, -1.5f, -0.75f, -0.25f, 0.0f, 0.25f, 0.75f, 1.5f, 4.0f};
 
 // Discrete action space, DYNAMICS_MODEL_CLASSIC
 #define NUM_ACCELERATION_ACTIONS 7

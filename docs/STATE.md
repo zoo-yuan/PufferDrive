@@ -51,7 +51,12 @@ As-of: 312f313e（代码）/ 2026-11-06 会话③
 | v6b | 同 v6，**2.7M 步**（LR 衰减拉长 3×） | 139/154 | 2.33 | 1.771 | 70 |
 | v7 | 同 v6 + `max_goal_spacing` 200→40（让首个 waypoint 进 6 s 窗口） | 149/154 | 2.33 | 1.381 | 84 |
 
-  记录件：`docs/measured/regression_retention_v{4,6}.json` + `.scratch/experiments_v{2a,3,4,5,6,6b,7}/regression_retention.json`；负结果与推理链在 `.scratch/experiments_v4/RATIONALE.md`。
+  **KPI 分母（ADR-0012 已裁决，2026-11-06）**：`spec/badcase_set_v1.yaml` —— genuine **70**（分母）、
+  marginal 34（单列）、artefact 50（剔除）、map_suspect 32（分母内 30，单列）。
+  按新分母重述已有权重：**v6 = 36/70**（中位 `lane_dist` 峰值 0.901 m）—— 全集口径的 107/154 里有一半是假 case/翻转窗口。
+  工具：`scripts/scene_badcase_set.py`（生成+`--check`）、`regression_retention.py --badcase-set`、
+  `scripts/kpi_select.py`（按 KPI 逐个 checkpoint 排序 + `--finalize` 出 `best_kpi.pt`）。
+  记录件：`docs/measured/regression_retention_v{4,6}.json`、`docs/measured/badcase_set_v1.json` + `.scratch/experiments_v{2a,3,4,5,6,6b,7}/regression_retention.json`；负结果与推理链在 `.scratch/experiments_v4/RATIONALE.md`。
 - 判据侧仍有效：录制司机 154/154 违规（**但峰值中位只有 1.13 m，离 0.9 m 门限仅 ~0.3 m 余量，可行性口径待重标**）、IDM 0/168（口径未动）。
 - 教训：`num_reward_coefs` 是观测向量的一部分（`context_dim = num_reward_coefs + goal_dim`），
   往系数表里加项等于改观测契约、让所有旧权重失效 —— 新 shaping 系数必须绕开这个数组。

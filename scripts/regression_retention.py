@@ -341,6 +341,10 @@ def main() -> int:
     parser.add_argument("--run-config", default=None,
                         help="该 checkpoint 所属训练轮的配置快照（.scratch/experiments_*/config.yaml）；"
                              "默认 experiments/config.yaml")
+    parser.add_argument("--badcase-set", default=None,
+                        help="spec/badcase_set_v1.yaml：按 ADR-0012 的分桶只评 KPI 分母（默认 genuine）")
+    parser.add_argument("--badcase-buckets", default="genuine",
+                        help="逗号分隔，可选 genuine,marginal（artefact 永不进入分母）")
     parser.add_argument("--output-json", default=None)
     parser.add_argument("--output-html", default=None)
     parser.add_argument("--check", action="store_true")
@@ -368,6 +372,37 @@ def main() -> int:
     scenes = scene_ids()
     scenes = [scene for scene in scenes
               if (scene_dir / f"{scene['scenario_id'].replace('#', '_')}.bin").exists()]
+    badcase_meta = None
+    if args.badcase_set:
+        import yaml as _yaml
+
+        badcase_path = Path(args.badcase_set)
+        if not badcase_path.is_absolute():
+            badcase_path = REPO_ROOT / badcase_path
+        document = _yaml.safe_load(badcase_path.read_text(encoding="utf-8"))
+        wanted = {b.strip() for b in args.badcase_buckets.split(",") if b.strip()}
+        if "artefact" in wanted:
+            print("ERROR: artefact 桶是假 bad case（ADR-0012），不能进 KPI 分母", file=sys.stderr)
+            return 1
+        buckets = {row["scenario_id"]: row for row in document["scenes"]}
+        unknown = wanted - {"genuine", "marginal"}
+        if unknown:
+            print(f"ERROR: 未知桶 {sorted(unknown)}", file=sys.stderr)
+            return 1
+        before = len(scenes)
+        scenes = [scene for scene in scenes
+                  if buckets.get(scene["scenario_id"], {}).get("bucket") in wanted]
+        badcase_meta = {
+            "set": str(badcase_path.relative_to(REPO_ROOT)),
+            "buckets": sorted(wanted),
+            "scenes_before": before,
+            "scenes_after": len(scenes),
+            "map_suspect": sum(1 for scene in scenes
+                               if buckets.get(scene["scenario_id"], {}).get("map_suspect")),
+            "counts": document["counts"],
+        }
+        print(f"[badcase] {badcase_meta['set']} · 桶 {sorted(wanted)} · "
+              f"{before} → {len(scenes)} 个场景（map_suspect {badcase_meta['map_suspect']}）", flush=True)
     if args.limit:
         scenes = scenes[: args.limit]
     if not scenes:
@@ -457,6 +492,8 @@ def main() -> int:
         "median_speed_after": statistics.median([row["after"].get("median_speed", 0.0) for row in rows]),
         "moving_scenes_after": sum(1 for row in rows if row["after"].get("median_speed", 0.0) > 1.0),
     }
+    if badcase_meta is not None:
+        summary["badcase_set"] = badcase_meta
     report = {"summary": summary, "rows": rows, "checkpoint": str(args.checkpoint)}
 
     OUTPUT_HTML.parent.mkdir(parents=True, exist_ok=True)
@@ -465,6 +502,11 @@ def main() -> int:
 
     print(f"[summary] 场景 {summary['scenes']} · 训练前违规 {violated_before} · 修复 {fixed} · "
           f"仍失败 {still} · 被改坏 {regressed} · 回归保留率 {summary['retention'] * 100:.0f}%")
+    if badcase_meta is not None:
+        print(f"[kpi] 分母={badcase_meta['set']}({'+'.join(badcase_meta['buckets'])}) · "
+              f"违规 {sum(1 for row in rows if row['after']['fired'])}/{summary['scenes']} · "
+              f"中位 lane_dist 峰值 {summary['median_peak_after']:.3f} m · "
+              f"中位车速 {summary['median_speed_after']:.2f} m/s")
     print(f"[report]  {OUTPUT_HTML}")
 
     failures = []

@@ -348,6 +348,9 @@ train:
   data_dir: experiments
   resume_state_path: null
   checkpoint_interval: 50
+  # true: keep models/model_*.pt from every checkpoint instead of deleting the previous one.
+  # Required for KPI-based checkpoint selection (the best epoch is not the last one).
+  keep_checkpoints: false
   # batch_size = num_workers * num_agents *  bptt_horizon
   batch_size: auto
   # Lower bound on the batch size in transitions. Null means no lower bound.

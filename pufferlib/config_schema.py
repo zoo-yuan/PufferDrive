@@ -453,6 +453,9 @@ class TrainingConfig:
     data_dir: str = _constrained_field(NONEMPTY_STRING_CONSTRAINT)
     resume_state_path: str | None = MISSING
     checkpoint_interval: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
+    # Keep every checkpoint instead of rotating to the latest one; needed when the
+    # deployment KPI is used to pick the final weights (the best epoch is not the last).
+    keep_checkpoints: bool = False
     batch_size: int | str = MISSING
     min_batch_size: int | None = _constrained_field(POSITIVE_INT_CONSTRAINT)
     minibatch_size: int = _constrained_field(POSITIVE_INT_CONSTRAINT)
