@@ -26,7 +26,7 @@ As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，
 - `docs/baselines.md` — **冻结基线清单**（checkpoint / sha256 / 数字 / 复现命令 / 失效条件）；`docs/partner-agents-explained.md` — 补对手机制科普；`docs/vtrace-explained.md` 与 `docs/ppo-training-walkthrough.md` — 训练实现参考。
 - `docs/vehicle_profile.md` — **车辆参数单一真值源**（3799 / P04-161X 原始字段 + 派生量 + 限幅映射 + 新车型模板），新增车型按 §6 复制，不另起文件。
 - `docs/integration/CONTEXT.md` — 集成术语表（PufferDrive Core / 语义外挂 / Scene / M1-M2 / E1a-E1b / Nova 部署契约 / ego-centric RFU）。
-- `docs/adr/0001-0011` — 架构裁决（状态见 Open rulings）。**外部锚点**：Nova 部署契约 19 输入/4 输出以 nova 仓 `数据规范V1.1.3_0911修正版.md` + nova ADR-0003/0004 为准（2026-10-30 生效）。
+- `docs/adr/0001-0012` — 架构裁决（状态见 Open rulings）。**外部锚点**：Nova 部署契约 19 输入/4 输出以 nova 仓 `数据规范V1.1.3_0911修正版.md` + nova ADR-0003/0004 为准（2026-10-30 生效）。
 
 **参考（有代际注记，不当现行事实）**
 - `docs/2026-09-03-self-play-*-survey.md`（owner 现行至 2026-09-28）/ `2026-09-04-*架构分析` / `2026-09-09-GigaFlow-vs-GigaPixel-*` / `2026-09-11-*加速Nova*方案`：PufferDrive 能力描述基于 **2.0**，均已加状态注记；09-11 方案**部分被取代**。
@@ -45,9 +45,11 @@ As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，
 | event_reward_v1 | dt 0.3 + 一次性越道罚 5.0 | 154/154 | 1.85 | 4.0 | 154 |
 | v2a | dt 0.3 · 关 randomization · 删一次性罚 · lane_center 0.04 | 154/154 | 4.54 | 4.0 | 154 |
 | v3 | dt 0.1 · lane_center 0.08 · **只跑 300k** | 141/154 | 1.15（爬行） | 1.953 | 70 |
-| v4 | dt 0.1 · lane_center 0.08 · velocity 0.05 · 900k | 153/154 | 2.34 | **1.445** | 70 |
+| v4 | dt 0.1 · lane_center 0.08 · velocity 0.05 · 900k | 153/154 | 2.34 | 1.445 | 70 |
+| v5 | 同 v4，**2.7M 步**（3× 预算） | 139/154 | 2.34 | 1.745 | 70 |
+| **v6** | 同 v4 + **横向 jerk 3→7 档**，900k | **107/154** | 2.09 | **0.967** | 70 |
 
-  记录件：`docs/measured/regression_retention_v4.json`（v4）+ `.scratch/experiments_v{2a,3,4}/regression_retention.json`；负结果与推理链在 `.scratch/experiments_v4/RATIONALE.md`。
+  记录件：`docs/measured/regression_retention_v{4,6}.json` + `.scratch/experiments_v{2a,3,4,5,6,6b}/regression_retention.json`；负结果与推理链在 `.scratch/experiments_v4/RATIONALE.md`。
 - 判据侧仍有效：录制司机 154/154 违规（**但峰值中位只有 1.13 m，离 0.9 m 门限仅 ~0.3 m 余量，可行性口径待重标**）、IDM 0/168（口径未动）。
 - 教训：`num_reward_coefs` 是观测向量的一部分（`context_dim = num_reward_coefs + goal_dim`），
   往系数表里加项等于改观测契约、让所有旧权重失效 —— 新 shaping 系数必须绕开这个数组。
@@ -56,9 +58,9 @@ As-of: 2368eaf5（代码）/ 2026-11-06 会话③（scripts+docs 同日更新，
 
 ## Next（下一步）
 
-- **P0（当前焦点）：把策略从「median peak 1.445 m」推进到「全程 < 0.9 m」**。会话③把奖励与 dt 两个结构性阻塞清掉了（ADR-0011），剩下的问题很具体：v4（dt 0.1、lane_center 0.08、velocity 0.05、900k）中位 `lane_dist` 峰值 **1.445 m**、中位车速 2.34 m/s，但 153/154 仍越道；v3 只跑 300k 时违规 141/154 却在爬行（1.15 m/s）。`episode_length` 从 16/60 升到 43–56/60 但**物理时长没变**（≈4.4–4.8 s）——说明瓶颈已不是"活多久"而是**横向精度**。下一步候选（按性价比）：
-  ① 训练量：v4 只 900k 步（dt 0.1 下等于 1/3 的仿真秒），先跑到 2.7M 步看 `num_goals_reached` 能否跳出 0（它一直是 0，意味着正向通道只有 velocity 一项在起作用）；
-  ② 横向动作粒度：离散 3 档 jerk {-4,0,+4} 在 dt 0.1 下仍是 ±0.4 m/s²/步，做 <0.9 m 的保持未必够——候选是加细横向档（如 {-4,-1.5,0,1.5,4}）或换连续动作头；改档位等于改动作表，旧权重全废，须新开一轮；
+- **P0（当前焦点）：把策略从「median peak 0.967 m」推进到「全程 < 0.9 m」**（v6 之后）。会话③把奖励与 dt 两个结构性阻塞清掉了（ADR-0011），剩下的问题很具体：v4（dt 0.1、lane_center 0.08、velocity 0.05、900k）中位 `lane_dist` 峰值 **1.445 m**、中位车速 2.34 m/s，但 153/154 仍越道；v3 只跑 300k 时违规 141/154 却在爬行（1.15 m/s）。`episode_length` 从 16/60 升到 43–56/60 但**物理时长没变**（≈4.4–4.8 s）——说明瓶颈已不是"活多久"而是**横向精度**。下一步候选（按性价比）：
+  ① **训练量（已测，否）**：v4 → v5 同配置跑到 **2.7M 步**（3× 预算）只从 153/154 降到 139/154，`num_goals_reached` **始终为 0**。目标一直是不可达的（goal 放置/半径/route 几何尚未查清），正向通道实际只有 velocity 一项 —— 加预算不是杠杆。
+  ② **横向动作粒度（已测，是主因）**：`JERK_LAT` 3 档 {-4,0,+4} → **7 档 {-4,-1.5,-0.5,0,0.5,1.5,4}**（28 类动作，`pufferlib/ocean/drive/constants.h`），同配置 900k 步：**153/154 → 107/154**，中位 `lane_dist` 峰值 **1.445 → 0.967 m**（录制司机 1.129 m）。下一步：v6 跑 2.7M 看能否继续下探（`.scratch/experiments_v6b`）。旧 checkpoint 全部不可加载（12→28 类），roundC 已彻底作废。
   ③ **判据重标（已测，降级为阻塞项）**：`scripts/lane_offset_calibration.py` 实测 154 个场景的参考零点 —— 每场景中位有符号 `lane_dist` 的绝对值中位 **0.804 m**（p90 0.867，袋内极差 <0.53），去偏后峰值 <0.3 m 的场景 **50/154**（假 bad case：它们的"违规"只是基准线坐在 0.9 m 附近），车道关联中途变号 **82/154**（如 3139#1790748302138：+0.98 → -0.29 → 跳回 +0.98）。去偏口径下参考司机仍有 94/154 超过 0.9 m（真实越道）。**继续训练前按 ADR-0012 改判据并重挖 bad case**，否则 KPI 分母含 50 个假 case、82 个地图记账窗口。
   ④ 课程学习（先直道后弯道）仅在 ①②③ 都不动时再上。
   开训前必须先过四道尺度门：`python scripts/reward_scale_report.py --config <data_dir>/config.yaml --check` + `pytest tests/unit_tests/test_reward_scale_contract.py`（`live_coefs` / `lane_signal` / `event_dominance` / `positive_channel`）。验收门不变（ADR-0010 + 中位车速 gate + 参考 154/154），达标才重冻基线。
