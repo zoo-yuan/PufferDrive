@@ -6,9 +6,13 @@
 - 独立 env 字段（不进 reward_coefs 观测契约）；
 - 系数 0（默认）= 完全关闭。
 
-验证手段：必须用 **policy 控制器**驱动（roundC 在修好的 harness 里 150/154 违规，
-必然触发）。不能用 replay 控制器：replay 贴 log 位姿、不积分动力学，engine 侧
-`agent->sim_speed` 恒 0（M7-3 已知），速度 guard 永远不满足 —— 那不是本奖励的 bug。
+验证手段：必须用 **policy 控制器**驱动。不能用 replay 控制器：replay 贴 log 位姿、
+不积分动力学，engine 侧 `agent->sim_speed` 恒 0（M7-3 已知），速度 guard 永远不满足
+—— 那不是本奖励的 bug。
+
+驱动者用**脚本策略**（固定全加速 + 满左舵）而不是真 checkpoint：动作表从 12 类改成
+28 类之后（ADR-0011）旧的 12 类权重已不可加载，而这条测试要的只是"一集里必然越道"，
+不需要任何真实策略行为。
 """
 
 from __future__ import annotations
@@ -25,13 +29,24 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 SCENE_DIR = REPO_ROOT / ".scratch" / "crossbag_scenes"
-CHECKPOINT = REPO_ROOT / "checkpoints" / "lane_departure_roundC.pt"
 STEPS = 60
 
 pytestmark = pytest.mark.skipif(
-    not list(SCENE_DIR.glob("*.bin"))[:1] or not CHECKPOINT.exists(),
-    reason="no crossbag scene bins or roundC checkpoint on this machine",
+    not list(SCENE_DIR.glob("*.bin"))[:1],
+    reason="no crossbag scene bins on this machine",
 )
+
+
+class _ScriptedDepartingPolicy:
+    """固定"全加速 + 满左舵"：几秒内必然把车开出车道，用来触发事件罚。"""
+
+    def forward_eval(self, observations, state=None):
+        batch = observations.shape[0]
+        return torch.zeros(batch, 3), torch.zeros(batch, 1)
+
+    def discrete_probs_to_continuous_mean(self, probs):
+        # 满加速（long 末档）+ 满左舵（lat 首档）
+        return torch.stack([torch.ones(probs.shape[0]), -torch.ones(probs.shape[0])], dim=-1)
 
 
 def _policy_episode_return(policy, scene_path: Path, device, reward_lane_departure: float) -> float:
@@ -55,12 +70,9 @@ def _policy_episode_return(policy, scene_path: Path, device, reward_lane_departu
 
 
 def test_event_penalty_is_once_per_episode_and_linear():
-    from regression_retention import build_env, build_policy, load_weights
-
     scene = sorted(SCENE_DIR.glob("*.bin"))[0]
     device = torch.device("cpu")
-    policy = build_policy(build_env(scene), device)
-    load_weights(policy, CHECKPOINT, device)
+    policy = _ScriptedDepartingPolicy()
 
     return_zero = _policy_episode_return(policy, scene, device, 0.0)
     return_small = _policy_episode_return(policy, scene, device, 2.5)
@@ -71,4 +83,4 @@ def test_event_penalty_is_once_per_episode_and_linear():
     assert delta_large == pytest.approx(2 * delta_small, abs=1e-4), (
         "event must be one-shot: doubling the coefficient must double the penalty"
     )
-    assert delta_small > 0.0, "roundC violates this scene; the event must have fired"
+    assert delta_small > 0.0, "the scripted policy drives off the lane; the event must have fired"
