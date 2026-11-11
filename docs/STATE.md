@@ -62,6 +62,13 @@ As-of: c9653293（代码）/ 2026-11-06 会话③
   策略在那儿以 5.4 m/s 冲出去）→ "分母上完美、分母外乱开"；② 全集仅 58/154。
   同一轮的 9 个 checkpoint 违规数在 **0 / 52 / 59** 之间跳（epoch 200 与 600 是 0，其余 59）——
   再次证明**必须按 KPI 选点**，训练曲线完全看不出差别。记录件 `docs/measured/kpi_selection_v8.json`。
+
+  **为什么还不能冻结（2026-11-06 会话③末，已量到根因）**：GIF 渲染（`scripts/rollout_gif.py` →
+  `docs/html/best_model_rollout.gif`）显示三桶行为完全不同 —— genuine（曲率中位 **0.038 /m**，弯道）
+  中位车速 **2.13 m/s**、峰值 0.70 m；artefact（曲率 **0.004 /m**，直道）中位 **5.38 m/s**（峰值瞬间 9.4 m/s）、
+  `lane_dist` 撞上限 4.0。**直道加速 + 横向代价与速度无关 = 快的时候越道几乎免费。**
+  处置：`scripts/kpi_select.py` 已把全集 clamp 进排序（tie-break）+ `--require-health` 硬门；
+  正在跑 **v9 = v8 + `env.max_speed_mps=8.0`**（不改奖励，只限速，检验"速度→漂移"这条因果）。
   工具：`scripts/scene_badcase_set.py`（生成+`--check`）、`regression_retention.py --badcase-set`、
   `scripts/kpi_select.py`（按 KPI 逐个 checkpoint 排序 + `--finalize` 出 `best_kpi.pt`）。
   记录件：`docs/measured/regression_retention_v{4,6}.json`、`docs/measured/badcase_set_v1.json` + `.scratch/experiments_v{2a,3,4,5,6,6b,7}/regression_retention.json`；负结果与推理链在 `.scratch/experiments_v4/RATIONALE.md`。

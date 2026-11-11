@@ -83,9 +83,16 @@ def evaluate(policy, scenes, scene_dir, metric_names, metric_index, device, peak
 
 
 def rank_key(result: dict, min_speed: float) -> tuple:
-    """字典序越小越好；不动车直接沉底。"""
+    """字典序越小越好。
+
+    顺序：不动车 → 分母违规数 → **全集 clamp（健康指标，同分时才算）** → 中位峰值 → 车速。
+    健康指标只做 tie-break 与硬门（`--require-health`），不能压过违规数 —— 否则会出现
+    "违规 59 但 clamp 少"压倒"违规 0" 的荒谬排序。但它必须参与，否则选点就成了
+    在分母上过拟合的通道（v8 实测：0 违规的权重在全集 50/154 个场景撞上限）。
+    """
     parked = result["median_speed_mps"] < min_speed
-    return (parked, result["violations"], result["median_peak_m"], -result["median_speed_mps"])
+    clamp = result.get("health_clamp_scenes", 0)
+    return (parked, result["violations"], clamp, result["median_peak_m"], -result["median_speed_mps"])
 
 
 def main() -> int:
@@ -99,6 +106,8 @@ def main() -> int:
                         help="车动门：中位车速低于它直接判不合格（默认 2.0；录制司机 3.09、IDM 3.0）")
     parser.add_argument("--clamp-frac-max", type=float, default=0.2,
                         help="全部场景里 lane_dist 撞上限（peak ≥ 3.99）的比例上限，超了打 WARN")
+    parser.add_argument("--require-health", action="store_true",
+                        help="硬门：把 clamp 比例超阈值的 checkpoint 直接从候选里剔除")
     parser.add_argument("--health-scenes", default=None,
                         help="健康指标用的场景集（默认: 全部有 bin 的场景，不受分母限制）")
     parser.add_argument("--limit", type=int, default=0)
@@ -174,14 +183,25 @@ def main() -> int:
         print("ERROR: 没有可评测的 checkpoint（全部形状不匹配？）", file=sys.stderr)
         return 1
     history.sort(key=lambda row: rank_key(row, args.min_speed))
-    best = history[0]
+    viable = history
+    if args.require_health:
+        viable = [row for row in history
+                  if row.get("health_scenes")
+                  and row.get("health_clamp_scenes", 0) / max(1, row["health_scenes"]) <= args.clamp_frac_max]
+        if not viable:
+            print(f"ERROR: 没有 checkpoint 满足健康门（clamp ≤ {args.clamp_frac_max * 100:.0f}%）", file=sys.stderr)
+            return 1
+        print(f"[health] 硬门生效：{len(viable)}/{len(history)} 个 checkpoint 保留", flush=True)
+    best = viable[0]
     report = {
         "run_dir": str(run_dir),
+        "require_health": args.require_health,
+        "clamp_frac_max": args.clamp_frac_max,
         "run_config": str(run_config),
         "badcase_set": str(Path(args.badcase_set)),
         "denominator_scenes": len(scenes),
         "min_speed_mps": args.min_speed,
-        "rank_rule": "parked_first, violations, median_peak_m, -median_speed_mps",
+        "rank_rule": "parked_first, violations, health_clamp_scenes, median_peak_m, -median_speed_mps",
         "best": best,
         "history": history,
     }
