@@ -126,3 +126,13 @@ def test_lane_center_penalty_matches_engine_formula():
     report = analyze({**BASE_ENV, "reward_randomization": False, "reward_lane_center": 0.04})
     expected = -0.04 * 0.3 * (1.5 - 0.05 / math.exp(1.5 - 0.5))
     assert report["lane_center_per_step"] == expected
+
+
+def test_heading_gate_has_a_floor_so_leaving_the_lane_is_never_free():
+    """原来的 Rl-center 是二值航向门 `cos_theta > 0.5`：航向偏出 60° 后横向惩罚直接变 0，
+    于是"加速→偏航→越道"反而免罚（2026-11-06 实测：直道开到 8 m/s，lane_dist 撞 4.0 上限后
+    lane_center 项恒 ~0）。引擎现在用带下限的连续门，这条测试钉住"偏航时单价必须仍为负"。
+    """
+    report = analyze({**BASE_ENV, "reward_randomization": False, "reward_lane_center": 0.08})
+    assert report["lane_center_heading_gate_floor"] > 0.0
+    assert report["misaligned_penalty_per_step"] < 0.0, "偏航+撞上限时仍必须按偏移计费"

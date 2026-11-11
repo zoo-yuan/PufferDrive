@@ -56,6 +56,8 @@ SCALE_RATIO_MIN = 0.3
 POSITIVE_RATIO_MIN = 0.25
 # 报告用：wrong-way 场景的车速
 WRONG_WAY_SPEED_MPS = 10.0
+# lane_dist 的归一化上限：贴住它说明车道关联已经丢失
+LANE_DIST_SATURATION_M = 4.0
 # lane_center 的 exp 衰减项系数（drive.h: `0.05f / expf(adjusted_dist - 0.5f)`）
 EXP_DECAY_SCALE = 0.05
 EXP_DECAY_SHIFT = 0.5
@@ -91,6 +93,7 @@ def analyze(env_config: dict) -> dict:
     randomization = bool(env_config.get("reward_randomization", False))
 
     threshold_m = read_threshold_m("LANE_DEPARTURE_EVENT_THRESHOLD_M")
+    heading_gate_floor = read_threshold_m("LANE_CENTER_HEADING_GATE_FLOOR")
     lateral_m = threshold_m + LANE_OVERSHOOT_M
 
     lane_center_coef = float(env_config.get("reward_lane_center", 0.0))
@@ -98,6 +101,10 @@ def analyze(env_config: dict) -> dict:
     velocity_coef = float(env_config.get("reward_velocity", 0.0))
 
     lane_center_total = lane_center_penalty_per_step(lane_center_coef, lateral_m, dt) * steps
+    # 航向偏出/车道关联丢失时的单价：航向门必须带下限，否则"开出去"反而免罚
+    misaligned_decay = EXP_DECAY_SCALE / math.exp(LANE_DIST_SATURATION_M - EXP_DECAY_SHIFT)
+    misaligned_penalty_per_step = -lane_center_coef * dt * (
+        max(0.0, heading_gate_floor) * LANE_DIST_SATURATION_M - misaligned_decay)
     # velocity_progress = max(cos_theta, 0) ∈ [0, 1]，整集上限
     velocity_total = velocity_coef * dt * 1.0 * steps
     # Rl-align 的对齐分量（against 与 vel_align 项在对齐时都是 0）
@@ -140,6 +147,12 @@ def analyze(env_config: dict) -> dict:
             f"{dense_lane_total:.4f} 的 {event_ratio:.0f} 倍（上限 {EVENT_RATIO_MAX:.0f}）"
             "—— 付一次钱之后越道免费，优势函数里被常数吃掉"
         )
+    if misaligned_penalty_per_step >= 0.0:
+        failures.append(
+            "off_lane_free: 航向偏出（cos≈0）且 lane_dist 撞上限时，lane_center 每步代价 "
+            f"{misaligned_penalty_per_step:+.5f} ≥ 0 —— 越道的惩罚随姿态消失，"
+            "策略会学会\"加速→偏航→免费越道\"（2026-11-06 实测形态）"
+        )
     if positive_ratio < POSITIVE_RATIO_MIN:
         failures.append(
             f"positive_channel: 一集可赚的正向累积只有 {positive_total:.4f}，是越道累积量 "
@@ -155,6 +168,8 @@ def analyze(env_config: dict) -> dict:
         "probe_lateral_m": lateral_m,
         "lane_center_per_step": lane_center_penalty_per_step(lane_center_coef, lateral_m, dt),
         "lane_center_total": lane_center_total,
+        "lane_center_heading_gate_floor": heading_gate_floor,
+        "misaligned_penalty_per_step": misaligned_penalty_per_step,
         "lane_align_aligned_total": lane_align_aligned_total,
         "lane_align_wrong_way_total": lane_align_wrong_way_total,
         "velocity_total": velocity_total,
@@ -180,6 +195,7 @@ def render(report: dict) -> str:
         f"（门限 {report['lane_departure_threshold_m']:.1f} m 之上 0.6 m）",
         row("lane_center / 步", f"{report['lane_center_per_step']:+.5f}"),
         row("lane_center / 集（密集）", f"{report['lane_center_total']:+.4f}"),
+        row("lane_center 偏航单价（cos≈0）", f"{report['misaligned_penalty_per_step']:+.5f}"),
         row("lane_align 对齐 / 集", f"{report['lane_align_aligned_total']:+.4f}"),
         row("lane_align 逆行 / 集", f"{report['lane_align_wrong_way_total']:+.4f}"),
         row("velocity / 集（上限）", f"{report['velocity_total']:+.4f}"),

@@ -333,6 +333,11 @@ static const int ROAD_OFFSETS[25][2]
 // 事件级越道奖励的谓词门限，与 spec/constraints_v0.yaml lane_departure 同源
 // （abs_gt(lane_dist, 0.9) + guard sim_speed > 0.5）；改一侧必须同步另一侧。
 // 同样**不进** reward_coefs 数组（独立 env 字段，见上）。
+// Rl-center 的航向门下限。原来是二值门 `cos_theta > 0.5`：一旦航向偏出 60°，
+// 横向偏移的惩罚直接变成 0 —— 于是"脱离车道"反而让惩罚消失（实测：策略在直道加速到 8 m/s、
+// 航向偏出后 lane_dist 撞 4.0 上限，此后 lane_center 项恒 ~0，越道免费）。
+// 改成有下限的连续门：至少按 half 权重计费，惩罚随偏移单调。
+#define LANE_CENTER_HEADING_GATE_FLOOR 0.5f
 #define LANE_DEPARTURE_EVENT_THRESHOLD_M 0.9f
 #define LANE_DEPARTURE_EVENT_MIN_SPEED_MPS 0.5f
 

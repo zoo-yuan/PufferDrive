@@ -4699,8 +4699,10 @@ static void compute_rewards(Drive *env, int i) {
     float lane_center_distance = agent->metrics_array[LANE_DIST_IDX];
     float adjusted_dist = fabsf(lane_center_distance - agent->reward_coefs[REWARD_COEF_CENTER_BIAS]);
     float exp_decay = 0.05f / expf(adjusted_dist - 0.5f);
-    float lane_center_reward
-        = -agent->reward_coefs[REWARD_COEF_LANE_CENTER] * env->dt * ((cos_theta > 0.5f) * adjusted_dist - exp_decay);
+    // 航向门带下限：原来的二值门让"开出去" gratis（见 constants.h LANE_CENTER_HEADING_GATE_FLOOR）
+    float lane_center_heading_gate = fmaxf(cos_theta, LANE_CENTER_HEADING_GATE_FLOOR);
+    float lane_center_reward = -agent->reward_coefs[REWARD_COEF_LANE_CENTER] * env->dt
+        * (lane_center_heading_gate * adjusted_dist - exp_decay);
     env->rewards[i] += lane_center_reward;
     agent_log->lane_center_rate += adjusted_dist < 0.5f ? 1.0f : 0.0f;
     agent_log->reward_lane_center += lane_center_reward;
