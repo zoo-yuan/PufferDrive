@@ -67,8 +67,17 @@ As-of: c9653293（代码）/ 2026-11-06 会话③
   `docs/html/best_model_rollout.gif`）显示三桶行为完全不同 —— genuine（曲率中位 **0.038 /m**，弯道）
   中位车速 **2.13 m/s**、峰值 0.70 m；artefact（曲率 **0.004 /m**，直道）中位 **5.38 m/s**（峰值瞬间 9.4 m/s）、
   `lane_dist` 撞上限 4.0。**直道加速 + 横向代价与速度无关 = 快的时候越道几乎免费。**
-  处置：`scripts/kpi_select.py` 已把全集 clamp 进排序（tie-break）+ `--require-health` 硬门；
-  正在跑 **v9 = v8 + `env.max_speed_mps=8.0`**（不改奖励，只限速，检验"速度→漂移"这条因果）。
+  处置：`scripts/kpi_select.py` 已把全集 clamp 进排序（tie-break）+ `--require-health` 硬门。
+  **两条因果假设已实测否掉**：v9（`max_speed_mps=8.0` 限速）→ clamp 反而 50→70；
+  v10（`lane_center` 航向门从二值改成带下限连续门 —— 修掉"偏航后越道免罚"的悬崖）→ clamp 仍 70。
+  两轮的最优都落在**最早保存的 epoch 200**（v9 0/70 @0.487 m、v10 0/70 @**0.448 m**、2.25 m/s），
+  之后单调变差 —— **奖励的最优点 ≠ KPI 的最优点，训练在把策略往反方向推**。
+
+  **当前最好（v10-best，`docs/html/best_model_rollout_v10.gif`）**：genuine **0/70**、中位 `lane_dist` 峰值
+  **0.448 m**、中位车速 2.25 m/s（样本场景里稳定在车道内 5.14 m/s）。
+  **仍未解决**：artefact 桶（50 个直道场景）在 ~5.7 m/s 下稳态漂移、`lane_dist` 撞 4.0（全集 clamp 70/154）。
+  下一轮诊断方向：那批场景的路径曲率只有 0.004 /m 却没被"直道就该保持"学到 —— 查 ① 该桶 lane 端点/route 连续性
+  ② 策略是否学出"保持一个小转角"的稳态误差（trace 里 steer 恒 -0.05 rad）③ 把 `lane_center` 改成速度加权。
   工具：`scripts/scene_badcase_set.py`（生成+`--check`）、`regression_retention.py --badcase-set`、
   `scripts/kpi_select.py`（按 KPI 逐个 checkpoint 排序 + `--finalize` 出 `best_kpi.pt`）。
   记录件：`docs/measured/regression_retention_v{4,6}.json`、`docs/measured/badcase_set_v1.json` + `.scratch/experiments_v{2a,3,4,5,6,6b,7}/regression_retention.json`；负结果与推理链在 `.scratch/experiments_v4/RATIONALE.md`。
